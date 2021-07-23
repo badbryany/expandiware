@@ -4,12 +4,33 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'dart:isolate';
+import 'package:flutter_isolate/flutter_isolate.dart';
+import 'package:isolate_handler/isolate_handler.dart';
+
 import 'pages/vplan/VPlan.dart';
 import 'pages/teacherVPlan/TeacherVPlan.dart';
 import 'pages/dashboard/Dashboard.dart';
 
 void main() {
+  // spawning new isolate to load VPlan offlinedata in the background
+  /*final IsolateHandler isolates = new IsolateHandler();
+  isolates.spawn(
+    loadOfflineData,
+    name: 'offlineData',
+  );
+  print('spawned a new isolate');*/
+
+  /*FlutterIsolate.spawn(
+    loadOfflineData,
+    "message",
+  );*/
+
   runApp(MyApp());
+}
+
+void loadOfflineData(foo) {
+  print('loadOfflineData\nfoo -> $foo');
 }
 
 class MyApp extends StatelessWidget {

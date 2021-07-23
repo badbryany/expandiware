@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -69,20 +71,23 @@ class VPlanAPI {
     vplanPassword = prefs.getString("vplanPassword")!;
   }
 
-  String? searchForOfflineData(String? offlineVPData, DateTime vpDate) {
-    if (offlineVPData == null) {
-      return jsonEncode({'message': 'set', 'value': '[]'});
+  Future<bool> searchForOfflineData(DateTime vpDate) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var offlineVPData = prefs.getString('offlineVPData');
+
+    if (offlineVPData == null || offlineVPData == 'null') {
+      return false;
     } else {
-      var data = jsonDecode(offlineVPData);
-      for (int i = 0; i < data.length; i++) {
-        if (compareDate(vpDate, data[i]['date'])) {
-          print('used offline data');
-          return jsonEncode({
-            'date': data[i]['date'],
-            'data': data[i]['data'],
-          });
+      List<dynamic> jsonData = jsonDecode(offlineVPData);
+
+      for (int i = 0; i < jsonData.length; i++) {
+        if (compareDate(vpDate.subtract(Duration(days: 1)),
+            jsonData[i]['data']['Kopf']['zeitstempel'])) {
+          //print('we have an offline backup!');
+          return true;
         }
       }
+      return false;
     }
   }
 
@@ -90,7 +95,22 @@ class VPlanAPI {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<dynamic> data = [];
 
-    //print(searchForOfflineData(prefs.getString('offlineVPData'), vpDate));
+    bool offlinePlan = await searchForOfflineData(vpDate);
+
+    if (offlinePlan) {
+      data = jsonDecode(prefs.getString('offlineVPData')!);
+      for (int i = 0; i < data.length; i++) {
+        if (compareDate(vpDate.subtract(Duration(days: 1)),
+            data[i]['data']['Kopf']['zeitstempel'])) {
+          //print('we have an offline backup!');
+          print('used offline data');
+          return {
+            'date': data[i]['date'],
+            'data': data[i]['data'],
+          };
+        }
+      }
+    }
 
     Xml2Json xml2json = Xml2Json();
     await login();
@@ -107,7 +127,35 @@ class VPlanAPI {
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
         });
-        prefs.setString('offlineVPData', jsonEncode(data));
+
+        //-------------------------------------
+        String? stringData = prefs.getString('offlineVPData');
+        if (stringData == null || stringData == 'null') {
+          stringData = '[]';
+        }
+
+        List<dynamic> jsonData = jsonDecode(stringData);
+        // check if vplan already exist
+        bool add = true;
+        for (var i = 0; i < jsonData.length; i++) {
+          if (compareDate(vpDate.subtract(Duration(days: 1)),
+              jsonData[i]['data']['Kopf']['zeitstempel'])) {
+            add = false;
+          }
+        }
+
+        if (add) {
+          jsonData.add(data.last);
+          print('added');
+        } else {
+          print('plan already exist...');
+        }
+
+        stringData = jsonEncode(jsonData);
+
+        prefs.setString('offlineVPData', stringData);
+        //-------------------------------------
+
         return data.last;
       });
     } catch (identifier) {
@@ -126,14 +174,15 @@ class VPlanAPI {
     return pureVPlan['ZusatzInfo'];
   }
 
-  static bool compareDate(DateTime datetime, String date2) {
+  bool compareDate(DateTime datetime, String date2) {
     List<String> dateString = date2.split('.');
     // dateString[0] => day
     // dateString[1] => month
     // dateString[2] => year
-    if (dateString[0] == datetime.day.toString()) {
-      if (dateString[1] == datetime.month.toString()) {
-        if (dateString[2] == datetime.year.toString()) {
+    String year = dateString[2].split(',')[0];
+    if (int.parse(dateString[0]) == datetime.day) {
+      if (int.parse(dateString[1]) == datetime.month) {
+        if (int.parse(year) == datetime.year) {
           return true;
         }
       }
