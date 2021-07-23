@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+
+import 'package:animations/animations.dart';
+
+import './FindRoom.dart';
+import '../../models/ListItem.dart';
+
+class Dashboard extends StatelessWidget {
+  List<dynamic> elements = [
+    {
+      'icon': Icon(Icons.place_rounded),
+      'title': 'Leeren Raum finden',
+      'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
+      'link': FindRoom(),
+    },
+    {
+      'icon': Icon(Icons.grade_rounded),
+      'title': 'Noten eintragen',
+      'subtitle': 'Halte einen wunderbaren Überblick über deine Noten!',
+      'link': SizedBox(),
+    },
+    {
+      'icon': Icon(Icons.analytics_rounded),
+      'title': 'Analysen vom Stundenplan',
+      'subtitle': 'Erweiterte Analysen des Unterrichtes an der Schule',
+      'link': SizedBox(),
+    },
+    {
+      'icon': Icon(Icons.pedal_bike_rounded),
+      'title': 'Stadtradeln',
+      'subtitle': 'Nimm an dem Klima-Wettbewerb Teil!',
+      'link': SizedBox(),
+    },
+    {
+      'icon': Icon(Icons.settings_rounded),
+      'title': 'Einstellungen',
+      'subtitle': 'weitere Einstellungen zur besseren Nutzung der App',
+      'link': SizedBox(),
+    },
+  ];
+
+  double margin = 8;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      alignment: Alignment.center,
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          ...elements.map(
+            (e) => Center(
+              child: OpenContainer(
+                closedColor: Theme.of(context).scaffoldBackgroundColor,
+                openColor: Theme.of(context).scaffoldBackgroundColor,
+                closedBuilder: (context, openContainer) => ListItem(
+                  padding: 20,
+                  leading: e['icon'],
+                  title: Container(
+                    margin: EdgeInsets.only(top: margin, bottom: margin),
+                    child: Text(
+                      e['title'],
+                      style: TextStyle(
+                        color: Theme.of(context).accentColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  subtitle: Container(
+                    margin: EdgeInsets.only(top: margin, bottom: margin),
+                    child: Text(e['subtitle']),
+                  ),
+                  onClick: openContainer,
+                  actionButton: IconButton(
+                    icon: Icon(
+                      Icons.arrow_forward_ios_rounded,
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+                openBuilder: (context, closeBuilder) => Center(
+                  child: e['link'],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

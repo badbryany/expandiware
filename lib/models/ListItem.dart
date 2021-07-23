@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+
+class ListItem extends StatelessWidget {
+  const ListItem({
+    Key? key,
+    required this.title,
+    this.subtitle,
+    this.actionButton,
+    this.leading,
+    this.padding,
+    required this.onClick,
+    this.color,
+  }) : super(key: key);
+
+  final Widget title;
+  final Widget? subtitle;
+  final IconButton? actionButton;
+  final Widget? leading;
+  final Function onClick;
+  final Color? color;
+  final double? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child: InkWell(
+        onTap: () => this.onClick(),
+        child: Container(
+          padding: EdgeInsets.all(padding == null ? 8 : padding!),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: this.color == null
+                ? Theme.of(context).backgroundColor
+                : this.color,
+          ),
+          child: ListTile(
+            leading: this.leading,
+            title: this.title,
+            subtitle: this.subtitle != null ? this.subtitle : null,
+            trailing: this.actionButton,
+          ),
+        ),
+      ),
+    );
+  }
+}
