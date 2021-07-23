@@ -139,7 +139,7 @@ class _VPlanState extends State<VPlan> {
                               sizeFactor: animation,
                               child: ListItem(
                                 onClick: () {},
-                                title: Text('foo'),
+                                title: Text(classes[index]),
                               ),
                             ),
                           );
