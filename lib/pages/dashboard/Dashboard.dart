@@ -6,43 +6,57 @@ import './FindRoom.dart';
 import '../../models/ListItem.dart';
 
 class Dashboard extends StatelessWidget {
-  List<dynamic> elements = [
-    {
-      'icon': Icon(Icons.place_rounded),
-      'title': 'Leeren Raum finden',
-      'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
-      'link': FindRoom(),
-    },
-    {
-      'icon': Icon(Icons.grade_rounded),
-      'title': 'Noten eintragen',
-      'subtitle': 'Halte einen wunderbaren Überblick über deine Noten!',
-      'link': SizedBox(),
-    },
-    {
-      'icon': Icon(Icons.analytics_rounded),
-      'title': 'Analysen vom Stundenplan',
-      'subtitle': 'Erweiterte Analysen des Unterrichtes an der Schule',
-      'link': SizedBox(),
-    },
-    {
-      'icon': Icon(Icons.pedal_bike_rounded),
-      'title': 'Stadtradeln',
-      'subtitle': 'Nimm an dem Klima-Wettbewerb Teil!',
-      'link': SizedBox(),
-    },
-    {
-      'icon': Icon(Icons.settings_rounded),
-      'title': 'Einstellungen',
-      'subtitle': 'weitere Einstellungen zur besseren Nutzung der App',
-      'link': SizedBox(),
-    },
-  ];
-
   double margin = 8;
 
   @override
   Widget build(BuildContext context) {
+    List<dynamic> elements = [
+      {
+        'icon': Icon(
+          Icons.place_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Leeren Raum finden',
+        'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
+        'link': FindRoom(),
+      },
+      {
+        'icon': Icon(
+          Icons.grade_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Noten eintragen',
+        'subtitle': 'Halte einen wunderbaren Überblick über deine Noten!',
+        'link': SizedBox(),
+      },
+      {
+        'icon': Icon(
+          Icons.analytics_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Analysen vom Stundenplan',
+        'subtitle': 'Erweiterte Analysen des Unterrichtes an der Schule',
+        'link': SizedBox(),
+      },
+      {
+        'icon': Icon(
+          Icons.pedal_bike_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Stadtradeln',
+        'subtitle': 'Nimm an dem Klima-Wettbewerb Teil!',
+        'link': SizedBox(),
+      },
+      {
+        'icon': Icon(
+          Icons.settings_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Einstellungen',
+        'subtitle': 'weitere Einstellungen zur besseren Nutzung der App',
+        'link': SizedBox(),
+      },
+    ];
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       alignment: Alignment.center,
@@ -75,8 +89,9 @@ class Dashboard extends StatelessWidget {
                   actionButton: IconButton(
                     icon: Icon(
                       Icons.arrow_forward_ios_rounded,
+                      color: Theme.of(context).focusColor,
                     ),
-                    onPressed: () {},
+                    onPressed: () => openContainer(),
                   ),
                 ),
                 openBuilder: (context, closeBuilder) => Center(

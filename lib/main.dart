@@ -12,10 +12,6 @@ void main() {
   runApp(MyApp());
 }
 
-void loadOfflineData(foo) {
-  print('loadOfflineData\nfoo -> $foo');
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -27,22 +23,22 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         fontFamily: 'Poppins',
         brightness: Brightness.dark,
-        accentColor: Color(0xffC1DEBA),
-        primaryColor: Color(0xffE7C4B1),
-        indicatorColor: Color(0xffD4CBC5),
+        accentColor: Color(0xff06b36e), //Color(0xffC1DEBA),
+        primaryColor: Color(0xff0884eb),
+        indicatorColor: Color(0xffcf5a4b),
         focusColor: Colors.white,
-        backgroundColor: Color(0xff161B28),
-        scaffoldBackgroundColor: Color(0xff000000),
+        backgroundColor: Color(0xff1d1e23), //Color(0xff161B28),
+        scaffoldBackgroundColor: Color(0xff010001),
       ),
       theme: ThemeData(
         fontFamily: 'Poppins',
         brightness: Brightness.light,
-        accentColor: Color(0xff33aef8),
+        accentColor: Color(0xff06b36e),
         primaryColor: Color(0xffE7C4B1),
         indicatorColor: Color(0xffD4CBC5),
         focusColor: Colors.black,
-        backgroundColor: Colors.white,
-        scaffoldBackgroundColor: Color(0xffe7e7e7),
+        backgroundColor: Colors.white, //Color(0xffe7e7e7),
+        scaffoldBackgroundColor: Color(0xffd7dae1), //Colors.white,
       ),
       home: Scaffold(
         body: HomePage(),
@@ -243,19 +239,20 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               InkWell(
+                                onTap: () {
+                                  activeText = e['text'];
+                                  setState(() {});
+                                },
                                 onLongPress: e['settings'],
-                                child: IconButton(
-                                  icon: Icon(
+                                child: Container(
+                                  padding: EdgeInsets.all(7),
+                                  child: Icon(
                                     e['icon'],
                                     size: 26,
                                     color: activeText == e['text']
                                         ? Theme.of(context).accentColor
                                         : null,
                                   ),
-                                  onPressed: () {
-                                    activeText = e['text'];
-                                    setState(() {});
-                                  },
                                 ),
                               ),
                               Container(

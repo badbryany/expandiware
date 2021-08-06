@@ -146,7 +146,10 @@ class _VPlanState extends State<VPlan> {
                           classes.removeAt(index);
                           //getClasses();
                         },
-                        icon: Icon(Icons.delete_rounded),
+                        icon: Icon(
+                          Icons.delete_rounded,
+                          color: Theme.of(context).focusColor,
+                        ),
                       ),
                     ),
                     openBuilder: (context, closeContainer) => Plan(
