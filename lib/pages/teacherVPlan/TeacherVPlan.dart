@@ -188,14 +188,21 @@ class _TeacherListState extends State<TeacherList> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          SizedBox(height: 8),
           ...teachers.map(
-            (e) => InkWell(
-              onTap: () => widget.setTeacherShort(e),
-              child: Container(
-                margin: EdgeInsets.all(3),
-                padding: EdgeInsets.all(3),
-                child: Text(
-                  e,
+            (e) => Container(
+              margin: EdgeInsets.all(5),
+              child: InkWell(
+                onTap: () => widget.setTeacherShort(e),
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).backgroundColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    e,
+                  ),
                 ),
               ),
             ),
