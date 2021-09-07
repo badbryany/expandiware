@@ -180,6 +180,7 @@ class _TeacherListState extends State<TeacherList> {
     return Container(
       height: 200,
       child: ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           Text(
             'Alle Lehrer Kürzel:',

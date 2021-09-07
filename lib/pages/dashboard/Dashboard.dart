@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 
 import './FindRoom.dart';
+import './FindRoomDesign.dart'; // REMOVE ME
 import '../../models/ListItem.dart';
 
 class Dashboard extends StatelessWidget {
@@ -18,7 +19,7 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Leeren Raum finden',
         'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
-        'link': FindRoom(),
+        'link': FindRoomDesign(), // CHANGE ME
       },
       {
         'icon': Icon(
@@ -61,6 +62,7 @@ class Dashboard extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.7,
       alignment: Alignment.center,
       child: ListView(
+        physics: BouncingScrollPhysics(),
         shrinkWrap: true,
         children: [
           ...elements.map(

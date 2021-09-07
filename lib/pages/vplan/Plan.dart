@@ -110,6 +110,7 @@ class _PlanState extends State<Plan> {
                         child: LinearProgressIndicator(),
                       )
                     : ListView(
+                        physics: BouncingScrollPhysics(),
                         children: [
                           ...data['data']['data'].map(
                             (e) => ListItem(

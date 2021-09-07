@@ -106,6 +106,7 @@ class _VPlanState extends State<VPlan> {
               isAlwaysShown: true,
               radius: Radius.circular(100),
               child: AnimatedList(
+                physics: BouncingScrollPhysics(),
                 key: listKey,
                 initialItemCount: classes.length,
                 itemBuilder: (context, index, animation) => SizeTransition(
@@ -139,7 +140,12 @@ class _VPlanState extends State<VPlan> {
                               sizeFactor: animation,
                               child: ListItem(
                                 onClick: () {},
-                                title: Text(classes[index]),
+                                title: Text(
+                                  classes[index],
+                                  style: TextStyle(
+                                    fontSize: 19,
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -257,6 +263,7 @@ class SelectClass extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 child: AnimatedList(
+                  physics: BouncingScrollPhysics(),
                   initialItemCount: classes.length,
                   itemBuilder: (context, index, animation) {
                     {

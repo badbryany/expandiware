@@ -159,6 +159,7 @@ class _TeacherPlanState extends State<TeacherPlan> {
                           child: LinearProgressIndicator(),
                         )
                       : ListView(
+                          physics: BouncingScrollPhysics(),
                           children: [
                             ...res.map(
                               (e) => ListItem(
