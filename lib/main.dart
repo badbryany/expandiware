@@ -1,31 +1,144 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:device_info/device_info.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import 'pages/vplan/VPlan.dart';
 import 'pages/teacherVPlan/TeacherVPlan.dart';
 import 'pages/dashboard/Dashboard.dart';
 
+Future<String> scanQRCode() async {
+  String barcodeScanRes = 'nothing';
+  try {
+    barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+      '#ff6666',
+      'Cancel',
+      true,
+      ScanMode.QR,
+    );
+    print(barcodeScanRes);
+  } catch (e) {
+    print(e);
+  }
+
+  return barcodeScanRes;
+}
+
+Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+  return <String, dynamic>{
+    'version.securityPatch': build.version.securityPatch,
+    'version.sdkInt': build.version.sdkInt,
+    'version.release': build.version.release,
+    'version.previewSdkInt': build.version.previewSdkInt,
+    'version.incremental': build.version.incremental,
+    'version.codename': build.version.codename,
+    'version.baseOS': build.version.baseOS,
+    'board': build.board,
+    'bootloader': build.bootloader,
+    'brand': build.brand,
+    'device': build.device,
+    'display': build.display,
+    'fingerprint': build.fingerprint,
+    'hardware': build.hardware,
+    'host': build.host,
+    'id': build.id,
+    'manufacturer': build.manufacturer,
+    'model': build.model,
+    'product': build.product,
+    'supported32BitAbis': build.supported32BitAbis,
+    'supported64BitAbis': build.supported64BitAbis,
+    'supportedAbis': build.supportedAbis,
+    'tags': build.tags,
+    'type': build.type,
+    'isPhysicalDevice': build.isPhysicalDevice,
+    'androidId': build.androidId,
+    'systemFeatures': build.systemFeatures,
+  };
+}
+
+Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+  return <String, dynamic>{
+    'name': data.name,
+    'systemName': data.systemName,
+    'systemVersion': data.systemVersion,
+    'model': data.model,
+    'localizedModel': data.localizedModel,
+    'identifierForVendor': data.identifierForVendor,
+    'isPhysicalDevice': data.isPhysicalDevice,
+    'utsname.sysname:': data.utsname.sysname,
+    'utsname.nodename:': data.utsname.nodename,
+    'utsname.release:': data.utsname.release,
+    'utsname.version:': data.utsname.version,
+    'utsname.machine:': data.utsname.machine,
+  };
+}
+
+void sendAppOpenData() async {
+  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  Map<String, dynamic> deviceData = <String, dynamic>{};
+  dynamic logindata;
+  try {
+    if (Platform.isAndroid) {
+      deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      logindata = {
+        'device_id': deviceData['id'],
+        'android_id': deviceData['androidId'],
+        'model': deviceData['model'],
+        'manufacturer': deviceData['manufacturer'],
+        'os_version': 'Android ${deviceData['version.release']}',
+        'last_security_update': deviceData['version.securityPatch'],
+        'app_open_time': DateTime.now().toString(),
+      };
+    } else if (Platform.isIOS) {
+      deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+    }
+  } on PlatformException {
+    deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
+  }
+
+  // send request to kellermann.team to save the data
+  var res = await http.post(
+    Uri.parse('http://192.168.3.91/expandiware/analytics.php'),
+    body: logindata,
+  );
+
+  print(res.body);
+}
+
 void main() {
   runApp(MyApp());
+  sendAppOpenData();
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+  void checkForUpdates(BuildContext context) {
+    String _version = 'beta 0.9';
+    // make request to kellermann.team to look for updates
+  }
+
   @override
   Widget build(BuildContext context) {
+    checkForUpdates(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'expandiware',
       darkTheme: ThemeData(
         fontFamily: 'Poppins',
         brightness: Brightness.dark,
-        accentColor: Color(0xff06b36e), //Color(0xffC1DEBA),
+        accentColor: Color(0xff258786),
         primaryColor: Color(0xff0884eb),
-        indicatorColor: Color(0xffcf5a4b),
+        indicatorColor: Color(0xffd04f5b),
         focusColor: Colors.white,
         backgroundColor: Color(0xff1d1e23), //Color(0xff161B28),
         scaffoldBackgroundColor: Color(0xff010001),
@@ -69,49 +182,74 @@ class _HomePageState extends State<HomePage> {
           onChanged: (value) => prefs.setString('vplanSchoolnumber', value),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ok'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  String data = await scanQRCode();
+                  dynamic jsonData = {};
+                  try {
+                    jsonData = jsonDecode(data);
+                  } catch (e) {
+                    return;
+                  }
+                  prefs.setString(
+                      'vplanSchoolnumber', jsonData['schoolnumber']);
+                  prefs.setString('vplanUsername', jsonData['username']);
+                  prefs.setString('vplanPassword', jsonData['password']);
+                  return;
+                },
+                child: Text('scannen'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('ok'),
+              ),
+            ],
           ),
         ],
       ),
-    );
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).backgroundColor,
-        title: Text('Benutzername'),
-        content: TextField(
-          decoration: InputDecoration(
-            hintText: 'Benutzername',
+    ).then(
+      (value) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Theme.of(context).backgroundColor,
+          title: Text('Benutzername'),
+          content: TextField(
+            decoration: InputDecoration(
+              hintText: 'Benutzername',
+            ),
+            onChanged: (value) => prefs.setString('vplanUsername', value),
           ),
-          onChanged: (value) => prefs.setString('vplanUsername', value),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('ok'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ok'),
+      ).then(
+        (value) => showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Theme.of(context).backgroundColor,
+            title: Text('Passwort'),
+            content: TextField(
+              decoration: InputDecoration(
+                hintText: 'Passwort',
+              ),
+              onChanged: (value) => prefs.setString('vplanPassword', value),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('ok'),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).backgroundColor,
-        title: Text('Passwort'),
-        content: TextField(
-          decoration: InputDecoration(
-            hintText: 'Passwort',
-          ),
-          onChanged: (value) => prefs.setString('vplanPassword', value),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ok'),
-          ),
-        ],
       ),
     );
   }
