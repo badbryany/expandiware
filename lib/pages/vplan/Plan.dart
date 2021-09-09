@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:focused_menu/modals.dart';
 import 'package:page_transition/page_transition.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:focused_menu/focused_menu.dart';
 
 import '../../models/ListItem.dart';
 
@@ -41,21 +43,20 @@ class _PlanState extends State<Plan> {
     });
   }
 
-  Future<dynamic> getVPlan(String classId) async {
+  void getData() async {
     VPlanAPI vplanAPI = new VPlanAPI();
 
-    return ({
-      'data': await vplanAPI.getLessonsForToday(classId),
-      'info': await vplanAPI.getDayInfo(classId),
-    });
-  }
+    data = {
+      'data': await vplanAPI.getLessonsForToday(widget.classId),
+      'info': await vplanAPI.getDayInfo(widget.classId),
+    };
+    hiddenSubjects = await vplanAPI.getHiddenSubjects();
 
-  void getData() async {
-    data = await getVPlan(widget.classId);
     setState(() {});
   }
 
   dynamic data;
+  List<String>? hiddenSubjects;
 
   String printValue(String? value) {
     if (value == null) {
@@ -112,78 +113,117 @@ class _PlanState extends State<Plan> {
                     : ListView(
                         physics: BouncingScrollPhysics(),
                         children: [
-                          ...data['data']['data'].map(
-                            (e) => ListItem(
-                              onClick: () {},
-                              color:
-                                  e['info'] == null ? null : Color(0x889E1414),
-                              leading: Text(
-                                printValue('${e['count']}'),
-                                style: TextStyle(fontSize: 18),
+                          ...data['data']['data'].map((e) {
+                            print(hiddenSubjects);
+                            if (hiddenSubjects!.contains(e['lesson'])) {
+                              return SizedBox();
+                            }
+                            return FocusedMenuHolder(
+                              animateMenuItems: true,
+                              duration: Duration(milliseconds: 100),
+                              onPressed: () {},
+                              menuBoxDecoration: BoxDecoration(
+                                color: Theme.of(context).backgroundColor,
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              title: Container(
-                                alignment: Alignment.centerLeft,
-                                width: MediaQuery.of(context).size.width * 0.1,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      printValue(e['lesson']),
-                                      style: TextStyle(fontSize: 19),
+                              menuItems: [
+                                FocusedMenuItem(
+                                  backgroundColor:
+                                      Theme.of(context).backgroundColor,
+                                  title: Text(
+                                    '${e['lesson']} verbergen',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Icon(
-                                              Icons.location_on_rounded,
-                                              size: 16,
-                                            ),
-                                            SizedBox(width: 3),
-                                            Text(printValue(e['place'])),
-                                          ],
-                                        ),
-                                        SizedBox(height: 5),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Icon(
-                                              Icons.person_rounded,
-                                              size: 16,
-                                            ),
-                                            SizedBox(width: 3),
-                                            Text(printValue(e['teacher'])),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(width: 50),
-                                  ],
+                                  ),
+                                  trailingIcon:
+                                      Icon(Icons.remove_red_eye_rounded),
+                                  onPressed: () async {
+                                    VPlanAPI vplanAPI = new VPlanAPI();
+
+                                    vplanAPI.addHiddenSubject(e['lesson']);
+                                    hiddenSubjects =
+                                        await vplanAPI.getHiddenSubjects();
+
+                                    setState(() {});
+                                  },
                                 ),
-                              ),
-                              subtitle: e['info'] == null
-                                  ? null
-                                  : Text(
-                                      '${e['info']}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                              ],
+                              child: ListItem(
+                                onClick: () {},
+                                color: e['info'] == null
+                                    ? null
+                                    : Color(0x889E1414),
+                                leading: Text(
+                                  printValue('${e['count']}'),
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                title: Container(
+                                  alignment: Alignment.centerLeft,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.1,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        printValue(e['lesson']),
+                                        style: TextStyle(fontSize: 19),
                                       ),
-                                    ),
-                            ),
-                          ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                Icons.location_on_rounded,
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 3),
+                                              Text(printValue(e['place'])),
+                                            ],
+                                          ),
+                                          SizedBox(height: 5),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                Icons.person_rounded,
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 3),
+                                              Text(printValue(e['teacher'])),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(width: 50),
+                                    ],
+                                  ),
+                                ),
+                                subtitle: e['info'] == null
+                                    ? null
+                                    : Text(
+                                        '${e['info']}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            );
+                          }),
                           Container(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -18,13 +18,15 @@ dependencies:
   xml2json: ^5.0.0
   http_auth: ^1.0.0
   flutter_svg: ^0.22.0
+  device_info: ^2.0.2
+  focused_menu: ^1.0.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 flutter:
   uses-material-design: true
-
   fonts:
   - family: Poppins
     fonts:

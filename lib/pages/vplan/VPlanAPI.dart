@@ -12,7 +12,7 @@ class VPlanAPI {
   String vplanUsername = ''; // = prefs.getString("vplanUsername");
   String vplanPassword = ''; // = prefs.getString("vplanPassword");
 
-  List<String> classes = [
+  final List<String> classes = [
     '05a',
     '05b',
     '05c',
@@ -71,6 +71,32 @@ class VPlanAPI {
     vplanPassword = prefs.getString("vplanPassword")!;
   }
 
+  void addHiddenSubject(String lesson) async {
+    if (lesson == '---') {
+      return;
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String>? hiddenSubjects = prefs.getStringList('hiddenSubjects');
+    if (hiddenSubjects == null) {
+      hiddenSubjects = [];
+    }
+    hiddenSubjects.add(lesson);
+
+    prefs.setStringList('hiddenSubjects', hiddenSubjects);
+  }
+
+  Future<List<String>> getHiddenSubjects() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String>? hiddenSubjects = prefs.getStringList('hiddenSubjects');
+    if (hiddenSubjects == null) {
+      hiddenSubjects = [];
+    }
+
+    return hiddenSubjects;
+  }
+
   Future<bool> searchForOfflineData(DateTime vpDate) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var offlineVPData = prefs.getString('offlineVPData');
@@ -88,6 +114,18 @@ class VPlanAPI {
         }
       }
       return false;
+    }
+  }
+
+  Future<dynamic> getAllOfflineData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var offlineVPData = prefs.getString('offlineVPData');
+
+    if (offlineVPData == null || offlineVPData == 'null') {
+      return [];
+    } else {
+      print('offlineVPData');
+      return jsonDecode(offlineVPData);
     }
   }
 
