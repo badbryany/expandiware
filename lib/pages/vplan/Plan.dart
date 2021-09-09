@@ -30,9 +30,13 @@ class _PlanState extends State<Plan> {
   VPlanAPI vplanAPI = new VPlanAPI();
 
   void newVP(bool nextDay) async {
+    String? date = data['data']['date'];
+    setState(() {
+      data = null;
+    });
     dynamic newData = await VPlanAPI().getLessonsByDate(
       date: VPlanAPI().changeDate(
-        date: (data == null ? '' : data['data']['date']),
+        date: (date == null ? '' : date),
         nextDay: nextDay,
       ),
       classId: widget.classId,
@@ -86,7 +90,7 @@ class _PlanState extends State<Plan> {
                     icon: Icon(Icons.arrow_back),
                   ),
                   Text(
-                    'Vertretungsplan ${widget.classId}',
+                    '${widget.classId}',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -114,7 +118,6 @@ class _PlanState extends State<Plan> {
                         physics: BouncingScrollPhysics(),
                         children: [
                           ...data['data']['data'].map((e) {
-                            print(hiddenSubjects);
                             if (hiddenSubjects!.contains(e['lesson'])) {
                               return SizedBox();
                             }
@@ -224,27 +227,29 @@ class _PlanState extends State<Plan> {
                               ),
                             );
                           }),
-                          Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  onPressed: () => newVP(false),
-                                  icon: Icon(Icons.arrow_back),
-                                ),
-                                IconButton(
-                                  onPressed: () => newVP(true),
-                                  icon: Icon(Icons.arrow_forward),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
               ),
             ),
             Container(
+              alignment: Alignment.topRight,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () => newVP(false),
+                    icon: Icon(Icons.arrow_back),
+                  ),
+                  SizedBox(width: 5),
+                  IconButton(
+                    onPressed: () => newVP(true),
+                    icon: Icon(Icons.arrow_forward),
+                  ),
+                ],
+              ),
+            ),
+            /*Container(
               alignment: Alignment.topRight,
               child: IconButton(
                 onPressed: () => Navigator.push(
@@ -258,7 +263,7 @@ class _PlanState extends State<Plan> {
                 ),
                 icon: Icon(Icons.analytics_rounded),
               ),
-            ),
+            ),*/
           ],
         ),
       ),
