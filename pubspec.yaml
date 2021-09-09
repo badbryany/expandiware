@@ -20,6 +20,8 @@ dependencies:
   flutter_svg: ^0.22.0
   device_info: ^2.0.2
   focused_menu: ^1.0.5
+  qr: ^2.0.0
+  pretty_qr_code: ^2.0.2
 
 dev_dependencies:
   flutter_test:

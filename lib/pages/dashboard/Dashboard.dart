@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 
 import './FindRoom.dart';
-import './FindRoomDesign.dart'; // REMOVE ME
+import './Settings.dart';
 import '../../models/ListItem.dart';
 
 class Dashboard extends StatelessWidget {
@@ -19,7 +19,7 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Leeren Raum finden',
         'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
-        'link': FindRoomDesign(), // CHANGE ME
+        'link': FindRoom(),
       },
       {
         'icon': Icon(
@@ -55,7 +55,7 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Einstellungen',
         'subtitle': 'weitere Einstellungen zur besseren Nutzung der App',
-        'link': SizedBox(),
+        'link': Settings(),
       },
     ];
     return Container(
