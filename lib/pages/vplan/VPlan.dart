@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:animations/animations.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../dashboard/settings/VPlanLogin.dart';
 
 import '../../models/ListItem.dart';
 
@@ -53,6 +56,21 @@ class _VPlanState extends State<VPlan> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'später',
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      child: VPlanLogin(),
+                    ),
+                  );
+                },
                 child: Text(
                   'ok',
                   style: TextStyle(

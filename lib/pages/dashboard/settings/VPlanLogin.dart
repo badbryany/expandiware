@@ -12,6 +12,26 @@ class VPlanLogin extends StatelessWidget {
   TextEditingController usernameController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
 
+  String schoolnumber = '';
+  String username = '';
+  String password = '';
+
+  void getLoginData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    schoolnumberController.text = prefs.getString('vplanSchoolnumber') == null
+        ? ''
+        : prefs.getString('vplanSchoolnumber')!;
+
+    usernameController.text = prefs.getString('vplanUsername') == null
+        ? ''
+        : prefs.getString('vplanUsername')!;
+
+    passwordController.text = prefs.getString('vplanPassword') == null
+        ? ''
+        : prefs.getString('vplanPassword')!;
+  }
+
   @override
   Widget build(BuildContext context) {
     List<dynamic> inputs = [
@@ -31,6 +51,7 @@ class VPlanLogin extends StatelessWidget {
         'numeric': false,
       },
     ];
+    getLoginData();
     return Scaffold(
       body: Container(
         child: Stack(
