@@ -23,6 +23,7 @@ dependencies:
   qr: ^2.0.0
   pretty_qr_code: ^2.0.2
   flutter_barcode_scanner: ^2.0.0
+  url_launcher: ^6.0.10
 
 dev_dependencies:
   flutter_test:

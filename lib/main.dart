@@ -2,7 +2,10 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
+
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:device_info/device_info.dart';
 import 'package:http/http.dart' as http;
@@ -122,14 +125,8 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  void checkForUpdates(BuildContext context) {
-    String _version = 'beta 0.9';
-    // make request to kellermann.team to look for updates
-  }
-
   @override
   Widget build(BuildContext context) {
-    checkForUpdates(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'expandiware',
@@ -167,6 +164,64 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String activeText = 'vplan students';
+
+  void checkForUpdates(BuildContext context) async {
+    String _version = 'beta 0.5';
+    var r = await http.get(
+      Uri.parse(
+        'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
+      ),
+    );
+    if (r.body == 'update') {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Theme.of(context).backgroundColor,
+          title: Row(
+            children: [
+              Icon(Icons.update_rounded),
+              SizedBox(width: 10),
+              Text('Veraltete Version'),
+            ],
+          ),
+          content: Text('lade dir die neuste Version herunter!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'später',
+                style: TextStyle(
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(4),
+              child: TextButton(
+                child: Text(
+                  'herunterladen',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () async {
+                  String url =
+                      'https://www.kellermann.team/expandiware/expandiware.apk';
+
+                  try {
+                    await launch(url);
+                  } catch (e) {
+                    print('faild');
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   void getVPlanLogin(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -256,6 +311,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    checkForUpdates(context);
     List<Map<String, dynamic>> pages = [
       {
         'text': 'vplan students',
