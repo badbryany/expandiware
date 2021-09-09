@@ -1,3 +1,3 @@
 # expandiware
 
-A new Flutter project.
+An enhanced version of the vpMobil app of indiware
