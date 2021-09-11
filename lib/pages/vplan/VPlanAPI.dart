@@ -71,6 +71,22 @@ class VPlanAPI {
     vplanPassword = prefs.getString("vplanPassword")!;
   }
 
+  Future<List<String>> getClassList() async {
+    this.login();
+
+    List<String> classList = [];
+
+    dynamic data = await getVPlanJSON(
+      Uri.parse(await getDayURL()),
+      DateTime.now(),
+    );
+
+    for (int i = 0; i < data['data']['Klassen']['Kl'].length; i++) {
+      classList.add(data['data']['Klassen']['Kl'][i]['Kurz']);
+    }
+    return classList;
+  }
+
   void addHiddenCourse(String lesson) async {
     if (lesson == '---') {
       return;

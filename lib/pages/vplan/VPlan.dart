@@ -1,3 +1,4 @@
+import 'package:expandiware/pages/vplan/VPlanAPI.dart';
 import 'package:flutter/material.dart';
 
 import 'package:animations/animations.dart';
@@ -190,7 +191,7 @@ class _VPlanState extends State<VPlan> {
   }
 }
 
-class SelectClass extends StatelessWidget {
+class SelectClass extends StatefulWidget {
   const SelectClass({
     Key? key,
     required this.pop,
@@ -201,57 +202,26 @@ class SelectClass extends StatelessWidget {
   final List<String> favs;
 
   @override
+  State<SelectClass> createState() => _SelectClassState();
+}
+
+class _SelectClassState extends State<SelectClass> {
+  List<String> classes = [];
+  void getClasses() async {
+    VPlanAPI vplanAPI = new VPlanAPI();
+
+    classes = await vplanAPI.getClassList();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getClasses();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<String> classes = [
-      '05a',
-      '05b',
-      '05c',
-      '05d',
-      '05e',
-      '06a',
-      '06b',
-      '06c',
-      '06d',
-      '06e',
-      '07a',
-      '07b',
-      '07c',
-      '07d',
-      '07e',
-      '08a',
-      '08b',
-      '08c',
-      '08d',
-      '08e',
-      '09a',
-      '09b',
-      '09c',
-      '09d',
-      '09e',
-      '10a',
-      '10b',
-      '10c',
-      '10d',
-      '10e',
-      'JG11',
-      /*'11.1',
-    '11.2',
-    '11.3',
-    '11.4',
-    '11.5',
-    '11.6',
-    '11.7',
-    '11.8',*/
-      'JG12',
-      /*'12.1',
-    '12.2',
-    '12.3',
-    '12.4',
-    '12.5',
-    '12.6',
-    '12.7',
-    '12.8',*/
-    ];
     return SafeArea(
       child: Container(
         child: Column(
@@ -280,46 +250,53 @@ class SelectClass extends StatelessWidget {
             Expanded(
               child: Container(
                 alignment: Alignment.center,
-                child: AnimatedList(
-                  physics: BouncingScrollPhysics(),
-                  initialItemCount: classes.length,
-                  itemBuilder: (context, index, animation) {
-                    {
-                      bool used = false;
-                      if (favs.contains(classes[index])) {
-                        used = true;
-                      }
-                      return ListItem(
-                        title: Text(
-                          classes[index],
-                          style: TextStyle(
-                            fontSize: 19,
-                          ),
+                child: classes.length == 0
+                    ? Center(
+                        child: Container(
+                          width: 80,
+                          child: LinearProgressIndicator(),
                         ),
-                        actionButton: used
-                            ? IconButton(
-                                icon: Icon(Icons.check_rounded),
-                                onPressed: () {},
-                              )
-                            : null,
-                        color: used ? Color(0xff4B6F49) : null,
-                        onClick: () async {
-                          SharedPreferences instance =
-                              await SharedPreferences.getInstance();
-                          List<String>? _classes =
-                              instance.getStringList('classes');
-                          if (_classes == null) {
-                            _classes = [];
+                      )
+                    : AnimatedList(
+                        physics: BouncingScrollPhysics(),
+                        initialItemCount: classes.length,
+                        itemBuilder: (context, index, animation) {
+                          {
+                            bool used = false;
+                            if (widget.favs.contains(classes[index])) {
+                              used = true;
+                            }
+                            return ListItem(
+                              title: Text(
+                                classes[index],
+                                style: TextStyle(
+                                  fontSize: 19,
+                                ),
+                              ),
+                              actionButton: used
+                                  ? IconButton(
+                                      icon: Icon(Icons.check_rounded),
+                                      onPressed: () {},
+                                    )
+                                  : null,
+                              color: used ? Color(0xff4B6F49) : null,
+                              onClick: () async {
+                                SharedPreferences instance =
+                                    await SharedPreferences.getInstance();
+                                List<String>? _classes =
+                                    instance.getStringList('classes');
+                                if (_classes == null) {
+                                  _classes = [];
+                                }
+                                _classes.add(classes[index]);
+                                instance.setStringList('classes', _classes);
+                                this.widget.pop(classes[index]);
+                                Navigator.pop(context);
+                              },
+                            );
                           }
-                          _classes.add(classes[index]);
-                          instance.setStringList('classes', _classes);
-                          this.pop(classes[index]);
-                          Navigator.pop(context);
                         },
-                      );
-                    }
-                  },
-                ),
+                      ),
               ),
             ),
           ],
