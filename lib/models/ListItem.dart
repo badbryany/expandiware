@@ -14,7 +14,7 @@ class ListItem extends StatelessWidget {
 
   final Widget title;
   final Widget? subtitle;
-  final IconButton? actionButton;
+  final Widget? actionButton;
   final Widget? leading;
   final Function onClick;
   final Color? color;
@@ -25,8 +25,10 @@ class ListItem extends StatelessWidget {
     return Container(
       margin: EdgeInsets.all(5),
       child: InkWell(
+        splashFactory: NoSplash.splashFactory,
         onTap: () => this.onClick(),
-        child: Container(
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 500),
           padding: EdgeInsets.all(padding == null ? 8 : padding!),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),

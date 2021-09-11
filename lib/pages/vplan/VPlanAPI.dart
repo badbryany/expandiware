@@ -71,7 +71,7 @@ class VPlanAPI {
     vplanPassword = prefs.getString("vplanPassword")!;
   }
 
-  void addHiddenSubject(String lesson) async {
+  void addHiddenCourse(String lesson) async {
     if (lesson == '---') {
       return;
     }
@@ -86,7 +86,25 @@ class VPlanAPI {
     prefs.setStringList('hiddenSubjects', hiddenSubjects);
   }
 
-  Future<List<String>> getHiddenSubjects() async {
+  void removeHiddenCourse(String course) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String>? hiddenSubjects = prefs.getStringList('hiddenSubjects');
+    if (hiddenSubjects == null) {
+      hiddenSubjects = [];
+    }
+    List<String> newCourses = [];
+
+    for (int i = 0; i < hiddenSubjects.length; i++) {
+      if (course != hiddenSubjects[i]) {
+        newCourses.add(hiddenSubjects[i]);
+      }
+    }
+
+    prefs.setStringList('hiddenSubjects', newCourses);
+  }
+
+  Future<List<String>> getHiddenCourses() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     List<String>? hiddenSubjects = prefs.getStringList('hiddenSubjects');
@@ -127,6 +145,29 @@ class VPlanAPI {
       print('offlineVPData');
       return jsonDecode(offlineVPData);
     }
+  }
+
+  Future<List<String>> getCourses(String classId) async {
+    dynamic data = await getVPlanJSON(
+      Uri.parse(await getDayURL()),
+      DateTime.now(),
+    );
+
+    dynamic classes = data['data']['Klassen']['Kl'];
+    dynamic currentClass;
+    for (int i = 0; i < classes.length; i++) {
+      if (classes[i]['Kurz'] == classId) {
+        currentClass = classes[i];
+      }
+    }
+
+    List<String> courses = [];
+
+    for (int j = 0; j < currentClass['Kurse']['Ku'].length; j++) {
+      courses.add(currentClass['Kurse']['Ku'][j]['KKz']);
+    }
+
+    return courses;
   }
 
   Future<dynamic> getVPlanJSON(Uri url, DateTime vpDate) async {
@@ -184,9 +225,9 @@ class VPlanAPI {
 
         if (add) {
           jsonData.add(data.last);
-          print('added');
+          //print('added');
         } else {
-          print('plan already exist...');
+          //print('plan already exist...');
         }
 
         stringData = jsonEncode(jsonData);
@@ -277,7 +318,8 @@ class VPlanAPI {
             'place': currentLesson['Ra'],
             'begin': currentLesson['Beginn'],
             'end': currentLesson['Ende'],
-            'info': currentLesson['If']
+            'info': currentLesson['If'],
+            'course': currentLesson['Ku2'],
           });
         }
       }

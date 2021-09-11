@@ -1,12 +1,6 @@
-import 'dart:async';
-
+import 'package:animations/animations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:focused_menu/modals.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:focused_menu/focused_menu.dart';
 
 import '../../models/ListItem.dart';
 
@@ -54,7 +48,7 @@ class _PlanState extends State<Plan> {
       'data': await vplanAPI.getLessonsForToday(widget.classId),
       'info': await vplanAPI.getDayInfo(widget.classId),
     };
-    hiddenSubjects = await vplanAPI.getHiddenSubjects();
+    hiddenSubjects = await vplanAPI.getHiddenCourses();
 
     setState(() {});
   }
@@ -117,42 +111,12 @@ class _PlanState extends State<Plan> {
                     : ListView(
                         physics: BouncingScrollPhysics(),
                         children: [
-                          ...data['data']['data'].map((e) {
-                            if (hiddenSubjects!.contains(e['lesson'])) {
-                              return SizedBox();
-                            }
-                            return FocusedMenuHolder(
-                              animateMenuItems: true,
-                              duration: Duration(milliseconds: 100),
-                              onPressed: () {},
-                              menuBoxDecoration: BoxDecoration(
-                                color: Theme.of(context).backgroundColor,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              menuItems: [
-                                FocusedMenuItem(
-                                  backgroundColor:
-                                      Theme.of(context).backgroundColor,
-                                  title: Text(
-                                    '${e['lesson']} verbergen',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  trailingIcon:
-                                      Icon(Icons.remove_red_eye_rounded),
-                                  onPressed: () async {
-                                    VPlanAPI vplanAPI = new VPlanAPI();
-
-                                    vplanAPI.addHiddenSubject(e['lesson']);
-                                    hiddenSubjects =
-                                        await vplanAPI.getHiddenSubjects();
-
-                                    setState(() {});
-                                  },
-                                ),
-                              ],
-                              child: ListItem(
+                          ...data['data']['data'].map(
+                            (e) {
+                              if (hiddenSubjects!.contains(e['course'])) {
+                                return SizedBox();
+                              }
+                              return ListItem(
                                 onClick: () {},
                                 color: e['info'] == null
                                     ? null
@@ -224,9 +188,9 @@ class _PlanState extends State<Plan> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                              ),
-                            );
-                          }),
+                              );
+                            },
+                          ),
                         ],
                       ),
               ),
@@ -237,6 +201,24 @@ class _PlanState extends State<Plan> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // courses
+                  OpenContainer(
+                    closedColor: Colors.transparent,
+                    closedElevation: 0,
+                    openColor: Theme.of(context).scaffoldBackgroundColor,
+                    closedBuilder: (context, openContainer) => IconButton(
+                      onPressed: openContainer,
+                      icon: Icon(
+                        Icons.settings_rounded,
+                        size: 20,
+                      ),
+                    ),
+                    openBuilder: (context, closeContainer) => Courses(
+                      classId: widget.classId,
+                      updateCourses: () => getData(),
+                    ),
+                  ),
+                  // courses
                   IconButton(
                     onPressed: () => newVP(false),
                     icon: Icon(Icons.arrow_back),
@@ -266,6 +248,174 @@ class _PlanState extends State<Plan> {
             ),*/
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Courses extends StatefulWidget {
+  final String classId;
+  final Function updateCourses;
+
+  Courses({
+    required this.classId,
+    required this.updateCourses,
+  });
+
+  @override
+  State<Courses> createState() => _CoursesState();
+}
+
+class _CoursesState extends State<Courses> {
+  VPlanAPI vplanAPI = new VPlanAPI();
+  List<dynamic> courses = [];
+
+  void getData() async {
+    courses = [];
+    List<String> _courses = await vplanAPI.getCourses(widget.classId);
+
+    List<String> hiddenCourses = await vplanAPI.getHiddenCourses();
+    for (int i = 0; i < _courses.length; i++) {
+      courses.add({
+        'course': _courses[i],
+        'show': !hiddenCourses.contains(_courses[i]),
+      });
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      child: Stack(
+        children: [
+          (courses.length == 0
+              ? Container(
+                  width: double.infinity,
+                  child: Center(
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: 80,
+                      child: LinearProgressIndicator(),
+                    ),
+                  ),
+                )
+              : Container(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.9,
+                    alignment: Alignment.bottomCenter,
+                    child: Scrollbar(
+                      radius: Radius.circular(100),
+                      child: GridView.count(
+                        childAspectRatio: 3 / 2,
+                        shrinkWrap: true,
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        physics: BouncingScrollPhysics(),
+                        children: [
+                          ...courses.map(
+                            (e) => ListItem(
+                              color: e['show']
+                                  ? Theme.of(context).backgroundColor
+                                  : Theme.of(context)
+                                      .backgroundColor
+                                      .withOpacity(0.4),
+                              title: Center(
+                                child: Text(
+                                  e['course'],
+                                  textAlign: TextAlign.center,
+                                  style: !e['show']
+                                      ? TextStyle(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                          color: Colors.grey,
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              onClick: () {
+                                setState(() {
+                                  e['show'] = !e['show'];
+                                });
+                                if (e['show']) {
+                                  vplanAPI.removeHiddenCourse(e['course']);
+                                  print('remove course');
+                                } else {
+                                  vplanAPI.addHiddenCourse(e['course']);
+                                  print('add course');
+                                }
+                              },
+                              actionButton: Container(
+                                width: 20,
+                                child: AnimatedSwitcher(
+                                  duration: Duration(milliseconds: 500),
+                                  child: e['show']
+                                      ? Icon(
+                                          Icons.visibility_outlined,
+                                          key: ValueKey(1),
+                                          size: 18,
+                                        )
+                                      : Icon(
+                                          Icons.visibility_off_outlined,
+                                          key: ValueKey(2),
+                                          size: 18,
+                                        ),
+                                  transitionBuilder: (
+                                    Widget child,
+                                    Animation<double> animation,
+                                  ) =>
+                                      SizeTransition(
+                                    sizeFactor: animation,
+                                    child: child,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+          Container(
+            alignment: Alignment.topLeft,
+            margin: EdgeInsets.only(top: 30, left: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_rounded,
+                    color: Theme.of(context).focusColor,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    widget.updateCourses();
+                  },
+                ),
+                SizedBox(width: 20),
+                Text(
+                  'Kurse',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
