@@ -12,57 +12,6 @@ class VPlanAPI {
   String vplanUsername = ''; // = prefs.getString("vplanUsername");
   String vplanPassword = ''; // = prefs.getString("vplanPassword");
 
-  final List<String> classes = [
-    '05a',
-    '05b',
-    '05c',
-    '05d',
-    '05e',
-    '06a',
-    '06b',
-    '06c',
-    '06d',
-    '06e',
-    '07a',
-    '07b',
-    '07c',
-    '07d',
-    '07e',
-    '08a',
-    '08b',
-    '08c',
-    '08d',
-    '08e',
-    '09a',
-    '09b',
-    '09c',
-    '09d',
-    '09e',
-    '10a',
-    '10b',
-    '10c',
-    '10d',
-    '10e',
-    'JG11',
-    /*'11.1',
-    '11.2',
-    '11.3',
-    '11.4',
-    '11.5',
-    '11.6',
-    '11.7',
-    '11.8',*/
-    'JG12',
-    /*'12.1',
-    '12.2',
-    '12.3',
-    '12.4',
-    '12.5',
-    '12.6',
-    '12.7',
-    '12.8',*/
-  ];
-
   Future<void> login() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
