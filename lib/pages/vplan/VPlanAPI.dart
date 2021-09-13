@@ -87,12 +87,8 @@ class VPlanAPI {
     } else {
       List<dynamic> jsonData = jsonDecode(offlineVPData);
       for (int i = 0; i < jsonData.length; i++) {
-        print(
-          '${jsonData[i]['data']['Kopf']['DatumPlan']} --- ${jsonData[i]['date']}',
-        );
-
         if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
-          print('we have an offline backup!');
+          //print('we have an offline backup!');
           return true;
         }
       }
@@ -107,7 +103,7 @@ class VPlanAPI {
     if (offlineVPData == null || offlineVPData == 'null') {
       return [];
     } else {
-      print('offlineVPData');
+      //print('offlineVPData');
       return jsonDecode(offlineVPData);
     }
   }
@@ -188,9 +184,9 @@ class VPlanAPI {
 
         if (add) {
           jsonData.add(data.last);
-          print('added');
+          //print('added');
         } else {
-          print('plan already exist...');
+          //print('plan already exist...');
         }
 
         stringData = jsonEncode(jsonData);
@@ -217,7 +213,6 @@ class VPlanAPI {
   }
 
   bool compareDate(DateTime datetime, String date2) {
-    print(date2);
     DateTime date1 = changeDate(
       date: date2,
       nextDay: true,
