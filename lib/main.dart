@@ -110,7 +110,7 @@ void sendAppOpenData() async {
 
   // send request to kellermann.team to save the data
   var res = await http.post(
-    Uri.parse('http://192.168.3.91/expandiware/analytics.php'),
+    Uri.parse('https://www.kellermann.team/expandiware/analytics.php'),
     body: logindata,
   );
 
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
   String activeText = 'vplan students';
 
   void checkForUpdates(BuildContext context) async {
-    String _version = 'beta 0.6';
+    String _version = 'beta 0.7';
     var r = await http.get(
       Uri.parse(
         'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
