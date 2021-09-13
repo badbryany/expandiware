@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -88,11 +86,13 @@ class VPlanAPI {
       return false;
     } else {
       List<dynamic> jsonData = jsonDecode(offlineVPData);
-
       for (int i = 0; i < jsonData.length; i++) {
-        if (compareDate(vpDate.subtract(Duration(days: 1)),
-            jsonData[i]['data']['Kopf']['zeitstempel'])) {
-          //print('we have an offline backup!');
+        print(
+          '${jsonData[i]['data']['Kopf']['DatumPlan']} --- ${jsonData[i]['date']}',
+        );
+
+        if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
+          print('we have an offline backup!');
           return true;
         }
       }
@@ -144,8 +144,7 @@ class VPlanAPI {
     if (offlinePlan) {
       data = jsonDecode(prefs.getString('offlineVPData')!);
       for (int i = 0; i < data.length; i++) {
-        if (compareDate(vpDate.subtract(Duration(days: 1)),
-            data[i]['data']['Kopf']['zeitstempel'])) {
+        if (compareDate(vpDate, data[i]['data']['Kopf']['DatumPlan'])) {
           //print('we have an offline backup!');
           print('used offline data');
           return {
@@ -182,17 +181,16 @@ class VPlanAPI {
         // check if vplan already exist
         bool add = true;
         for (var i = 0; i < jsonData.length; i++) {
-          if (compareDate(vpDate.subtract(Duration(days: 1)),
-              jsonData[i]['data']['Kopf']['zeitstempel'])) {
+          if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
             add = false;
           }
         }
 
         if (add) {
           jsonData.add(data.last);
-          //print('added');
+          print('added');
         } else {
-          //print('plan already exist...');
+          print('plan already exist...');
         }
 
         stringData = jsonEncode(jsonData);
@@ -219,14 +217,19 @@ class VPlanAPI {
   }
 
   bool compareDate(DateTime datetime, String date2) {
-    List<String> dateString = date2.split('.');
-    // dateString[0] => day
-    // dateString[1] => month
-    // dateString[2] => year
-    String year = dateString[2].split(',')[0];
-    if (int.parse(dateString[0]) == datetime.day) {
-      if (int.parse(dateString[1]) == datetime.month) {
-        if (int.parse(year) == datetime.year) {
+    print(date2);
+    DateTime date1 = changeDate(
+      date: date2,
+      nextDay: true,
+    ).subtract(
+      Duration(days: 1),
+    );
+    // changeDate() parses the ugly date String to DateTime
+    // changeDate also adds 1 day; that Day was subtracted throw subtract()
+
+    if (date1.day == datetime.day) {
+      if (date1.month == datetime.month) {
+        if (date1.year == datetime.year) {
           return true;
         }
       }
