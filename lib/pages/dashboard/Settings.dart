@@ -4,6 +4,7 @@ import 'package:page_transition/page_transition.dart';
 import '../../models/ListItem.dart';
 
 import 'settings/VPlanLogin.dart';
+import 'settings/DeveloperOptions.dart';
 
 class Settings extends StatelessWidget {
   List<String> colors = [
@@ -54,10 +55,10 @@ class Settings extends StatelessWidget {
     },
     {
       'colorIndex': 5,
-      'title': '----',
-      'icon': Icons.paid_rounded,
-      'subtitle': '----',
-      'link': SizedBox(),
+      'title': 'Entwickleroptionen',
+      'icon': Icons.developer_mode_rounded,
+      'subtitle': '...',
+      'link': DeveloperOptions(),
     },
   ];
 
