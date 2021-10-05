@@ -16,12 +16,22 @@ class TeacherVPlan extends StatefulWidget {
 class _TeacherVPlanState extends State<TeacherVPlan> {
   String teacherShort = '';
   double spaceBetween = 50;
+  String searchText = '';
 
   TextEditingController textFieldController = new TextEditingController();
 
   void setTeacherShort(String newValue) {
     teacherShort = newValue;
     textFieldController.text = newValue;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    textFieldController.addListener(() {
+      searchText = textFieldController.text;
+      setState(() {});
+    });
   }
 
   @override
@@ -36,6 +46,7 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
           }
           return TeacherList(
             setTeacherShort: this.setTeacherShort,
+            searchText: searchText,
           );
         },
       ),
@@ -94,7 +105,7 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
               child: Container(
                 padding: EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(8),
                   color: Theme.of(context).backgroundColor,
                 ),
                 child: Text('ansehen'),
@@ -125,12 +136,14 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
 }
 
 class TeacherList extends StatefulWidget {
+  final Function setTeacherShort;
+  final String searchText;
+
   const TeacherList({
     Key? key,
     required this.setTeacherShort,
+    required this.searchText,
   }) : super(key: key);
-
-  final Function setTeacherShort;
 
   @override
   _TeacherListState createState() => _TeacherListState();
@@ -177,6 +190,18 @@ class _TeacherListState extends State<TeacherList> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.searchText != '') {
+      List<String> newList = [];
+      for (int i = 0; i < teachers.length; i++) {
+        RegExp exp = new RegExp(
+          '[${widget.searchText.toLowerCase()}][a-z,ö,ä,ü]*',
+        );
+        if (exp.hasMatch(teachers[i].toLowerCase())) {
+          newList.add(teachers[i]);
+        }
+      }
+      teachers = newList;
+    }
     return Container(
       height: 200,
       child: ListView(
@@ -198,7 +223,7 @@ class _TeacherListState extends State<TeacherList> {
                   padding: EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Theme.of(context).backgroundColor,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     e,
