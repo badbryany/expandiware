@@ -73,6 +73,17 @@ class _PlanState extends State<Plan> {
 
   @override
   Widget build(BuildContext context) {
+    DateTime displayDateDateTime = VPlanAPI()
+        .changeDate(
+          date: data['data']['date'].toString(),
+          nextDay: true,
+        )
+        .subtract(
+          Duration(days: 1),
+        );
+    String displayDate =
+        '${displayDateDateTime.day}.${displayDateDateTime.month}';
+
     return SafeArea(
       child: Container(
         child: Stack(
@@ -93,7 +104,9 @@ class _PlanState extends State<Plan> {
                     ),
                   ),
                   SizedBox(width: 15),
-                  Text('${data != null ? data['data']['date'].toString() : ''}')
+                  Text(
+                    '${data != null ? displayDate : ''}',
+                  ),
                 ],
               ),
             ),
@@ -203,6 +216,13 @@ class _PlanState extends State<Plan> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  IconButton(
+                    onPressed: () {
+                      VPlanAPI().removePlanByDate(data['data']['date']);
+                      getData();
+                    },
+                    icon: Icon(Icons.refresh, size: 20),
+                  ),
                   // courses
                   OpenContainer(
                     closedColor: Colors.transparent,
@@ -225,7 +245,6 @@ class _PlanState extends State<Plan> {
                     onPressed: () => newVP(false),
                     icon: Icon(Icons.arrow_back),
                   ),
-                  SizedBox(width: 5),
                   IconButton(
                     onPressed: () => newVP(true),
                     icon: Icon(Icons.arrow_forward),

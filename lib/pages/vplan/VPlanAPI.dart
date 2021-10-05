@@ -96,6 +96,22 @@ class VPlanAPI {
     }
   }
 
+  void removePlanByDate(String date) async {
+    this.cleanVplanOfflineData();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String offlineVPData = prefs.getString('offlineVPData')!;
+
+    List<dynamic> vplanData = jsonDecode(offlineVPData);
+    List<dynamic> newVplanData = [];
+    for (int i = 0; i < vplanData.length; i++) {
+      if (vplanData[i]['date'] != date) {
+        newVplanData.add(vplanData[i]);
+      }
+    }
+    prefs.setString('offlineVPData', jsonEncode(newVplanData));
+  }
+
   Future<dynamic> getAllOfflineData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var offlineVPData = prefs.getString('offlineVPData');
