@@ -102,6 +102,8 @@ class _VPlanState extends State<VPlan> {
           OpenContainer(
             closedColor: Theme.of(context).scaffoldBackgroundColor,
             openColor: Theme.of(context).scaffoldBackgroundColor,
+            openElevation: 0,
+            closedElevation: 0,
             closedBuilder: (context, openContainer) => ListItem(
               title: Text(
                 'Klassenauswahl',
