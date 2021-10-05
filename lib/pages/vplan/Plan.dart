@@ -73,17 +73,19 @@ class _PlanState extends State<Plan> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime displayDateDateTime = VPlanAPI()
-        .changeDate(
-          date: data['data']['date'].toString(),
-          nextDay: true,
-        )
-        .subtract(
-          Duration(days: 1),
-        );
-    String displayDate =
-        '${displayDateDateTime.day}.${displayDateDateTime.month}';
-
+    DateTime displayDateDateTime;
+    String displayDate = '...';
+    if (data != null) {
+      displayDateDateTime = VPlanAPI()
+          .changeDate(
+            date: data['data']['date'].toString(),
+            nextDay: true,
+          )
+          .subtract(
+            Duration(days: 1),
+          );
+      displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
+    }
     return SafeArea(
       child: Container(
         child: Stack(
