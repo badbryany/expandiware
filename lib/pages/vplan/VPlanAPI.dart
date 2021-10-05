@@ -370,11 +370,19 @@ class VPlanAPI {
 
     // morgen
     if (nextDay) {
-      vpDate = vpDate.add(Duration(days: 1));
+      int days = 1;
+      if (vpDate.weekday == 5) {
+        days = 3;
+      }
+      vpDate = vpDate.add(Duration(days: days));
     }
     // gestern
     if (!nextDay) {
-      vpDate = vpDate.subtract(Duration(days: 1));
+      int days = 1;
+      if (vpDate.weekday == 1) {
+        days = 3;
+      }
+      vpDate = vpDate.subtract(Duration(days: days));
     }
     return vpDate;
   }
