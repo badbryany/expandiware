@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
   String activeText = 'vplan students';
 
   void checkForUpdates(BuildContext context) async {
-    String _version = 'beta 0.7';
+    String _version = 'beta 0.7.5';
     var r = await http.get(
       Uri.parse(
         'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
