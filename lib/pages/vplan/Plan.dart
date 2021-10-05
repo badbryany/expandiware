@@ -51,6 +51,8 @@ class _PlanState extends State<Plan> {
     hiddenSubjects = await vplanAPI.getHiddenCourses();
 
     setState(() {});
+
+    vplanAPI.cleanVplanOfflineData();
   }
 
   dynamic data;

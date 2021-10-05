@@ -388,4 +388,24 @@ class VPlanAPI {
 
     return prefs.getStringList('classes')!;
   }
+
+  void cleanVplanOfflineData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? offlineVPData = prefs.getString('offlineVPData');
+
+    if (offlineVPData == null) {
+      return;
+    }
+
+    List<dynamic> vplanData = jsonDecode(offlineVPData);
+    List<dynamic> cleanedPlan = [];
+    for (int i = 0; i < vplanData.length; i++) {
+      if (!cleanedPlan.contains(vplanData[i])) {
+        cleanedPlan.add(vplanData[i]);
+      } else {
+        print('already there');
+      }
+    }
+    prefs.setString('offlineVPData', jsonEncode(cleanedPlan));
+  }
 }
