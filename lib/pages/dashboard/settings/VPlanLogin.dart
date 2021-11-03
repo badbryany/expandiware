@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:qr/qr.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class VPlanLogin extends StatelessWidget {
   TextEditingController schoolnumberController = new TextEditingController();
@@ -15,6 +16,23 @@ class VPlanLogin extends StatelessWidget {
   String schoolnumber = '';
   String username = '';
   String password = '';
+
+  Future<String> scanQRCode() async {
+    String barcodeScanRes = 'nothing';
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.QR,
+      );
+      print(barcodeScanRes);
+    } catch (e) {
+      print(e);
+    }
+
+    return barcodeScanRes;
+  }
 
   void getLoginData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -130,6 +148,26 @@ class VPlanLogin extends StatelessWidget {
                         Icons.share_rounded,
                       ),
                     ),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      String data = await scanQRCode();
+
+                      dynamic jsonData = {};
+                      try {
+                        jsonData = jsonDecode(data);
+                      } catch (e) {
+                        return;
+                      }
+                      prefs.setString(
+                          'vplanSchoolnumber', jsonData['schoolnumber']);
+                      prefs.setString('vplanUsername', jsonData['username']);
+                      prefs.setString('vplanPassword', jsonData['password']);
+                      return;
+                    },
+                    icon: Icon(Icons.qr_code_scanner),
                   ),
                 ],
               ),
