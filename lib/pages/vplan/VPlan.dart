@@ -273,6 +273,7 @@ class _SelectClassState extends State<SelectClass> {
                                 classes[index],
                                 style: TextStyle(
                                   fontSize: 19,
+                                  fontWeight: used ? FontWeight.bold : null,
                                 ),
                               ),
                               actionButton: used
@@ -281,7 +282,8 @@ class _SelectClassState extends State<SelectClass> {
                                       onPressed: () {},
                                     )
                                   : null,
-                              color: used ? Color(0xff4B6F49) : null,
+                              color:
+                                  used ? Theme.of(context).accentColor : null,
                               onClick: () async {
                                 SharedPreferences instance =
                                     await SharedPreferences.getInstance();
