@@ -178,6 +178,11 @@ class VPlanAPI {
         String stringVPlan = xml2json.toParker();
 
         var jsonVPlan = jsonDecode(stringVPlan);
+
+        if (jsonVPlan['VpMobil'] == null) {
+          return {};
+        }
+
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
@@ -255,6 +260,10 @@ class VPlanAPI {
 
     var pureVPlan = await getVPlanJSON(url, DateTime.now());
 
+    if (pureVPlan == {}) {
+      return {};
+    }
+
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
@@ -318,6 +327,9 @@ class VPlanAPI {
     );
     var pureVPlan = await getVPlanJSON(url, date);
 
+    if (pureVPlan.toString() == '{}') {
+      return {};
+    }
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
