@@ -165,6 +165,9 @@ class VPlanLogin extends StatelessWidget {
                           'vplanSchoolnumber', jsonData['schoolnumber']);
                       prefs.setString('vplanUsername', jsonData['username']);
                       prefs.setString('vplanPassword', jsonData['password']);
+                      schoolnumberController.text = jsonData['schoolnumber'];
+                      usernameController.text = jsonData['username'];
+                      passwordController.text = jsonData['password'];
                       return;
                     },
                     icon: Icon(Icons.qr_code_scanner),
