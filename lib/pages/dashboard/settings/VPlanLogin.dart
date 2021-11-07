@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:qr/qr.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import '../../../models/QRScanner.dart';
 
 class VPlanLogin extends StatelessWidget {
   TextEditingController schoolnumberController = new TextEditingController();
@@ -16,23 +15,6 @@ class VPlanLogin extends StatelessWidget {
   String schoolnumber = '';
   String username = '';
   String password = '';
-
-  Future<String> scanQRCode() async {
-    String barcodeScanRes = 'nothing';
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancel',
-        true,
-        ScanMode.QR,
-      );
-      print(barcodeScanRes);
-    } catch (e) {
-      print(e);
-    }
-
-    return barcodeScanRes;
-  }
 
   void getLoginData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -48,6 +30,23 @@ class VPlanLogin extends StatelessWidget {
     passwordController.text = prefs.getString('vplanPassword') == null
         ? ''
         : prefs.getString('vplanPassword')!;
+  }
+
+  void setData(dynamic data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    dynamic jsonData = {};
+    try {
+      jsonData = jsonDecode(data);
+    } catch (e) {
+      return;
+    }
+    prefs.setString('vplanSchoolnumber', jsonData['schoolnumber']);
+    prefs.setString('vplanUsername', jsonData['username']);
+    prefs.setString('vplanPassword', jsonData['password']);
+    schoolnumberController.text = jsonData['schoolnumber'];
+    usernameController.text = jsonData['username'];
+    passwordController.text = jsonData['password'];
+    return;
   }
 
   @override
@@ -101,76 +100,61 @@ class VPlanLogin extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    margin: EdgeInsets.only(right: 15),
-                    child: IconButton(
-                      onPressed: () async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        String schoolnumber =
-                            prefs.getString("vplanSchoolnumber")!;
-                        String vplanUsername =
-                            prefs.getString("vplanUsername")!;
-                        String vplanPassword =
-                            prefs.getString("vplanPassword")!;
-
-                        dynamic data = {
-                          'schoolnumber': schoolnumber,
-                          'username': vplanUsername,
-                          'password': vplanPassword,
-                        };
-
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Theme.of(context).backgroundColor,
-                            title: Text('Zugangsdaten teilen'),
-                            content: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: PrettyQr(
-                                size: 200,
-                                data: jsonEncode(data),
-                                elementColor: Theme.of(context).focusColor,
-                                errorCorrectLevel: QrErrorCorrectLevel.M,
-                                roundEdges: true,
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: Text('ok'),
-                                onPressed: () => Navigator.pop(context),
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        Icons.share_rounded,
-                      ),
-                    ),
-                  ),
+                  SizedBox(),
                   IconButton(
                     onPressed: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
-                      String data = await scanQRCode();
+                      String schoolnumber =
+                          prefs.getString("vplanSchoolnumber")!;
+                      String vplanUsername = prefs.getString("vplanUsername")!;
+                      String vplanPassword = prefs.getString("vplanPassword")!;
 
-                      dynamic jsonData = {};
-                      try {
-                        jsonData = jsonDecode(data);
-                      } catch (e) {
-                        return;
-                      }
-                      prefs.setString(
-                          'vplanSchoolnumber', jsonData['schoolnumber']);
-                      prefs.setString('vplanUsername', jsonData['username']);
-                      prefs.setString('vplanPassword', jsonData['password']);
-                      schoolnumberController.text = jsonData['schoolnumber'];
-                      usernameController.text = jsonData['username'];
-                      passwordController.text = jsonData['password'];
-                      return;
+                      dynamic data = {
+                        'schoolnumber': schoolnumber,
+                        'username': vplanUsername,
+                        'password': vplanPassword,
+                      };
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: Theme.of(context).backgroundColor,
+                          title: Text('Zugangsdaten teilen'),
+                          content: Container(
+                            color: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: PrettyQr(
+                                size: 250,
+                                data: jsonEncode(data),
+                                elementColor: Colors.black,
+                                errorCorrectLevel: QrErrorCorrectLevel.M,
+                                roundEdges: true,
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              child: Text('ok'),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          ],
+                        ),
+                      );
                     },
-                    icon: Icon(Icons.qr_code_scanner),
+                    icon: Icon(
+                      Icons.share_rounded,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QRScanner(setData: setData),
+                      ),
+                    ),
+                    icon: Icon(Icons.qr_code_scanner_rounded),
                   ),
                 ],
               ),
@@ -239,3 +223,24 @@ class VPlanLogin extends StatelessWidget {
     );
   }
 }
+
+/*async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      String data = await scanQRCode();
+
+                      dynamic jsonData = {};
+                      try {
+                        jsonData = jsonDecode(data);
+                      } catch (e) {
+                        return;
+                      }
+                      prefs.setString(
+                          'vplanSchoolnumber', jsonData['schoolnumber']);
+                      prefs.setString('vplanUsername', jsonData['username']);
+                      prefs.setString('vplanPassword', jsonData['password']);
+                      schoolnumberController.text = jsonData['schoolnumber'];
+                      usernameController.text = jsonData['username'];
+                      passwordController.text = jsonData['password'];
+                      return;
+                    } */

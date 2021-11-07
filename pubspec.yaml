@@ -19,10 +19,12 @@ dependencies:
   http_auth: ^1.0.0
   flutter_svg: ^0.22.0
   device_info: ^2.0.2
-  qr: ^2.0.0
   pretty_qr_code: ^2.0.2
+  qr_code_scanner: ^0.6.1
   flutter_barcode_scanner: ^2.0.0
   url_launcher: ^6.0.10
+  flutter_background_service: ^0.1.5
+  awesome_notifications: ^0.6.16
 
 dev_dependencies:
   flutter_test:
