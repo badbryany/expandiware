@@ -105,29 +105,13 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
               child: Container(
                 padding: EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).backgroundColor,
+                  borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).accentColor,
                 ),
                 child: Text('ansehen'),
               ),
             ),
           ),
-          /*TextButton(
-            onPressed: () => setState(() {
-              scannWidget = FutureBuilder(
-                future: Future.delayed(Duration(seconds: 1)),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return CircularProgressIndicator();
-                  }
-                  return TeacherList(
-                    setTeacherShort: this.setTeacherShort,
-                  );
-                },
-              );
-            }),
-            child: Text('Scanne Lehrerkürzel'),
-          ),*/
           scannWidget,
         ],
       ),
@@ -223,7 +207,7 @@ class _TeacherListState extends State<TeacherList> {
                   padding: EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Theme.of(context).backgroundColor,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     e,
