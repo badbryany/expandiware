@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -13,8 +11,13 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+/* vplanlogin scan */
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
+import 'background_service.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+
+/* pages */
 import 'pages/vplan/VPlan.dart';
 import 'pages/teacherVPlan/TeacherVPlan.dart';
 import 'pages/dashboard/Dashboard.dart';
@@ -114,11 +117,22 @@ void sendAppOpenData() async {
     body: logindata,
   );
 
-  print(res.body);
+  //print(res.body);
 }
 
-void main() {
+void main() async {
   runApp(MyApp());
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool('automaticLoad') != null) {
+    print("prefs.getBool('automaticLoad')");
+    print(prefs.getBool('automaticLoad'));
+    if (prefs.getBool('automaticLoad')!) {
+      print('initialize background service');
+      WidgetsFlutterBinding.ensureInitialized();
+      FlutterBackgroundService.initialize(onStart);
+    }
+  }
   sendAppOpenData();
 }
 
@@ -133,7 +147,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         fontFamily: 'Poppins',
         brightness: Brightness.dark,
-        accentColor: Color(0xff258786),
+        accentColor: Color(0xffECA44D),
         primaryColor: Color(0xff0884eb),
         indicatorColor: Color(0xffd04f5b),
         focusColor: Colors.white,
@@ -223,92 +237,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void getVPlanLogin(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).backgroundColor,
-        title: Text('Schulnummer'),
-        content: TextField(
-          decoration: InputDecoration(
-            hintText: 'Schulnummer',
-          ),
-          onChanged: (value) => prefs.setString('vplanSchoolnumber', value),
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  String data = await scanQRCode();
-                  dynamic jsonData = {};
-                  try {
-                    jsonData = jsonDecode(data);
-                  } catch (e) {
-                    return;
-                  }
-                  prefs.setString(
-                      'vplanSchoolnumber', jsonData['schoolnumber']);
-                  prefs.setString('vplanUsername', jsonData['username']);
-                  prefs.setString('vplanPassword', jsonData['password']);
-                  return;
-                },
-                child: Text('scannen'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('ok'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ).then(
-      (value) => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: Theme.of(context).backgroundColor,
-          title: Text('Benutzername'),
-          content: TextField(
-            decoration: InputDecoration(
-              hintText: 'Benutzername',
-            ),
-            onChanged: (value) => prefs.setString('vplanUsername', value),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('ok'),
-            ),
-          ],
-        ),
-      ).then(
-        (value) => showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: Theme.of(context).backgroundColor,
-            title: Text('Passwort'),
-            content: TextField(
-              decoration: InputDecoration(
-                hintText: 'Passwort',
-              ),
-              onChanged: (value) => prefs.setString('vplanPassword', value),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('ok'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     checkForUpdates(context);
@@ -318,14 +246,12 @@ class _HomePageState extends State<HomePage> {
         'index': 0,
         'icon': Icons.photo_album_rounded,
         'widget': VPlan(),
-        'settings': () => getVPlanLogin(context),
       },
       {
         'text': 'vplan teachers',
         'index': 1,
         'icon': Icons.people_alt_rounded,
         'widget': TeacherVPlan(),
-        'settings': () => getVPlanLogin(context),
       },
       /*{
         'text': 'analysis',
@@ -342,7 +268,6 @@ class _HomePageState extends State<HomePage> {
         'index': 2,
         'icon': Icons.now_widgets_rounded,
         'widget': Dashboard(),
-        'settings': () {},
       },
     ];
     SystemChrome.setSystemUIOverlayStyle(
@@ -437,9 +362,9 @@ class _HomePageState extends State<HomePage> {
                                   activeText = e['text'];
                                   setState(() {});
                                 },
-                                onLongPress: e['settings'],
                                 child: Container(
                                   padding: EdgeInsets.all(7),
+                                  margin: EdgeInsets.all(17),
                                   child: Icon(
                                     e['icon'],
                                     size: 26,

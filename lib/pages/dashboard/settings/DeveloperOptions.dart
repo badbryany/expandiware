@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 import '../../../models/AppBar.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 
 class DeveloperOptions extends StatelessWidget {
   void deleteOfflineData() async {
@@ -21,9 +21,10 @@ class DeveloperOptions extends StatelessWidget {
         'action': deleteOfflineData,
       },
       {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
+        'title': 'Stop Background service',
+        'actionText': 'stop',
+        'action': () =>
+            FlutterBackgroundService().sendData({'action': 'stopService'}),
       },
       {
         'title': '--',
@@ -52,43 +53,45 @@ class DeveloperOptions extends StatelessWidget {
       },
     ];
     return Scaffold(
-      body: Stack(
-        children: [
-          Appbar('Entwickleroptionen', SizedBox()),
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.89,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Appbar('Entwickleroptionen', SizedBox()),
+            Container(
               alignment: Alignment.bottomCenter,
               child: Container(
-                alignment: Alignment.topCenter,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    ...options.map(
-                      (e) => Container(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              e['title'],
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            TextButton(
-                              onPressed: e['action'],
-                              child: Text(e['actionText']),
-                            ),
-                          ],
+                height: MediaQuery.of(context).size.height * 0.89,
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  alignment: Alignment.topCenter,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      ...options.map(
+                        (e) => Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                e['title'],
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextButton(
+                                onPressed: e['action'],
+                                child: Text(e['actionText']),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

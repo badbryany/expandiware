@@ -5,6 +5,7 @@ import '../../models/ListItem.dart';
 
 import 'settings/VPlanLogin.dart';
 import 'settings/DeveloperOptions.dart';
+import 'settings/Notifications.dart';
 
 class Settings extends StatelessWidget {
   List<String> colors = [
@@ -27,10 +28,10 @@ class Settings extends StatelessWidget {
     },
     {
       'colorIndex': 1,
-      'title': '----',
-      'icon': Icons.language_rounded,
-      'subtitle': '----',
-      'link': SizedBox(),
+      'title': 'Notifications',
+      'icon': Icons.notifications_none_rounded,
+      'subtitle': 'Benachrichtigungen für den Stundenplan',
+      'link': Notifications(),
     },
     {
       'colorIndex': 2,
