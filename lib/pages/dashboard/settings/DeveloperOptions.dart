@@ -27,9 +27,10 @@ class DeveloperOptions extends StatelessWidget {
             FlutterBackgroundService().sendData({'action': 'stopService'}),
       },
       {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
+        'title': 'Clear all SharedPreferences',
+        'actionText': 'clear',
+        'action': () => SharedPreferences.getInstance()
+            .then((instance) => instance.clear()),
       },
       {
         'title': '--',

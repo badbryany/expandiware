@@ -33,7 +33,8 @@ void onStart() async {
   Timer.periodic(Duration(seconds: _interval), vplanNotifications);
 
   service.setNotificationInfo(
-    title: 'expandiware interval: ${_interval}s',
+    title:
+        'expandiware interval: ${_interval}s (${prefs.getString('prefClass')})',
     content: '',
   );
 }
@@ -114,8 +115,6 @@ void vplanNotifications(Timer _timer) async {
   if (prefs.getStringList('notified') == null)
     prefs.setStringList('notified', []);
 
-  print(prefs.getStringList('notified'));
-
   if (!prefs.getStringList('notified')!.contains(data['date'])) {
     for (int i = 0; i < _lessons.length; i++) {
       if (!_remindOnlyChange) {
@@ -126,14 +125,18 @@ void vplanNotifications(Timer _timer) async {
           subtitle: 'expandiware',
         );
       } else {
-        print('foo');
         if (!(_lessons[i]['info'] == '' || _lessons[i]['info'] == null)) {
-          print('bar');
           reminded = true;
           createNotification(
             id: i,
-            title: _lessons[i]['lesson'],
-            body: _lessons[i]['place'] + ' ' + _lessons[i]['teacher'],
+            title: _lessons[i]['lesson'] +
+                ' ' +
+                (_lessons[i]['teacher'] == null
+                    ? 'ohne Lehrer'
+                    : _lessons[i]['teacher']) +
+                ' ' +
+                _lessons[i]['place'],
+            body: _lessons[i]['info'],
             subtitle: 'expandiware',
           );
         }
@@ -141,10 +144,9 @@ void vplanNotifications(Timer _timer) async {
     }
 
     if (!reminded) {
-      print('baz');
       createNotification(
         id: 10000000,
-        title: 'keine Veränderungen',
+        title: 'keine Veränderungen (${_vplanDate.day}.${_vplanDate.month})',
         body: ' ',
         subtitle: 'expandiware',
         normal: true,
