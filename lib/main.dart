@@ -151,8 +151,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Color(0xff0884eb),
         indicatorColor: Color(0xffd04f5b),
         focusColor: Colors.white,
-        backgroundColor: Color(0xff1d1e23), //Color(0xff161B28),
-        scaffoldBackgroundColor: Color(0xff010001),
+        backgroundColor: Color(0xff101012), //Color(0xff161B28),
+        scaffoldBackgroundColor: Colors.black,
       ),
       theme: ThemeData(
         fontFamily: 'Poppins',
@@ -164,6 +164,15 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.white, //Color(0xffe7e7e7),
         scaffoldBackgroundColor: Color(0xffd7dae1), //Colors.white,
       ),
+      /*theme: ThemeData(
+        fontFamily: 'Poppins',
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Color(0xffeffbf9),
+        backgroundColor: Color(0xff18181a),
+        cardColor: Color(0xffecf0ef),
+        focusColor: Colors.white,
+        accentColor: Color(0xff68f9ff),
+      ),*/
       home: Scaffold(
         body: HomePage(),
       ),
@@ -284,45 +293,68 @@ class _HomePageState extends State<HomePage> {
     }
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SafeArea(
+      body: SizedBox(
         child: Container(
           child: Stack(
             children: [
               // APPBAR
               Container(
-                margin: EdgeInsets.only(top: 10),
                 alignment: Alignment.topCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(),
-                    SvgPicture.asset(
-                      'assets/img/bird.svg',
-                      color: Theme.of(context).focusColor,
-                      width: 35,
+                color: Theme.of(context).backgroundColor,
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: SafeArea(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(),
+                        SvgPicture.asset(
+                          'assets/img/bird.svg',
+                          color: Theme.of(context).focusColor,
+                          width: 35,
+                        ),
+                        SizedBox(width: 30),
+                        Text(
+                          'expandiware',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 23,
+                            color: Theme.of(context).focusColor,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: Text(
+                            activeText,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(context).focusColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(),
+                      ],
                     ),
-                    SizedBox(width: 30),
-                    Text(
-                      'expandiware',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 23,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: Text(
-                        activeText,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    SizedBox(),
-                  ],
+                  ),
                 ),
               ),
               // CONTENT
               Container(
+                margin: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height * 0.14,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(45),
+                    topRight: Radius.circular(45),
+                  ),
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                ),
                 alignment: Alignment.center,
                 child: AnimatedSwitcher(
                   duration: Duration(milliseconds: 250),
@@ -370,7 +402,7 @@ class _HomePageState extends State<HomePage> {
                                     size: 26,
                                     color: activeText == e['text']
                                         ? Theme.of(context).accentColor
-                                        : null,
+                                        : Theme.of(context).focusColor,
                                   ),
                                 ),
                               ),

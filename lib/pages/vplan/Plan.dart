@@ -22,6 +22,8 @@ class Plan extends StatefulWidget {
 
 class _PlanState extends State<Plan> {
   VPlanAPI vplanAPI = new VPlanAPI();
+  ScrollController controller = ScrollController();
+  double topHeight = -10;
 
   void newVP(bool nextDay) async {
     String? date = data['data']['date'];
@@ -69,6 +71,15 @@ class _PlanState extends State<Plan> {
   void initState() {
     super.initState();
     getData();
+
+    controller.addListener(() {
+      if (controller.offset > 0) {
+        topHeight = 0;
+      } else {
+        topHeight = -10;
+      }
+      setState(() {});
+    });
   }
 
   @override
@@ -86,36 +97,113 @@ class _PlanState extends State<Plan> {
           );
       displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
     }
+    if (topHeight == -10) topHeight = MediaQuery.of(context).size.height * 0.17;
+
     return SafeArea(
       child: Container(
         child: Stack(
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
               alignment: Alignment.topCenter,
-              child: Row(
+              color: Theme.of(context).backgroundColor,
+              height: topHeight,
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
                 children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.arrow_back),
-                  ),
-                  Text(
-                    '${widget.classId}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(Icons.arrow_back),
+                            ),
+                            Text(
+                              '${widget.classId}',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 15),
+                            Text(
+                              '${data != null ? displayDate : ''}',
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                VPlanAPI()
+                                    .removePlanByDate(data['data']['date']);
+                                getData();
+                              },
+                              icon: Icon(Icons.refresh, size: 20),
+                            ),
+                            // courses
+                            OpenContainer(
+                              closedColor: Colors.transparent,
+                              closedElevation: 0,
+                              openColor:
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              closedBuilder: (context, openContainer) =>
+                                  IconButton(
+                                onPressed: openContainer,
+                                icon: Icon(
+                                  Icons.settings_rounded,
+                                  size: 20,
+                                ),
+                              ),
+                              openBuilder: (context, closeContainer) => Courses(
+                                classId: widget.classId,
+                                updateCourses: () => getData(),
+                              ),
+                            ),
+                            // courses
+                            IconButton(
+                              onPressed: () => newVP(false),
+                              icon: Icon(Icons.arrow_back),
+                            ),
+                            IconButton(
+                              onPressed: () => newVP(true),
+                              icon: Icon(Icons.arrow_forward),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: 15),
-                  Text(
-                    '${data != null ? displayDate : ''}',
                   ),
                 ],
               ),
             ),
+            // CONTENT
             Center(
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.05,
+                  top: topHeight != 0
+                      ? MediaQuery.of(context).size.height * 0.08
+                      : 0,
+                ),
+                padding: EdgeInsets.only(
+                  top: topHeight != 0
+                      ? MediaQuery.of(context).size.height * 0.07
+                      : 0,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(45),
+                    topRight: Radius.circular(45),
+                  ),
+                  color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 alignment: Alignment.bottomCenter,
                 height: MediaQuery.of(context).size.height * 0.9,
@@ -127,6 +215,7 @@ class _PlanState extends State<Plan> {
                       )
                     : ListView(
                         physics: BouncingScrollPhysics(),
+                        controller: controller,
                         children: [
                           ...data['data']['data'].map(
                             (e) {
@@ -212,47 +301,10 @@ class _PlanState extends State<Plan> {
                       ),
               ),
             ),
-            Container(
+            /*Container(
               alignment: Alignment.topRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      VPlanAPI().removePlanByDate(data['data']['date']);
-                      getData();
-                    },
-                    icon: Icon(Icons.refresh, size: 20),
-                  ),
-                  // courses
-                  OpenContainer(
-                    closedColor: Colors.transparent,
-                    closedElevation: 0,
-                    openColor: Theme.of(context).scaffoldBackgroundColor,
-                    closedBuilder: (context, openContainer) => IconButton(
-                      onPressed: openContainer,
-                      icon: Icon(
-                        Icons.settings_rounded,
-                        size: 20,
-                      ),
-                    ),
-                    openBuilder: (context, closeContainer) => Courses(
-                      classId: widget.classId,
-                      updateCourses: () => getData(),
-                    ),
-                  ),
-                  // courses
-                  IconButton(
-                    onPressed: () => newVP(false),
-                    icon: Icon(Icons.arrow_back),
-                  ),
-                  IconButton(
-                    onPressed: () => newVP(true),
-                    icon: Icon(Icons.arrow_forward),
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: 
             ),
             /*Container(
               alignment: Alignment.topRight,
@@ -268,7 +320,7 @@ class _PlanState extends State<Plan> {
                 ),
                 icon: Icon(Icons.analytics_rounded),
               ),
-            ),*/
+            ),*/*/
           ],
         ),
       ),
