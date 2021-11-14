@@ -232,50 +232,46 @@ class _SelectClassState extends State<SelectClass> {
             ? Center(
                 child: Container(
                   width: 80,
-                  child: LinearProgressIndicator(),
+                  child: LinearProgressIndicator(
+                    color: Theme.of(context).accentColor,
+                  ),
                 ),
               )
-            : AnimatedList(
-                physics: BouncingScrollPhysics(),
-                initialItemCount: classes.length,
-                itemBuilder: (context, index, animation) {
-                  {
-                    bool used = false;
-                    if (widget.favs.contains(classes[index])) {
-                      used = true;
-                    }
-                    return ListItem(
-                      title: Text(
-                        classes[index],
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: used ? FontWeight.bold : null,
-                        ),
-                      ),
-                      actionButton: used
-                          ? IconButton(
-                              icon: Icon(Icons.check_rounded),
-                              onPressed: () {},
-                            )
-                          : null,
-                      color: used ? Theme.of(context).accentColor : null,
-                      onClick: () async {
-                        SharedPreferences instance =
-                            await SharedPreferences.getInstance();
-                        List<String>? _classes =
-                            instance.getStringList('classes');
-                        if (_classes == null) {
-                          _classes = [];
-                        }
-                        _classes.add(classes[index]);
-                        instance.setStringList('classes', _classes);
-                        this.widget.pop(classes[index]);
-                        Navigator.pop(context);
-                      },
-                    );
-                  }
-                },
+            : SizedBox(),
+        ...classes.map((className) {
+          bool used = false;
+          if (widget.favs.contains(className)) {
+            used = true;
+          }
+          return ListItem(
+            title: Text(
+              className,
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: used ? FontWeight.bold : null,
               ),
+            ),
+            actionButton: used
+                ? IconButton(
+                    icon: Icon(Icons.check_rounded),
+                    onPressed: () {},
+                  )
+                : null,
+            color: used ? Theme.of(context).accentColor : null,
+            onClick: () async {
+              SharedPreferences instance =
+                  await SharedPreferences.getInstance();
+              List<String>? _classes = instance.getStringList('classes');
+              if (_classes == null) {
+                _classes = [];
+              }
+              _classes.add(className);
+              instance.setStringList('classes', _classes);
+              this.widget.pop(className);
+              Navigator.pop(context);
+            },
+          );
+        }),
       ],
     );
   }

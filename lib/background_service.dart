@@ -118,10 +118,11 @@ void vplanNotifications(Timer _timer) async {
   if (!prefs.getStringList('notified')!.contains(data['date'])) {
     for (int i = 0; i < _lessons.length; i++) {
       if (!_remindOnlyChange) {
+        reminded = true;
         createNotification(
           id: i,
           title: _lessons[i]['lesson'],
-          body: _lessons[i]['place'] + ' ' + _lessons[i]['teacher'],
+          body: '${_lessons[i]['place']} ${_lessons[i]['teacher']}',
           subtitle: 'expandiware',
         );
       } else {
