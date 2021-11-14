@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/ListItem.dart';
 import '../../../models/ListPage.dart';
+import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 
 import '../../vplan/VPlanAPI.dart';
 
@@ -38,6 +39,14 @@ class _NotificationsState extends State<Notifications> {
   bool _remindDayBefore = true;
   int? _interval;
   bool _remindOnlyChange = true;
+
+  AdvancedSwitchController autoLoadController = AdvancedSwitchController();
+  AdvancedSwitchController intiligentNotificationController =
+      AdvancedSwitchController();
+  AdvancedSwitchController remindDayBeforeController =
+      AdvancedSwitchController();
+  AdvancedSwitchController remindOnlyChangeController =
+      AdvancedSwitchController();
 
   List<String> _classes = [];
 
@@ -123,9 +132,40 @@ class _NotificationsState extends State<Notifications> {
     _hour = int.parse(prefs.getString('hour')!);
     _minute = int.parse(prefs.getString('minute')!);
     _remindDayBefore = prefs.getBool('remindDayBefore')!;
+    _remindDayBefore = prefs.getBool('remindDayBefore')!;
+    _remindOnlyChange = prefs.getBool('remindOnlyChange')!;
     _interval = prefs.getInt('interval')!;
 
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (_automaticLoad)
+      autoLoadController.value = false;
+    else
+      autoLoadController.value = true;
+
+    if (_intiligentNotification)
+      intiligentNotificationController.value = true;
+    else
+      intiligentNotificationController.value = false;
+
+    if (_remindDayBefore)
+      remindDayBeforeController.value = true;
+    else
+      remindDayBeforeController.value = false;
+
+    if (_remindOnlyChange)
+      remindOnlyChangeController.value = true;
+    else
+      remindOnlyChangeController.value = false;
+
+    autoLoadController.addListener(changeAutomaticLoad);
+    intiligentNotificationController.addListener(changeNotification);
+    remindDayBeforeController.addListener(changeRemindDayBefore);
+    remindOnlyChangeController.addListener(changeRemindOnlyChange);
   }
 
   @override
@@ -140,10 +180,9 @@ class _NotificationsState extends State<Notifications> {
             ListItem(
               title: Text('Vertretungsplan automatisch laden'),
               onClick: () => changeAutomaticLoad(),
-              actionButton: Switch(
-                value: _automaticLoad,
-                onChanged: (change) => changeAutomaticLoad(),
+              actionButton: AdvancedSwitch(
                 activeColor: Theme.of(context).accentColor,
+                controller: autoLoadController,
               ),
             ),
             ListItem(
@@ -155,10 +194,10 @@ class _NotificationsState extends State<Notifications> {
               ),
               color: !_automaticLoad ? Color(0xff161616) : null,
               onClick: changeNotification,
-              actionButton: Switch(
-                value: _intiligentNotification,
-                onChanged: (change) => changeNotification(),
+              actionButton: AdvancedSwitch(
                 activeColor: Theme.of(context).accentColor,
+                controller: intiligentNotificationController,
+                enabled: _automaticLoad,
               ),
             ),
             ListItem(
@@ -246,10 +285,10 @@ class _NotificationsState extends State<Notifications> {
               ),
               color: !_automaticLoad ? Color(0xff161616) : null,
               onClick: () {},
-              actionButton: Switch(
-                value: _remindDayBefore,
-                onChanged: (change) => changeRemindDayBefore(),
+              actionButton: AdvancedSwitch(
                 activeColor: Theme.of(context).accentColor,
+                controller: remindDayBeforeController,
+                enabled: _automaticLoad,
               ),
             ),
             // ---------------------
@@ -318,10 +357,10 @@ class _NotificationsState extends State<Notifications> {
                 ),
               ),
               onClick: changeRemindOnlyChange,
-              actionButton: Switch(
-                value: _remindOnlyChange,
-                onChanged: (change) => changeRemindOnlyChange(),
+              actionButton: AdvancedSwitch(
                 activeColor: Theme.of(context).accentColor,
+                controller: remindOnlyChangeController,
+                enabled: _automaticLoad,
               ),
             ),
           ],
