@@ -101,63 +101,75 @@ class VPlanLogin extends StatelessWidget {
                     ),
                     color: Theme.of(context).backgroundColor,
                   ),
-                  child: Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  child: Container(
+                    width: double.infinity,
+                    child: Stack(
                       children: [
                         Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          width: 80,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Color(0x99202020),
-                          ),
-                        ),
-                        Text(
-                          'Zugangsdaten teilen',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        SizedBox(height: 25),
-                        Container(
-                          color: Colors.white,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: PrettyQr(
-                              size: 250,
-                              data: jsonEncode(data),
-                              elementColor: Colors.black,
-                              errorCorrectLevel: QrErrorCorrectLevel.H,
-                              typeNumber: 10,
-                              roundEdges: false,
-                              image: AssetImage('assets/img/logo.png'),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 25),
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
+                          alignment: Alignment.topCenter,
+                          width: double.infinity,
                           child: Container(
-                            width: 200,
-                            padding: EdgeInsets.all(15),
-                            decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
+                            margin: const EdgeInsets.all(10),
+                            width: 100,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
                               color: Color(0x99202020),
                             ),
-                            child: Center(
-                              child: Text(
-                                'fertig',
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Zugangsdaten teilen',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
                                 ),
                               ),
-                            ),
+                              SizedBox(height: 25),
+                              Container(
+                                color: Colors.white,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: PrettyQr(
+                                    size: 250,
+                                    data: jsonEncode(data),
+                                    elementColor: Colors.black,
+                                    errorCorrectLevel: QrErrorCorrectLevel.H,
+                                    typeNumber: 10,
+                                    roundEdges: false,
+                                    image: AssetImage('assets/img/logo.png'),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 25),
+                              InkWell(
+                                onTap: () => Navigator.pop(context),
+                                child: Container(
+                                  width: 200,
+                                  padding: EdgeInsets.all(15),
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(10),
+                                    ),
+                                    color: Color(0x99202020),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'fertig',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
