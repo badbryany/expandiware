@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../vplan/VPlanAPI.dart';
 import '../../models/ListItem.dart';
+import '../../models/ListPage.dart';
 
 class TeacherPlan extends StatefulWidget {
   const TeacherPlan({
@@ -117,118 +118,90 @@ class _TeacherPlanState extends State<TeacherPlan> {
 
   @override
   Widget build(BuildContext context) {
+    String displayDate = '...';
+    DateTime displayDateDateTime = VPlanAPI()
+        .changeDate(
+          date: date,
+          nextDay: true,
+        )
+        .subtract(
+          Duration(days: 1),
+        );
+    displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Container(
-          child: Stack(
-            children: [
-              Center(
-                child: Container(
-                  alignment: Alignment.topCenter,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(Icons.arrow_back),
-                      ),
-                      Text(
-                        'Stunden von Lehrer "${widget.teacher}"',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 50),
-                      Text(
-                        date,
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Center(
-                child: Container(
+      body: ListPage(
+        title: 'Stunden von ${widget.teacher}',
+        smallTitle: true,
+        children: res.length == 0
+            ? [
+                Container(
                   alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  child: res.length == 0
-                      ? Container(
-                          alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          child: LinearProgressIndicator(),
-                        )
-                      : ListView(
-                          physics: BouncingScrollPhysics(),
-                          children: [
-                            ...res.map(
-                              (e) => ListItem(
-                                leading: Text('${e['count']}'),
-                                title: Container(
-                                  alignment: Alignment.centerLeft,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.1,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        e['lesson'],
-                                        style: TextStyle(fontSize: 19),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Icons.location_on_rounded,
-                                                size: 16,
-                                              ),
-                                              SizedBox(width: 3),
-                                              Text(e['place']),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Icons.group_rounded,
-                                                size: 16,
-                                              ),
-                                              SizedBox(width: 3),
-                                              Text(e['class']),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(width: 50),
-                                    ],
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: LinearProgressIndicator(
+                    color: Theme.of(context).accentColor,
+                  ),
+                )
+              ]
+            : res
+                .map(
+                  (e) => ListItem(
+                    leading: Text('${e['count']}'),
+                    title: Container(
+                      alignment: Alignment.centerLeft,
+                      width: MediaQuery.of(context).size.width * 0.1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            e['lesson'],
+                            style: TextStyle(fontSize: 19),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.location_on_rounded,
+                                    size: 16,
                                   ),
-                                ),
-                                onClick: () {},
+                                  SizedBox(width: 3),
+                                  Text(e['place']),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            ],
+                              SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.group_rounded,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(e['class']),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 50),
+                        ],
+                      ),
+                    ),
+                    onClick: () {},
+                  ),
+                )
+                .toList(),
+        actions: [
+          Text(
+            displayDate,
           ),
-        ),
+        ],
       ),
     );
   }

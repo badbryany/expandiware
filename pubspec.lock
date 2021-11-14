@@ -310,6 +310,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.1"
+  quick_actions:
+    dependency: "direct main"
+    description:
+      name: quick_actions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0+7"
+  quick_actions_platform_interface:
+    dependency: transitive
+    description:
+      name: quick_actions_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   rxdart:
     dependency: transitive
     description:
@@ -492,4 +506,4 @@ packages:
     version: "5.2.0"
 sdks:
   dart: ">=2.14.0 <3.0.0"
-  flutter: ">=2.0.4"
+  flutter: ">=2.5.0"

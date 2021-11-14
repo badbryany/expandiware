@@ -25,6 +25,7 @@ dependencies:
   url_launcher: ^6.0.10
   flutter_background_service: ^0.1.5
   awesome_notifications: ^0.6.16
+  quick_actions: ^0.6.0+7
 
 dev_dependencies:
   flutter_test:
@@ -36,5 +37,8 @@ flutter:
   - family: Poppins
     fonts:
       - asset: ./assets/fonts/ProductSans-Light.ttf
+  - family: Questrial
+    fonts:
+      - asset: ./assets/fonts/questrial.ttf
   assets:
     - assets/img/

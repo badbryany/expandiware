@@ -59,7 +59,8 @@ class Dashboard extends StatelessWidget {
       },
     ];
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * 0.69,
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.1),
       alignment: Alignment.center,
       child: ListView(
         physics: BouncingScrollPhysics(),

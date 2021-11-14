@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/AppBar.dart';
 import '../../../models/ListItem.dart';
+import '../../../models/ListPage.dart';
 
 import '../../vplan/VPlanAPI.dart';
 
@@ -133,235 +133,198 @@ class _NotificationsState extends State<Notifications> {
     getData();
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          child: Stack(
-            children: [
-              Appbar('Notifications', SizedBox()),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.89,
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: BouncingScrollPhysics(),
-                    children: [
-                      heading('Allgemein'),
-                      ListItem(
-                        title: Text('Vertretungsplan automatisch laden'),
-                        onClick: () => changeAutomaticLoad(),
-                        actionButton: Switch(
-                          value: _automaticLoad,
-                          onChanged: (change) => changeAutomaticLoad(),
-                          activeColor: Theme.of(context).accentColor,
+        child: ListPage(
+          title: 'Notifications',
+          children: [
+            heading('Allgemein'),
+            ListItem(
+              title: Text('Vertretungsplan automatisch laden'),
+              onClick: () => changeAutomaticLoad(),
+              actionButton: Switch(
+                value: _automaticLoad,
+                onChanged: (change) => changeAutomaticLoad(),
+                activeColor: Theme.of(context).accentColor,
+              ),
+            ),
+            ListItem(
+              title: Text(
+                'Intelligente Benachrichtigungen',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              onClick: changeNotification,
+              actionButton: Switch(
+                value: _intiligentNotification,
+                onChanged: (change) => changeNotification(),
+                activeColor: Theme.of(context).accentColor,
+              ),
+            ),
+            ListItem(
+              title: Text(
+                'Bevorzugte Klasse',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              onClick: () {},
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              actionButton: DropdownButton(
+                onChanged: (change) async {
+                  setState(() => _prefClass = change.toString());
+                  SharedPreferences.getInstance().then(
+                    (instance) => instance.setString('prefClass', _prefClass),
+                  );
+                },
+                value: _prefClass,
+                dropdownColor: Theme.of(context).backgroundColor,
+                icon: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.expand_more_rounded,
+                    size: 15,
+                    color: !_automaticLoad ? Colors.grey.shade500 : null,
+                  ),
+                ),
+                items: [
+                  ..._classes.map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(
+                        e,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: !_automaticLoad ? Colors.grey.shade500 : null,
                         ),
                       ),
-                      ListItem(
-                        title: Text(
-                          'Intelligente Benachrichtigungen',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ---------------------
+            heading('Zeit der Erinnerung'),
+            ListItem(
+              title: Text(
+                'Stunde',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              onClick: changeTime,
+              actionButton: _hour == null
+                  ? Icon(
+                      Icons.schedule_rounded,
+                      color: !_automaticLoad ? Colors.grey.shade500 : null,
+                    )
+                  : Text('${_hour}h'),
+            ),
+            ListItem(
+              title: Text(
+                'Minute',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              onClick: changeTime,
+              actionButton: _hour == null
+                  ? Icon(
+                      Icons.schedule_rounded,
+                      color: !_automaticLoad ? Colors.grey.shade500 : null,
+                    )
+                  : Text('${_minute}m'),
+            ),
+            ListItem(
+              title: Text(
+                'Erinnerung am Tag davor',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              onClick: () {},
+              actionButton: Switch(
+                value: _remindDayBefore,
+                onChanged: (change) => changeRemindDayBefore(),
+                activeColor: Theme.of(context).accentColor,
+              ),
+            ),
+            // ---------------------
+            heading('Sonstiges'),
+            ListItem(
+              title: Text(
+                'Aufrufsintervall',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              color: !_automaticLoad ? Color(0xff161616) : null,
+              onClick: () => showDialog(
+                context: context,
+                builder: (context) => SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: AlertDialog(
+                    title: heading('Aufrufsintervall'),
+                    content: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) =>
+                            Slider(
+                          onChanged: (change) =>
+                              setState(() => _interval = change.toInt()),
+                          onChangeEnd: (change) =>
+                              SharedPreferences.getInstance().then(
+                            (instance) =>
+                                instance.setInt('interval', change.toInt()),
                           ),
-                        ),
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        onClick: changeNotification,
-                        actionButton: Switch(
-                          value: _intiligentNotification,
-                          onChanged: (change) => changeNotification(),
-                          activeColor: Theme.of(context).accentColor,
+                          value: _interval!.toDouble(),
+                          max: 3600,
+                          min: 10,
+                          label: '${_interval}s',
+                          divisions: 3600,
+                          activeColor:
+                              Theme.of(context).accentColor.withOpacity(0.8),
+                          inactiveColor:
+                              Theme.of(context).accentColor.withOpacity(0.1),
+                          thumbColor: Theme.of(context).accentColor,
                         ),
                       ),
-                      ListItem(
-                        title: Text(
-                          'Bevorzugte Klasse',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        onClick: () {},
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        actionButton: DropdownButton(
-                          onChanged: (change) async {
-                            setState(() => _prefClass = change.toString());
-                            SharedPreferences.getInstance().then(
-                              (instance) =>
-                                  instance.setString('prefClass', _prefClass),
-                            );
-                          },
-                          value: _prefClass,
-                          dropdownColor: Theme.of(context).backgroundColor,
-                          icon: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.expand_more_rounded,
-                              size: 15,
-                              color:
-                                  !_automaticLoad ? Colors.grey.shade500 : null,
-                            ),
-                          ),
-                          items: [
-                            ..._classes.map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(
-                                  e,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: !_automaticLoad
-                                        ? Colors.grey.shade500
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // ---------------------
-                      heading('Zeit der Erinnerung'),
-                      ListItem(
-                        title: Text(
-                          'Stunde',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        onClick: changeTime,
-                        actionButton: _hour == null
-                            ? Icon(
-                                Icons.schedule_rounded,
-                                color: !_automaticLoad
-                                    ? Colors.grey.shade500
-                                    : null,
-                              )
-                            : Text('${_hour}h'),
-                      ),
-                      ListItem(
-                        title: Text(
-                          'Minute',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        onClick: changeTime,
-                        actionButton: _hour == null
-                            ? Icon(
-                                Icons.schedule_rounded,
-                                color: !_automaticLoad
-                                    ? Colors.grey.shade500
-                                    : null,
-                              )
-                            : Text('${_minute}m'),
-                      ),
-                      ListItem(
-                        title: Text(
-                          'Erinnerung am Tag davor',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        onClick: () {},
-                        actionButton: Switch(
-                          value: _remindDayBefore,
-                          onChanged: (change) => changeRemindDayBefore(),
-                          activeColor: Theme.of(context).accentColor,
-                        ),
-                      ),
-                      // ---------------------
-                      heading('Sonstiges'),
-                      ListItem(
-                        title: Text(
-                          'Aufrufsintervall',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        color: !_automaticLoad ? Color(0xff161616) : null,
-                        onClick: () => showDialog(
-                          context: context,
-                          builder: (context) => SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            child: AlertDialog(
-                              title: heading('Aufrufsintervall'),
-                              content: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.1,
-                                child: StatefulBuilder(
-                                  builder: (BuildContext context,
-                                          StateSetter setState) =>
-                                      Slider(
-                                    onChanged: (change) => setState(
-                                        () => _interval = change.toInt()),
-                                    onChangeEnd: (change) =>
-                                        SharedPreferences.getInstance().then(
-                                      (instance) => instance.setInt(
-                                          'interval', change.toInt()),
-                                    ),
-                                    value: _interval!.toDouble(),
-                                    max: 3600,
-                                    min: 10,
-                                    label: '${_interval}s',
-                                    divisions: 3600,
-                                    activeColor: Theme.of(context)
-                                        .accentColor
-                                        .withOpacity(0.8),
-                                    inactiveColor: Theme.of(context)
-                                        .accentColor
-                                        .withOpacity(0.1),
-                                    thumbColor: Theme.of(context).accentColor,
-                                  ),
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('ok'),
-                                ),
-                              ],
-                              backgroundColor:
-                                  Theme.of(context).backgroundColor,
-                            ),
-                          ),
-                        ),
-                        actionButton: Text(
-                          '${_interval}s',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                      ),
-                      ListItem(
-                        title: Text(
-                          'Nur bei Änderung erinnern',
-                          style: TextStyle(
-                            color:
-                                !_automaticLoad ? Colors.grey.shade500 : null,
-                          ),
-                        ),
-                        onClick: changeRemindOnlyChange,
-                        actionButton: Switch(
-                          value: _remindOnlyChange,
-                          onChanged: (change) => changeRemindOnlyChange(),
-                          activeColor: Theme.of(context).accentColor,
-                        ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('ok'),
                       ),
                     ],
+                    backgroundColor: Theme.of(context).backgroundColor,
                   ),
                 ),
               ),
-            ],
-          ),
+              actionButton: Text(
+                '${_interval}s',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+            ),
+            ListItem(
+              title: Text(
+                'Nur bei Änderung erinnern',
+                style: TextStyle(
+                  color: !_automaticLoad ? Colors.grey.shade500 : null,
+                ),
+              ),
+              onClick: changeRemindOnlyChange,
+              actionButton: Switch(
+                value: _remindOnlyChange,
+                onChanged: (change) => changeRemindOnlyChange(),
+                activeColor: Theme.of(context).accentColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

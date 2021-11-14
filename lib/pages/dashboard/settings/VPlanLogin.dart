@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../models/ListPage.dart';
+import '../../../models/InputField.dart';
+
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../../../models/QRScanner.dart';
 
@@ -70,179 +73,166 @@ class VPlanLogin extends StatelessWidget {
     ];
     getLoginData();
     return Scaffold(
-      body: Container(
-        child: Stack(
-          children: [
-            Container(
-              alignment: Alignment.topLeft,
-              margin: EdgeInsets.only(top: 30, left: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_rounded,
-                          color: Theme.of(context).focusColor,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      SizedBox(width: 20),
-                      Text(
-                        'Zugangsdaten für indiware',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+      body: ListPage(
+        title: 'Zugangsdaten',
+        actions: [
+          IconButton(
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              String schoolnumber = prefs.getString("vplanSchoolnumber")!;
+              String vplanUsername = prefs.getString("vplanUsername")!;
+              String vplanPassword = prefs.getString("vplanPassword")!;
+
+              dynamic data = {
+                'schoolnumber': schoolnumber,
+                'username': vplanUsername,
+                'password': vplanPassword,
+              };
+
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                enableDrag: true,
+                builder: (context) => Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40),
+                    ),
+                    color: Theme.of(context).backgroundColor,
                   ),
-                  SizedBox(),
-                  IconButton(
-                    onPressed: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      String schoolnumber =
-                          prefs.getString("vplanSchoolnumber")!;
-                      String vplanUsername = prefs.getString("vplanUsername")!;
-                      String vplanPassword = prefs.getString("vplanPassword")!;
-
-                      dynamic data = {
-                        'schoolnumber': schoolnumber,
-                        'username': vplanUsername,
-                        'password': vplanPassword,
-                      };
-
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: Theme.of(context).backgroundColor,
-                          title: Text('Zugangsdaten teilen'),
-                          content: Container(
-                            color: Colors.white,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: PrettyQr(
-                                size: 250,
-                                data: jsonEncode(data),
-                                elementColor: Colors.black,
-                                errorCorrectLevel: QrErrorCorrectLevel.H,
-                                typeNumber: 10,
-                                roundEdges: false,
-                                image: AssetImage('assets/img/logo.png'),
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          width: 80,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Color(0x99202020),
+                          ),
+                        ),
+                        Text(
+                          'Zugangsdaten teilen',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        Container(
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: PrettyQr(
+                              size: 250,
+                              data: jsonEncode(data),
+                              elementColor: Colors.black,
+                              errorCorrectLevel: QrErrorCorrectLevel.H,
+                              typeNumber: 10,
+                              roundEdges: false,
+                              image: AssetImage('assets/img/logo.png'),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            width: 200,
+                            padding: EdgeInsets.all(15),
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              color: Color(0x99202020),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'fertig',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
                           ),
-                          actions: [
-                            TextButton(
-                              child: Text('ok'),
-                              onPressed: () => Navigator.pop(context),
-                            )
-                          ],
                         ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.share_rounded,
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => QRScanner(setData: setData),
-                      ),
-                    ),
-                    icon: Icon(Icons.qr_code_scanner_rounded),
-                  ),
-                ],
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.share_rounded,
+            ),
+          ),
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => QRScanner(setData: setData),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(left: 50, right: 50),
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ...inputs.map(
-                    (e) => Container(
-                      margin: EdgeInsets.all(10),
-                      child: TextFormField(
-                        autocorrect: false,
-                        controller: e['controller'],
-                        keyboardType:
-                            e['numeric'] ? TextInputType.number : null,
-                        decoration: InputDecoration(
-                          labelText: e['hintText'],
-                        ),
-                      ),
-                    ),
+            icon: Icon(Icons.qr_code_scanner_rounded),
+          ),
+        ],
+        children: [
+          Container(
+            margin: const EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ...inputs.map(
+                  (e) => InputField(
+                    controller: e['controller'],
+                    labelText: e['hintText'],
+                    keaboardType: e['numeric'] ? TextInputType.number : null,
                   ),
-                  InkWell(
-                    onTap: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
+                ),
+                InkWell(
+                  onTap: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
 
-                      prefs.setString(
-                        'vplanSchoolnumber',
-                        schoolnumberController.text.toString(),
-                      );
-                      prefs.setString(
-                        'vplanUsername',
-                        usernameController.text.toString(),
-                      );
-                      prefs.setString(
-                        'vplanPassword',
-                        passwordController.text.toString(),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      margin: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Theme.of(context).accentColor,
-                      ),
-                      child: Text(
-                        'Speichern',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    prefs.setString(
+                      'vplanSchoolnumber',
+                      schoolnumberController.text.toString(),
+                    );
+                    prefs.setString(
+                      'vplanUsername',
+                      usernameController.text.toString(),
+                    );
+                    prefs.setString(
+                      'vplanPassword',
+                      passwordController.text.toString(),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    margin: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).accentColor,
+                    ),
+                    child: Text(
+                      'Speichern',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
-/*async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      String data = await scanQRCode();
-
-                      dynamic jsonData = {};
-                      try {
-                        jsonData = jsonDecode(data);
-                      } catch (e) {
-                        return;
-                      }
-                      prefs.setString(
-                          'vplanSchoolnumber', jsonData['schoolnumber']);
-                      prefs.setString('vplanUsername', jsonData['username']);
-                      prefs.setString('vplanPassword', jsonData['password']);
-                      schoolnumberController.text = jsonData['schoolnumber'];
-                      usernameController.text = jsonData['username'];
-                      passwordController.text = jsonData['password'];
-                      return;
-                    } */

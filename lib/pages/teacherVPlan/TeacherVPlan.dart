@@ -53,27 +53,19 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
     ); //SizedBox();
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height * 0.18,
+        //top: MediaQuery.of(context).size.height * 0.1,
         left: 50,
         right: 50,
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'Gib das Kürzel eines Lehrers ein!',
+            'Lehrer finden',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-            ),
-          ),
-          SizedBox(height: spaceBetween * 0.3),
-          Text(
-            'Durch den Vertretungsplan der einzelnen Klassen wird gefiltert wann welcher Lehrer Unterricht hat. Diese Daten werden ohne den Lehrerlogin erhoben.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[800],
             ),
           ),
           SizedBox(height: spaceBetween),

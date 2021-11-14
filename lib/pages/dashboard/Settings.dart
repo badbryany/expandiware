@@ -1,61 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
-import '../../models/ListItem.dart';
-
 import 'settings/VPlanLogin.dart';
 import 'settings/DeveloperOptions.dart';
 import 'settings/Notifications.dart';
 
+import '../../models/ListPage.dart';
+
 class Settings extends StatelessWidget {
-  List<String> colors = [
-    '2b97ef',
-    '76ac32',
-    'f28528',
-    '258786',
-    'f4a53c',
-    '0baba9',
-    '9951b4',
-    '5f98f2',
-  ];
   List<dynamic> settingPages = [
     {
-      'colorIndex': 0,
       'title': 'Zugangsdaten',
       'icon': Icons.lock_outline_rounded,
       'subtitle': 'stundenplan24 Nutzerdaten',
       'link': VPlanLogin(),
     },
     {
-      'colorIndex': 1,
       'title': 'Notifications',
       'icon': Icons.notifications_none_rounded,
       'subtitle': 'Benachrichtigungen für den Stundenplan',
       'link': Notifications(),
     },
     {
-      'colorIndex': 2,
       'title': '----',
       'icon': Icons.fingerprint_rounded,
       'subtitle': '----',
       'link': SizedBox(),
     },
     {
-      'colorIndex': 3,
       'title': '----',
       'icon': Icons.help,
       'subtitle': '----',
       'link': SizedBox(),
     },
     {
-      'colorIndex': 4,
       'title': '----',
       'icon': Icons.manage_accounts_rounded,
       'subtitle': '----',
       'link': SizedBox(),
     },
     {
-      'colorIndex': 5,
       'title': 'Entwickleroptionen',
       'icon': Icons.developer_mode_rounded,
       'subtitle': '...',
@@ -65,7 +49,60 @@ class Settings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ListPage(
+      title: 'Einstellungen',
+      children: settingPages
+          .map(
+            (e) => Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              margin: EdgeInsets.all(10),
+              child: Center(
+                child: ListTile(
+                  onTap: () => Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      child: e['link'],
+                    ),
+                  ),
+                  leading: Container(
+                    margin: EdgeInsets.all(4),
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Icon(e['icon']),
+                  ),
+                  title: Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      e['title'],
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  subtitle: Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Text(
+                      e['subtitle'],
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w100,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+/*Container(
       alignment: Alignment.center,
       child: Stack(
         children: [
@@ -103,52 +140,54 @@ class Settings extends StatelessWidget {
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
                   children: [
-                    ...settingPages.map((e) => Container(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          margin: EdgeInsets.all(10),
-                          child: Center(
-                            child: ListTile(
-                              onTap: () => Navigator.push(
-                                context,
-                                PageTransition(
-                                  type: PageTransitionType.rightToLeft,
-                                  child: e['link'],
+                    ...settingPages.map(
+                      (e) => Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        margin: EdgeInsets.all(10),
+                        child: Center(
+                          child: ListTile(
+                            onTap: () => Navigator.push(
+                              context,
+                              PageTransition(
+                                type: PageTransitionType.rightToLeft,
+                                child: e['link'],
+                              ),
+                            ),
+                            leading: Container(
+                              margin: EdgeInsets.all(4),
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: Color(
+                                  int.parse('0xff${colors[e['colorIndex']]}'),
                                 ),
                               ),
-                              leading: Container(
-                                margin: EdgeInsets.all(4),
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Color(
-                                    int.parse('0xff${colors[e['colorIndex']]}'),
-                                  ),
-                                ),
-                                child: Icon(e['icon']),
-                              ),
-                              title: Padding(
-                                padding: EdgeInsets.all(4),
-                                child: Text(
-                                  e['title'],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
+                              child: Icon(e['icon']),
+                            ),
+                            title: Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Text(
+                                e['title'],
+                                style: TextStyle(
+                                  fontSize: 18,
                                 ),
                               ),
-                              subtitle: Padding(
-                                padding: EdgeInsets.all(4),
-                                child: Text(
-                                  e['subtitle'],
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w100,
-                                    color: Colors.grey,
-                                  ),
+                            ),
+                            subtitle: Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Text(
+                                e['subtitle'],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w100,
+                                  color: Colors.grey,
                                 ),
                               ),
                             ),
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -156,6 +195,4 @@ class Settings extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
+    ); */

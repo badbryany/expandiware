@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:expandiware/pages/vplan/VPlanAPI.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,6 +11,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:quick_actions/quick_actions.dart';
 
 /* vplanlogin scan */
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -187,6 +190,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String activeText = 'vplan students';
+  final QuickActions quickActions = QuickActions();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void initQuickActions() async {
+    List<String> classes = await VPlanAPI().getClasses();
+    quickActions.setShortcutItems([
+      ShortcutItem(
+        type: 'vplan students',
+        localizedTitle: 'Vertretungsplan von ${classes[0]}',
+      ),
+      ShortcutItem(
+        type: 'vplan teachers',
+        localizedTitle: 'Lehrer finden',
+      ),
+      ShortcutItem(
+        type: 'dashboard',
+        localizedTitle: 'Dashboard',
+      ),
+    ]);
+  }
 
   void checkForUpdates(BuildContext context) async {
     String _version = 'beta 0.7.5';
@@ -246,6 +273,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void openVPLan(String _prefClass) {}
+
   @override
   Widget build(BuildContext context) {
     checkForUpdates(context);
@@ -285,6 +314,15 @@ class _HomePageState extends State<HomePage> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
+    quickActions.initialize((shortcutType) async {
+      activeText = shortcutType;
+
+      if (shortcutType == ' vplan students') {
+        String prefClass = (await VPlanAPI().getClasses())[0];
+        openVPLan(prefClass);
+      }
+    });
+
     Widget activeWidget = Text('loading...');
     for (int i = 0; i < pages.length; i++) {
       if (pages[i]['text'] == activeText) {

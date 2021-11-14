@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/AppBar.dart';
+import '../../../models/ListPage.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -54,45 +54,29 @@ class DeveloperOptions extends StatelessWidget {
       },
     ];
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Appbar('Entwickleroptionen', SizedBox()),
-            Container(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.89,
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  alignment: Alignment.topCenter,
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ...options.map(
-                        (e) => Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                e['title'],
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              TextButton(
-                                onPressed: e['action'],
-                                child: Text(e['actionText']),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+      body: ListPage(
+        title: 'Entwickleroptionen',
+        children: [
+          ...options.map(
+            (e) => Container(
+              margin: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    e['title'],
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ),
+                  TextButton(
+                    onPressed: e['action'],
+                    child: Text(e['actionText']),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

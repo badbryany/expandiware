@@ -1,3 +1,4 @@
+import 'package:expandiware/models/ListPage.dart';
 import 'package:expandiware/pages/vplan/VPlanAPI.dart';
 import 'package:flutter/material.dart';
 
@@ -224,88 +225,58 @@ class _SelectClassState extends State<SelectClass> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.only(top: 10),
-              alignment: Alignment.topLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.arrow_back),
-                  ),
-                  Text(
-                    'Klassenauswahl',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                child: classes.length == 0
-                    ? Center(
-                        child: Container(
-                          width: 80,
-                          child: LinearProgressIndicator(),
+    return ListPage(
+      title: 'Klassenauswahl',
+      children: [
+        classes.length == 0
+            ? Center(
+                child: Container(
+                  width: 80,
+                  child: LinearProgressIndicator(),
+                ),
+              )
+            : AnimatedList(
+                physics: BouncingScrollPhysics(),
+                initialItemCount: classes.length,
+                itemBuilder: (context, index, animation) {
+                  {
+                    bool used = false;
+                    if (widget.favs.contains(classes[index])) {
+                      used = true;
+                    }
+                    return ListItem(
+                      title: Text(
+                        classes[index],
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: used ? FontWeight.bold : null,
                         ),
-                      )
-                    : AnimatedList(
-                        physics: BouncingScrollPhysics(),
-                        initialItemCount: classes.length,
-                        itemBuilder: (context, index, animation) {
-                          {
-                            bool used = false;
-                            if (widget.favs.contains(classes[index])) {
-                              used = true;
-                            }
-                            return ListItem(
-                              title: Text(
-                                classes[index],
-                                style: TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: used ? FontWeight.bold : null,
-                                ),
-                              ),
-                              actionButton: used
-                                  ? IconButton(
-                                      icon: Icon(Icons.check_rounded),
-                                      onPressed: () {},
-                                    )
-                                  : null,
-                              color:
-                                  used ? Theme.of(context).accentColor : null,
-                              onClick: () async {
-                                SharedPreferences instance =
-                                    await SharedPreferences.getInstance();
-                                List<String>? _classes =
-                                    instance.getStringList('classes');
-                                if (_classes == null) {
-                                  _classes = [];
-                                }
-                                _classes.add(classes[index]);
-                                instance.setStringList('classes', _classes);
-                                this.widget.pop(classes[index]);
-                                Navigator.pop(context);
-                              },
-                            );
-                          }
-                        },
                       ),
+                      actionButton: used
+                          ? IconButton(
+                              icon: Icon(Icons.check_rounded),
+                              onPressed: () {},
+                            )
+                          : null,
+                      color: used ? Theme.of(context).accentColor : null,
+                      onClick: () async {
+                        SharedPreferences instance =
+                            await SharedPreferences.getInstance();
+                        List<String>? _classes =
+                            instance.getStringList('classes');
+                        if (_classes == null) {
+                          _classes = [];
+                        }
+                        _classes.add(classes[index]);
+                        instance.setStringList('classes', _classes);
+                        this.widget.pop(classes[index]);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }
+                },
               ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

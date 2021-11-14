@@ -211,7 +211,9 @@ class _PlanState extends State<Plan> {
                     ? Container(
                         alignment: Alignment.center,
                         width: MediaQuery.of(context).size.width * 0.2,
-                        child: LinearProgressIndicator(),
+                        child: LinearProgressIndicator(
+                          color: Theme.of(context).accentColor,
+                        ),
                       )
                     : ListView(
                         physics: BouncingScrollPhysics(),
@@ -379,7 +381,9 @@ class _CoursesState extends State<Courses> {
                     child: Container(
                       alignment: Alignment.center,
                       width: 80,
-                      child: LinearProgressIndicator(),
+                      child: LinearProgressIndicator(
+                        color: Theme.of(context).accentColor,
+                      ),
                     ),
                   ),
                 )
