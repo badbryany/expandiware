@@ -18,7 +18,7 @@ class VPlanAPI {
     vplanPassword = prefs.getString("vplanPassword")!;
   }
 
-  Future<List<String>> getClassList() async {
+  Future<dynamic> getClassList() async {
     this.login();
 
     List<String> classList = [];
@@ -27,6 +27,10 @@ class VPlanAPI {
       Uri.parse(await getDayURL()),
       DateTime.now(),
     );
+
+    if (data['error'] != null) {
+      return data;
+    }
 
     for (int i = 0; i < data['data']['Klassen']['Kl'].length; i++) {
       classList.add(data['data']['Klassen']['Kl'][i]['Kurz']);
@@ -173,6 +177,14 @@ class VPlanAPI {
 
     try {
       return client.get(url).then((res) {
+        if (res.body
+            .toString()
+            .contains('Die eingegebene Schulnummer wurde nicht gefunden.')) {
+          return {'error': 'schoolnumber'};
+        }
+        if (res.body.toString().contains('Error 401 - Unauthorized')) {
+          return {'error': '401'};
+        }
         String source = Utf8Decoder().convert(res.bodyBytes);
         xml2json.parse(source);
         String stringVPlan = xml2json.toParker();
@@ -182,6 +194,8 @@ class VPlanAPI {
         if (jsonVPlan['VpMobil'] == null) {
           return {};
         }
+
+        print(jsonVPlan['VpMobil']['FreieTage']);
 
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
@@ -263,6 +277,9 @@ class VPlanAPI {
     if (pureVPlan == {}) {
       return {};
     }
+    if (pureVPlan['error'] != null) {
+      return pureVPlan;
+    }
 
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
@@ -329,6 +346,9 @@ class VPlanAPI {
 
     if (pureVPlan.toString() == '{}') {
       return {};
+    }
+    if (pureVPlan['error'] != null) {
+      return pureVPlan;
     }
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL

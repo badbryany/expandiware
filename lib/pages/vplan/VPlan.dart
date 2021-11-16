@@ -209,7 +209,7 @@ class SelectClass extends StatefulWidget {
 }
 
 class _SelectClassState extends State<SelectClass> {
-  List<String> classes = [];
+  dynamic classes = [];
   void getClasses() async {
     VPlanAPI vplanAPI = new VPlanAPI();
 
@@ -225,6 +225,60 @@ class _SelectClassState extends State<SelectClass> {
 
   @override
   Widget build(BuildContext context) {
+    if (classes.toString().contains('error')) {
+      String errorText = (classes['error'] == '401'
+          ? 'Der Benutzername oder das Passwort'
+          : 'Die Schulnummer');
+      return ListPage(
+        title: 'Klassenauswahl',
+        actions: [
+          IconButton(
+            onPressed: () => getClasses(),
+            icon: Icon(Icons.sync_rounded),
+          ),
+        ],
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              '$errorText ist falsch!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.red.shade300,
+              ),
+            ),
+          ),
+          SizedBox(height: 30),
+          InkWell(
+            onTap: () => Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: VPlanLogin(),
+              ),
+            ),
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).accentColor,
+                ),
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: Text(
+                  'Zugangsdaten',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return ListPage(
       title: 'Klassenauswahl',
       children: [

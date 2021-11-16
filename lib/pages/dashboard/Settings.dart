@@ -16,7 +16,7 @@ class Settings extends StatelessWidget {
       'link': VPlanLogin(),
     },
     {
-      'title': 'Notifications',
+      'title': 'Notifications - beta',
       'icon': Icons.notifications_none_rounded,
       'subtitle': 'Benachrichtigungen für den Stundenplan',
       'link': Notifications(),

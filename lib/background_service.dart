@@ -122,7 +122,8 @@ void vplanNotifications(Timer _timer) async {
         createNotification(
           id: i,
           title: _lessons[i]['lesson'],
-          body: '${_lessons[i]['place']} ${_lessons[i]['teacher']}',
+          body:
+              '${_lessons[i]['place']} ${(_lessons[i]['teacher'] == null ? 'ohne Lehrer' : _lessons[i]['teacher'])}',
           subtitle: 'expandiware',
         );
       } else {

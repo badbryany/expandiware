@@ -1,12 +1,12 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 import '../../models/ListItem.dart';
+import '../../models/ListPage.dart';
+import '../../pages/dashboard/settings/VPlanLogin.dart';
 
 import './VPlanAPI.dart';
-
-import './Analytics.dart';
 
 class Plan extends StatefulWidget {
   final String classId;
@@ -28,7 +28,7 @@ class _PlanState extends State<Plan> {
   void newVP(bool nextDay) async {
     String? date = data['data']['date'];
     setState(() {
-      data = null;
+      data = 'loading';
     });
     dynamic newData = await VPlanAPI().getLessonsByDate(
       date: VPlanAPI().changeDate(
@@ -44,10 +44,17 @@ class _PlanState extends State<Plan> {
   }
 
   void getData() async {
+    setState(() => data = 'loading'); // show loadng animation
     VPlanAPI vplanAPI = new VPlanAPI();
 
+    dynamic _lessons = await vplanAPI.getLessonsForToday(widget.classId);
+    if (_lessons['error'] != null) {
+      setState(() => data = _lessons);
+      return;
+    }
+
     data = {
-      'data': await vplanAPI.getLessonsForToday(widget.classId),
+      'data': _lessons,
       'info': await vplanAPI.getDayInfo(widget.classId),
     };
     hiddenSubjects = await vplanAPI.getHiddenCourses();
@@ -57,7 +64,7 @@ class _PlanState extends State<Plan> {
     vplanAPI.cleanVplanOfflineData();
   }
 
-  dynamic data;
+  dynamic data = 'loading';
   List<String>? hiddenSubjects;
 
   String printValue(String? value) {
@@ -86,7 +93,66 @@ class _PlanState extends State<Plan> {
   Widget build(BuildContext context) {
     DateTime displayDateDateTime;
     String displayDate = '...';
-    if (data != null) {
+    if (data == null) {
+      return Text('no vplan');
+    }
+    if (data.toString().contains('error')) {
+      String extraText = '';
+      String errorText = (data['error'] == '401'
+          ? 'Der Benutzername oder das Passwort'
+          : 'Die Schulnummer');
+      data['error'] != '401' ? extraText = 'oder es ist keine Schule!' : '!';
+      return ListPage(
+        title: '${widget.classId}',
+        actions: [
+          IconButton(
+            onPressed: () => getData(),
+            icon: Icon(Icons.sync_rounded),
+          ),
+        ],
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Text(
+              '$errorText ist falsch $extraText',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.red.shade300,
+              ),
+            ),
+          ),
+          SizedBox(height: 30),
+          InkWell(
+            onTap: () => Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: VPlanLogin(),
+              ),
+            ),
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              child: Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Theme.of(context).accentColor,
+                ),
+                width: MediaQuery.of(context).size.width * 0.3,
+                child: Text(
+                  'Zugangsdaten',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    if (data.toString().contains('data')) {
       displayDateDateTime = VPlanAPI()
           .changeDate(
             date: data['data']['date'].toString(),
@@ -99,233 +165,129 @@ class _PlanState extends State<Plan> {
     }
     if (topHeight == -10) topHeight = MediaQuery.of(context).size.height * 0.17;
 
-    return SafeArea(
-      child: Container(
-        child: Stack(
+    return ListPage(
+      title: '${widget.classId} - $displayDate',
+      smallTitle: true,
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              alignment: Alignment.topCenter,
-              color: Theme.of(context).backgroundColor,
-              height: topHeight,
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+            IconButton(
+              onPressed: () {
+                VPlanAPI().removePlanByDate(data['data']['date']);
+                getData();
+              },
+              icon: Icon(Icons.refresh, size: 20),
+            ),
+            // courses
+            OpenContainer(
+              closedColor: Colors.transparent,
+              closedElevation: 0,
+              openColor: Theme.of(context).scaffoldBackgroundColor,
+              closedBuilder: (context, openContainer) => IconButton(
+                onPressed: openContainer,
+                icon: Icon(
+                  Icons.settings_rounded,
+                  size: 20,
+                ),
+              ),
+              openBuilder: (context, closeContainer) => Courses(
+                classId: widget.classId,
+                updateCourses: () => getData(),
+              ),
+            ),
+            // courses
+            IconButton(
+              onPressed: () => newVP(false),
+              icon: Icon(Icons.arrow_back),
+            ),
+            IconButton(
+              onPressed: () => newVP(true),
+              icon: Icon(Icons.arrow_forward),
+            ),
+          ],
+        ),
+      ],
+      children: data == 'loading'
+          ? [
+              Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width * 0.2,
+                child: LinearProgressIndicator(
+                  color: Theme.of(context).accentColor,
+                ),
+              )
+            ]
+          : (data['data']['data'] as List).map(
+              (e) {
+                if (hiddenSubjects!.contains(e['course'])) {
+                  return SizedBox();
+                }
+                return ListItem(
+                  onClick: () {},
+                  color: e['info'] == null ? null : Color(0x889E1414),
+                  leading: Text(
+                    printValue('${e['count']}'),
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  title: Container(
+                    alignment: Alignment.centerLeft,
+                    width: MediaQuery.of(context).size.width * 0.1,
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back),
-                            ),
-                            Text(
-                              '${widget.classId}',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 15),
-                            Text(
-                              '${data != null ? displayDate : ''}',
-                            ),
-                          ],
+                        Text(
+                          printValue(e['lesson']),
+                          style: TextStyle(fontSize: 19),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                              onPressed: () {
-                                VPlanAPI()
-                                    .removePlanByDate(data['data']['date']);
-                                getData();
-                              },
-                              icon: Icon(Icons.refresh, size: 20),
-                            ),
-                            // courses
-                            OpenContainer(
-                              closedColor: Colors.transparent,
-                              closedElevation: 0,
-                              openColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              closedBuilder: (context, openContainer) =>
-                                  IconButton(
-                                onPressed: openContainer,
-                                icon: Icon(
-                                  Icons.settings_rounded,
-                                  size: 20,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.location_on_rounded,
+                                  size: 16,
                                 ),
-                              ),
-                              openBuilder: (context, closeContainer) => Courses(
-                                classId: widget.classId,
-                                updateCourses: () => getData(),
-                              ),
+                                SizedBox(width: 3),
+                                Text(printValue(e['place'])),
+                              ],
                             ),
-                            // courses
-                            IconButton(
-                              onPressed: () => newVP(false),
-                              icon: Icon(Icons.arrow_back),
-                            ),
-                            IconButton(
-                              onPressed: () => newVP(true),
-                              icon: Icon(Icons.arrow_forward),
+                            SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.person_rounded,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 3),
+                                Text(printValue(e['teacher'])),
+                              ],
                             ),
                           ],
                         ),
+                        SizedBox(width: 50),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            // CONTENT
-            Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: EdgeInsets.only(
-                  top: topHeight != 0
-                      ? MediaQuery.of(context).size.height * 0.08
-                      : 0,
-                ),
-                padding: EdgeInsets.only(
-                  top: topHeight != 0
-                      ? MediaQuery.of(context).size.height * 0.07
-                      : 0,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(45),
-                    topRight: Radius.circular(45),
-                  ),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                ),
-                alignment: Alignment.bottomCenter,
-                height: MediaQuery.of(context).size.height * 0.9,
-                child: data == null
-                    ? Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width * 0.2,
-                        child: LinearProgressIndicator(
-                          color: Theme.of(context).accentColor,
-                        ),
-                      )
-                    : ListView(
-                        physics: BouncingScrollPhysics(),
-                        controller: controller,
-                        children: [
-                          ...data['data']['data'].map(
-                            (e) {
-                              if (hiddenSubjects!.contains(e['course'])) {
-                                return SizedBox();
-                              }
-                              return ListItem(
-                                onClick: () {},
-                                color: e['info'] == null
-                                    ? null
-                                    : Color(0x889E1414),
-                                leading: Text(
-                                  printValue('${e['count']}'),
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                title: Container(
-                                  alignment: Alignment.centerLeft,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.1,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        printValue(e['lesson']),
-                                        style: TextStyle(fontSize: 19),
-                                      ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Icons.location_on_rounded,
-                                                size: 16,
-                                              ),
-                                              SizedBox(width: 3),
-                                              Text(printValue(e['place'])),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Icons.person_rounded,
-                                                size: 16,
-                                              ),
-                                              SizedBox(width: 3),
-                                              Text(printValue(e['teacher'])),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(width: 50),
-                                    ],
-                                  ),
-                                ),
-                                subtitle: e['info'] == null
-                                    ? null
-                                    : Text(
-                                        '${e['info']}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              );
-                            },
+                  subtitle: e['info'] == null
+                      ? null
+                      : Text(
+                          '${e['info']}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-              ),
-            ),
-            /*Container(
-              alignment: Alignment.topRight,
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: 
-            ),
-            /*Container(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    child: Analytics(
-                      vplanData: data,
-                    ),
-                  ),
-                ),
-                icon: Icon(Icons.analytics_rounded),
-              ),
-            ),*/*/
-          ],
-        ),
-      ),
+                        ),
+                );
+              },
+            ).toList(),
     );
   }
 }
