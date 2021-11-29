@@ -232,7 +232,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void checkForUpdates(BuildContext context) async {
-    String _version = '1.0';
+    String _version = '1.1';
     var r = await http.get(
       Uri.parse(
         'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
@@ -376,152 +376,159 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
     }
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      //resizeToAvoidBottomInset: true,
+      //resizeToAvoidBottomPadding: false,
       body: SizedBox(
-        child: Container(
-          child: Stack(
-            children: [
-              // APPBAR
-              Container(
-                alignment: Alignment.topCenter,
-                color: Theme.of(context).backgroundColor,
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                    bottom: 10,
-                  ),
-                  child: SafeArea(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(),
-                        Container(
-                          height: 45,
-                          child: InkWell(
-                            onTap: eastereggIconChange,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder: (child, animation) =>
-                                  FadeTransition(
-                                opacity: animation,
-                                child: ScaleTransition(
-                                  scale: animation,
-                                  child: child,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Stack(
+              children: [
+                // APPBAR
+                Container(
+                  alignment: Alignment.topCenter,
+                  color: Theme.of(context).backgroundColor,
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                    ),
+                    child: SafeArea(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(),
+                          Container(
+                            height: 45,
+                            child: InkWell(
+                              onTap: eastereggIconChange,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                transitionBuilder: (child, animation) =>
+                                    FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  ),
                                 ),
+                                child: eastereggIcon,
                               ),
-                              child: eastereggIcon,
                             ),
                           ),
-                        ),
-                        SizedBox(width: 30),
-                        Text(
-                          'expandiware',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 23,
-                            color: Theme.of(context).focusColor,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: Text(
-                            activeText,
-                            textAlign: TextAlign.center,
+                          SizedBox(width: 30),
+                          Text(
+                            'expandiware',
                             style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 23,
                               color: Theme.of(context).focusColor,
                             ),
                           ),
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              activeText,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context).focusColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // CONTENT
+                Container(
+                  margin: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.14,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(45),
+                      topRight: Radius.circular(45),
+                    ),
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                  ),
+                  alignment: Alignment.center,
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) => ScaleTransition(
+                      scale: animation,
+                      child: child,
+                    ),
+                    child: activeWidget,
+                  ),
+                ),
+                // FOOTER
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                      color: Theme.of(context).backgroundColor,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ...pages.map(
+                          (e) => Container(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    activeText = e['text'];
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(7),
+                                    margin: EdgeInsets.all(17),
+                                    child: Icon(
+                                      e['icon'],
+                                      size: 26,
+                                      color: activeText == e['text']
+                                          ? Theme.of(context).accentColor
+                                          : Theme.of(context).focusColor,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 2,
+                                  width: 8,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: e['text'] == activeText
+                                        ? Theme.of(context).accentColor
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(),
                       ],
                     ),
                   ),
                 ),
-              ),
-              // CONTENT
-              Container(
-                margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.14,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(45),
-                    topRight: Radius.circular(45),
-                  ),
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                ),
-                alignment: Alignment.center,
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 250),
-                  transitionBuilder: (child, animation) => ScaleTransition(
-                    scale: animation,
-                    child: child,
-                  ),
-                  child: activeWidget,
-                ),
-              ),
-              // FOOTER
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    color: Theme.of(context).backgroundColor,
-                  ),
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ...pages.map(
-                        (e) => Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  activeText = e['text'];
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(7),
-                                  margin: EdgeInsets.all(17),
-                                  child: Icon(
-                                    e['icon'],
-                                    size: 26,
-                                    color: activeText == e['text']
-                                        ? Theme.of(context).accentColor
-                                        : Theme.of(context).focusColor,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: 2,
-                                width: 8,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: e['text'] == activeText
-                                      ? Theme.of(context).accentColor
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

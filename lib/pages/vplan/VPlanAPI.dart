@@ -366,7 +366,15 @@ class VPlanAPI {
     Uri url = Uri.parse(
       'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/PlanKl$stringDate.xml',
     );
-    var pureVPlan = await getVPlanJSON(url, date);
+
+    var pureVPlan;
+    try {
+      pureVPlan = await getVPlanJSON(url, date);
+    } catch (e) {
+      return {
+        'data': {'error': 'no internet'}
+      };
+    }
 
     if (pureVPlan.toString() == '{}') {
       return {};

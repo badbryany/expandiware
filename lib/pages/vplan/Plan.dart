@@ -362,11 +362,11 @@ class _CoursesState extends State<Courses> {
       title: 'Kurse',
       children: [
         GridView.count(
-          childAspectRatio: 3 / 2,
+          childAspectRatio: 3 / 2.3,
           shrinkWrap: true,
           crossAxisCount: 3,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 1,
           physics: BouncingScrollPhysics(),
           children: [
             ...courses.map(
@@ -399,19 +399,21 @@ class _CoursesState extends State<Courses> {
                   }
                 },
                 actionButton: Container(
-                  width: 20,
+                  alignment: Alignment.center,
+                  width: 17,
+                  margin: const EdgeInsets.only(bottom: 15),
                   child: AnimatedSwitcher(
                     duration: Duration(milliseconds: 500),
                     child: e['show']
                         ? Icon(
                             Icons.visibility_outlined,
                             key: ValueKey(1),
-                            size: 18,
+                            size: 16,
                           )
                         : Icon(
                             Icons.visibility_off_outlined,
                             key: ValueKey(2),
-                            size: 18,
+                            size: 16,
                           ),
                     transitionBuilder: (
                       Widget child,
