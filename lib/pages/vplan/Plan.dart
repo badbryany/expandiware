@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../models/ListItem.dart';
 import '../../models/ListPage.dart';
+import '../../models/LoadingProcess.dart';
 import '../../pages/dashboard/settings/VPlanLogin.dart';
 
 import './VPlanAPI.dart';
@@ -241,9 +242,7 @@ class _PlanState extends State<Plan> {
               Container(
                 alignment: Alignment.center,
                 width: MediaQuery.of(context).size.width * 0.2,
-                child: LinearProgressIndicator(
-                  color: Theme.of(context).accentColor,
-                ),
+                child: LoadingProcess(),
               )
             ]
           : (data['data']['data'] as List).map(
@@ -359,132 +358,76 @@ class _CoursesState extends State<Courses> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: Stack(
-        children: [
-          (courses.length == 0
-              ? Container(
-                  width: double.infinity,
-                  child: Center(
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 80,
-                      child: LinearProgressIndicator(
-                        color: Theme.of(context).accentColor,
-                      ),
-                    ),
+    return ListPage(
+      title: 'Kurse',
+      children: [
+        GridView.count(
+          childAspectRatio: 3 / 2,
+          shrinkWrap: true,
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          physics: BouncingScrollPhysics(),
+          children: [
+            ...courses.map(
+              (e) => ListItem(
+                color: e['show']
+                    ? Theme.of(context).backgroundColor
+                    : Theme.of(context).backgroundColor.withOpacity(0.4),
+                title: Center(
+                  child: Text(
+                    e['course'],
+                    textAlign: TextAlign.center,
+                    style: !e['show']
+                        ? TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey,
+                          )
+                        : null,
                   ),
-                )
-              : Container(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * 0.9,
-                    alignment: Alignment.bottomCenter,
-                    child: Scrollbar(
-                      radius: Radius.circular(100),
-                      child: GridView.count(
-                        childAspectRatio: 3 / 2,
-                        shrinkWrap: true,
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        physics: BouncingScrollPhysics(),
-                        children: [
-                          ...courses.map(
-                            (e) => ListItem(
-                              color: e['show']
-                                  ? Theme.of(context).backgroundColor
-                                  : Theme.of(context)
-                                      .backgroundColor
-                                      .withOpacity(0.4),
-                              title: Center(
-                                child: Text(
-                                  e['course'],
-                                  textAlign: TextAlign.center,
-                                  style: !e['show']
-                                      ? TextStyle(
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                          color: Colors.grey,
-                                        )
-                                      : null,
-                                ),
-                              ),
-                              onClick: () {
-                                setState(() {
-                                  e['show'] = !e['show'];
-                                });
-                                if (e['show']) {
-                                  vplanAPI.removeHiddenCourse(e['course']);
-                                  print('remove course');
-                                } else {
-                                  vplanAPI.addHiddenCourse(e['course']);
-                                  print('add course');
-                                }
-                              },
-                              actionButton: Container(
-                                width: 20,
-                                child: AnimatedSwitcher(
-                                  duration: Duration(milliseconds: 500),
-                                  child: e['show']
-                                      ? Icon(
-                                          Icons.visibility_outlined,
-                                          key: ValueKey(1),
-                                          size: 18,
-                                        )
-                                      : Icon(
-                                          Icons.visibility_off_outlined,
-                                          key: ValueKey(2),
-                                          size: 18,
-                                        ),
-                                  transitionBuilder: (
-                                    Widget child,
-                                    Animation<double> animation,
-                                  ) =>
-                                      SizeTransition(
-                                    sizeFactor: animation,
-                                    child: child,
-                                  ),
-                                ),
-                              ),
-                            ),
+                ),
+                onClick: () {
+                  setState(() {
+                    e['show'] = !e['show'];
+                  });
+                  if (e['show']) {
+                    vplanAPI.removeHiddenCourse(e['course']);
+                    print('remove course');
+                  } else {
+                    vplanAPI.addHiddenCourse(e['course']);
+                    print('add course');
+                  }
+                },
+                actionButton: Container(
+                  width: 20,
+                  child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 500),
+                    child: e['show']
+                        ? Icon(
+                            Icons.visibility_outlined,
+                            key: ValueKey(1),
+                            size: 18,
+                          )
+                        : Icon(
+                            Icons.visibility_off_outlined,
+                            key: ValueKey(2),
+                            size: 18,
                           ),
-                        ],
-                      ),
+                    transitionBuilder: (
+                      Widget child,
+                      Animation<double> animation,
+                    ) =>
+                        SizeTransition(
+                      sizeFactor: animation,
+                      child: child,
                     ),
                   ),
-                )),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(top: 30, left: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_rounded,
-                    color: Theme.of(context).focusColor,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    widget.updateCourses();
-                  },
                 ),
-                SizedBox(width: 20),
-                Text(
-                  'Kurse',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../dashboard/settings/VPlanLogin.dart';
 
 import '../../models/ListItem.dart';
+import '../../models/LoadingProcess.dart';
 
 import './Plan.dart';
 
@@ -286,9 +287,7 @@ class _SelectClassState extends State<SelectClass> {
             ? Center(
                 child: Container(
                   width: 80,
-                  child: LinearProgressIndicator(
-                    color: Theme.of(context).accentColor,
-                  ),
+                  child: LoadingProcess(),
                 ),
               )
             : SizedBox(),

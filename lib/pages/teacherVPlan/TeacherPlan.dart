@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../vplan/VPlanAPI.dart';
 import '../../models/ListItem.dart';
 import '../../models/ListPage.dart';
+import '../../models/LoadingProcess.dart';
 
 class TeacherPlan extends StatefulWidget {
   const TeacherPlan({
@@ -138,9 +139,7 @@ class _TeacherPlanState extends State<TeacherPlan> {
                 Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width * 0.2,
-                  child: LinearProgressIndicator(
-                    color: Theme.of(context).accentColor,
-                  ),
+                  child: LoadingProcess(),
                 )
               ]
             : res

@@ -4,6 +4,8 @@ import 'package:page_transition/page_transition.dart';
 
 import './TeacherPlan.dart';
 
+import '../../models/LoadingProcess.dart';
+
 import '../vplan/VPlanAPI.dart';
 
 class TeacherVPlan extends StatefulWidget {
@@ -42,7 +44,7 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
         future: Future.delayed(Duration(microseconds: 1)),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return LinearProgressIndicator();
+            return LoadingProcess();
           }
           return TeacherList(
             setTeacherShort: this.setTeacherShort,
