@@ -96,10 +96,14 @@ void sendAppOpenData() async {
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> deviceData = <String, dynamic>{};
   dynamic logindata;
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? schoolnumber = prefs.getString('schoolnumber');
+  schoolnumber ??= prefs.getString('customUrl');
   try {
     if (Platform.isAndroid) {
       deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
       logindata = {
+        'schoolnumber': schoolnumber,
         'device_id': deviceData['id'],
         'android_id': deviceData['androidId'],
         'model': deviceData['model'],
