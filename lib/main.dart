@@ -145,6 +145,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: (BuildContext context, Widget? child) {
+        final MediaQueryData data = MediaQuery.of(context);
+        return MediaQuery(
+          data: data.copyWith(
+              textScaleFactor:
+                  data.textScaleFactor != 1 ? 1 : data.textScaleFactor),
+          child: child!,
+        );
+      },
       debugShowCheckedModeBanner: false,
       title: 'expandiware',
       darkTheme: ThemeData(
@@ -277,6 +286,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).textScaleFactor);
     checkForUpdates(context);
     List<Map<String, dynamic>> pages = [
       {

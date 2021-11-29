@@ -92,7 +92,7 @@ class _ListPageState extends State<ListPage> {
                                 child: Text(
                                   widget.title,
                                   style: TextStyle(
-                                    fontSize: widget.smallTitle! ? 22 : 30,
+                                    fontSize: widget.smallTitle! ? 21 : 30,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Questrial',
                                   ),
