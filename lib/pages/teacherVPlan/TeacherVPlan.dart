@@ -170,7 +170,7 @@ class _TeacherListState extends State<TeacherList> {
       List<String> newList = [];
       for (int i = 0; i < teachers.length; i++) {
         RegExp exp = new RegExp(
-          '[${widget.searchText.toLowerCase()}][a-z,ö,ä,ü]*',
+          '${widget.searchText.toLowerCase()}[a-z,ö,ä,ü]*',
         );
         if (exp.hasMatch(teachers[i].toLowerCase())) {
           newList.add(teachers[i]);
