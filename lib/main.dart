@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 
 import 'package:quick_actions/quick_actions.dart';
 
@@ -197,13 +198,19 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String activeText = 'vplan students';
   final QuickActions quickActions = QuickActions();
 
   @override
   void initState() {
     super.initState();
+    eastereggController = AnimationController(vsync: this);
+  }
+
+  void dispose() {
+    eastereggController.dispose();
+    super.dispose();
   }
 
   void initQuickActions() async {
@@ -284,8 +291,38 @@ class _HomePageState extends State<HomePage> {
 
   void openVPLan(String _prefClass) {}
 
+  void eastereggIconChange() {
+    if (eastereggIcon.key == ValueKey(1)) {
+      eastereggIcon = SvgPicture.asset(
+        'assets/img/bird.svg',
+        key: ValueKey(2),
+        color: Theme.of(context).focusColor,
+      );
+    } else {
+      eastereggIcon = LottieBuilder.asset(
+        'assets/animations/bird.json',
+        key: ValueKey(1),
+      );
+      Future.delayed(
+        const Duration(milliseconds: 6140),
+        eastereggIconChange,
+      );
+    }
+    setState(() {});
+  }
+
+  late final AnimationController eastereggController;
+  Widget eastereggIcon = SizedBox();
+
   @override
   Widget build(BuildContext context) {
+    if (eastereggIcon.runtimeType == SizedBox)
+      eastereggIcon = SvgPicture.asset(
+        'assets/img/bird.svg',
+        key: ValueKey(2),
+        color: Theme.of(context).focusColor,
+        width: 35,
+      );
     checkForUpdates(context);
     List<Map<String, dynamic>> pages = [
       {
@@ -360,10 +397,23 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(),
-                        SvgPicture.asset(
-                          'assets/img/bird.svg',
-                          color: Theme.of(context).focusColor,
-                          width: 35,
+                        Container(
+                          height: 45,
+                          child: InkWell(
+                            onTap: eastereggIconChange,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: animation,
+                                  child: child,
+                                ),
+                              ),
+                              child: eastereggIcon,
+                            ),
+                          ),
                         ),
                         SizedBox(width: 30),
                         Text(

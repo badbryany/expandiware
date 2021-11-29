@@ -26,6 +26,7 @@ dependencies:
   flutter_background_service: ^0.1.5
   awesome_notifications: ^0.6.16
   quick_actions: ^0.6.0+7
+  lottie: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -42,3 +43,4 @@ flutter:
       - asset: ./assets/fonts/questrial.ttf
   assets:
     - assets/img/
+    - assets/animations/
