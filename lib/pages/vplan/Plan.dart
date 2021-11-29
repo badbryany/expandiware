@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../models/ListItem.dart';
 import '../../models/ListPage.dart';
@@ -94,14 +95,43 @@ class _PlanState extends State<Plan> {
     DateTime displayDateDateTime;
     String displayDate = '...';
     if (data == null) {
+      print('foo');
       return Text('no vplan');
     }
     if (data.toString().contains('error')) {
-      String extraText = '';
-      String errorText = (data['error'] == '401'
-          ? 'Der Benutzername oder das Passwort'
-          : 'Die Schulnummer');
-      data['error'] != '401' ? extraText = 'oder es ist keine Schule!' : '!';
+      String errorText = '';
+      Widget extraWidget = SizedBox();
+
+      switch (data['error']) {
+        case '401':
+          errorText = 'Der Benutzername oder das Passwort ist falsch!';
+          extraWidget = Lottie.asset(
+            'assets/animations/lock.json',
+            height: 120,
+          );
+          break;
+        case 'schoolnumber':
+          errorText =
+              'Kein Vertretungsplan verfügbar!\n\n oder falsche Schulnummer';
+          break;
+        case 'no internet':
+          errorText = 'Keine Internetverbindung';
+          break;
+        default:
+          if (data['data']['data'] != null) {
+            errorText = 'Keine Internetverbindung';
+            extraWidget = Lottie.asset(
+              'assets/animations/wifi.json',
+              height: 120,
+            );
+            break;
+          }
+          errorText = 'keine Stundenplandaten';
+          extraWidget = Lottie.asset(
+            'assets/animations/nodata.json',
+            height: 100,
+          );
+      }
       return ListPage(
         title: '${widget.classId}',
         actions: [
@@ -111,10 +141,13 @@ class _PlanState extends State<Plan> {
           ),
         ],
         children: [
+          extraWidget,
           Container(
             alignment: Alignment.center,
+            margin: const EdgeInsets.only(left: 10, right: 10),
             child: Text(
-              '$errorText ist falsch $extraText',
+              errorText,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

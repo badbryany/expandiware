@@ -258,8 +258,10 @@ class VPlanAPI {
       'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/Klassen.xml',
     );
 
-    var pureVPlan = await getVPlanJSON(url, DateTime.now());
-    return pureVPlan['ZusatzInfo'];
+    try {
+      var pureVPlan = await getVPlanJSON(url, DateTime.now());
+      return pureVPlan['ZusatzInfo'];
+    } catch (e) {}
   }
 
   bool compareDate(DateTime datetime, String date2) {
@@ -287,7 +289,14 @@ class VPlanAPI {
 
     Uri url = Uri.parse(await getDayURL());
 
-    var pureVPlan = await getVPlanJSON(url, DateTime.now());
+    var pureVPlan;
+    try {
+      pureVPlan = await getVPlanJSON(url, DateTime.now());
+    } catch (e) {
+      return {
+        'data': {'error': 'no internet'}
+      };
+    }
 
     if (pureVPlan == {}) {
       return {};
