@@ -102,7 +102,7 @@ class _PlanState extends State<Plan> {
     if (data.toString().contains('error')) {
       String errorText = '';
       Widget extraWidget = SizedBox();
-
+      print(data);
       switch (data['error']) {
         case '401':
           errorText = 'Der Benutzername oder das Passwort ist falsch!';
@@ -114,24 +114,43 @@ class _PlanState extends State<Plan> {
         case 'schoolnumber':
           errorText =
               'Kein Vertretungsplan verfügbar!\n\n oder falsche Schulnummer';
+          extraWidget = Lottie.asset(
+            'assets/animations/nodata.json',
+            height: 120,
+          );
           break;
         case 'no internet':
           errorText = 'Keine Internetverbindung';
+          extraWidget = Lottie.asset(
+            'assets/animations/wifi.json',
+            height: 120,
+          );
           break;
         default:
-          if (data['data']['data'] != null) {
-            errorText = 'Keine Internetverbindung';
-            extraWidget = Lottie.asset(
-              'assets/animations/wifi.json',
-              height: 120,
-            );
-            break;
+          switch (data['data']['error']) {
+            case '401':
+              errorText = 'Der Benutzername oder das Passwort ist falsch!';
+              extraWidget = Lottie.asset(
+                'assets/animations/lock.json',
+                height: 120,
+              );
+              break;
+            case 'schoolnumber':
+              errorText =
+                  'Kein Vertretungsplan verfügbar!\n\n oder falsche Schulnummer';
+              extraWidget = Lottie.asset(
+                'assets/animations/nodata.json',
+                height: 120,
+              );
+              break;
+            case 'no internet':
+              errorText = 'Keine Internetverbindung';
+              extraWidget = Lottie.asset(
+                'assets/animations/wifi.json',
+                height: 120,
+              );
+              break;
           }
-          errorText = 'keine Stundenplandaten';
-          extraWidget = Lottie.asset(
-            'assets/animations/nodata.json',
-            height: 100,
-          );
       }
       return ListPage(
         title: '${widget.classId}',
