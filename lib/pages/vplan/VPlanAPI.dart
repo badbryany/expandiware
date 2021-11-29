@@ -213,13 +213,10 @@ class VPlanAPI {
           return {};
         }
 
-        print(jsonVPlan['VpMobil']['FreieTage']);
-
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
         });
-
         //-------------------------------------
         String? stringData = prefs.getString('offlineVPData');
         if (stringData == null || stringData == 'null') {
@@ -387,6 +384,52 @@ class VPlanAPI {
     stringDate += _date.day < 10 ? '0${_date.day}' : _date.day.toString();
 
     return stringDate;
+  }
+
+  DateTime parseStringDatatoDateTime(String date) {
+    List dateArray = date.split(',')[1].replaceAll('.', '').trim().split(' ');
+    switch (dateArray[1]) {
+      case 'Januar':
+        dateArray[1] = '01';
+        break;
+      case 'Februar':
+        dateArray[1] = '02';
+        break;
+      case 'März':
+        dateArray[1] = '03';
+        break;
+      case 'April':
+        dateArray[1] = '04';
+        break;
+      case 'Mai':
+        dateArray[1] = '05';
+        break;
+      case 'Juni':
+        dateArray[1] = '06';
+        break;
+      case 'Juli':
+        dateArray[1] = '07';
+        break;
+      case 'August':
+        dateArray[1] = '08';
+        break;
+      case 'September':
+        dateArray[1] = '09';
+        break;
+      case 'Oktober':
+        dateArray[1] = '10';
+        break;
+      case 'November':
+        dateArray[1] = '11';
+        break;
+      case 'Dezember':
+        dateArray[1] = '12';
+        break;
+    }
+
+    return DateTime.parse(
+      '${dateArray[2]}-${dateArray[1]}-${dateArray[0]}',
+    );
   }
 
   DateTime changeDate({required String date, required bool nextDay}) {

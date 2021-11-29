@@ -153,14 +153,8 @@ class _PlanState extends State<Plan> {
       );
     }
     if (data.toString().contains('data')) {
-      displayDateDateTime = VPlanAPI()
-          .changeDate(
-            date: data['data']['date'].toString(),
-            nextDay: true,
-          )
-          .subtract(
-            Duration(days: 1),
-          );
+      displayDateDateTime =
+          VPlanAPI().parseStringDatatoDateTime(data['data']['date'].toString());
       displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
     }
     if (topHeight == -10) topHeight = MediaQuery.of(context).size.height * 0.17;

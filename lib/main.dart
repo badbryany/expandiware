@@ -286,7 +286,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).textScaleFactor);
     checkForUpdates(context);
     List<Map<String, dynamic>> pages = [
       {
