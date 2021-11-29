@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:http_auth/http_auth.dart' as http_auth;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml2json/xml2json.dart';
 
@@ -13,6 +16,10 @@ class VPlanAPI {
   Future<void> login() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    if (prefs.getString('customUrl') != null &&
+        prefs.getString('customUrl') != '') {
+      return;
+    }
     schoolnumber = int.parse(prefs.getString("vplanSchoolnumber")!);
     vplanUsername = prefs.getString("vplanUsername")!;
     vplanPassword = prefs.getString("vplanPassword")!;
@@ -173,10 +180,21 @@ class VPlanAPI {
 
     Xml2Json xml2json = Xml2Json();
     await login();
-    var client = http_auth.BasicAuthClient(vplanUsername, vplanPassword);
+    var client;
 
+    if (prefs.getString('customUrl') != null &&
+        prefs.getString('customUrl') != '') {
+      url = Uri.parse(prefs.getString('customUrl')! + 'mobdaten/Klassen.xml');
+    } else {
+      client = http_auth.BasicAuthClient(vplanUsername, vplanPassword);
+    }
     try {
-      return client.get(url).then((res) {
+      return ((prefs.getString('customUrl') != null &&
+                  prefs.getString('customUrl') != '')
+              ? http.Client()
+              : client)
+          .get(url)
+          .then((res) {
         if (res.body
             .toString()
             .contains('Die eingegebene Schulnummer wurde nicht gefunden.')) {
