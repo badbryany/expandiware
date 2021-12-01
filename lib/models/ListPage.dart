@@ -26,10 +26,11 @@ class _ListPageState extends State<ListPage> {
   void initState() {
     super.initState();
     controller.addListener(() {
-      if (controller.offset > 0) {
-        topHeight = 0;
-      } else {
+      if (controller.offset == 0) return;
+      if (controller.offset < 0) {
         topHeight = -10;
+      } else {
+        topHeight = 0;
       }
       setState(() {});
     });
@@ -75,7 +76,7 @@ class _ListPageState extends State<ListPage> {
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(100),
                                   ),
-                                  color: Colors.black38,
+                                  color: Color(0xff0a0a0b),
                                 ),
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
@@ -92,7 +93,7 @@ class _ListPageState extends State<ListPage> {
                                 child: Text(
                                   widget.title,
                                   style: TextStyle(
-                                    fontSize: widget.smallTitle! ? 21 : 30,
+                                    fontSize: widget.smallTitle! ? 23 : 30,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Questrial',
                                   ),
@@ -118,28 +119,40 @@ class _ListPageState extends State<ListPage> {
               duration: Duration(milliseconds: topHeight == 0 ? 700 : 100),
               opacity: topHeight == 0 ? 1 : 0,
               child: Container(
-                  alignment: Alignment.topLeft,
-                  margin: const EdgeInsets.all(20),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: Icon(
+                height: 34,
+                alignment: Alignment.topLeft,
+                margin: const EdgeInsets.all(20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(9),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(100),
+                          ),
+                          color: Color(0xff0a0a0b),
+                        ),
+                        child: Icon(
                           Icons.arrow_back_ios_rounded,
                           size: 16,
                         ),
-                        onPressed: () => Navigator.pop(context),
                       ),
-                      SizedBox(width: 10),
-                      Text(
-                        widget.title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    SizedBox(width: 20),
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ),
             // CONTENT
             Center(
@@ -147,8 +160,8 @@ class _ListPageState extends State<ListPage> {
                 duration: const Duration(milliseconds: 200),
                 margin: EdgeInsets.only(
                   top: topHeight != 0
-                      ? MediaQuery.of(context).size.height * 0.08
-                      : 0,
+                      ? MediaQuery.of(context).size.height * 0.13
+                      : MediaQuery.of(context).size.height * 0.1,
                 ),
                 padding: EdgeInsets.only(
                   top: topHeight != 0
@@ -165,10 +178,13 @@ class _ListPageState extends State<ListPage> {
                   color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 alignment: Alignment.bottomCenter,
-                height: MediaQuery.of(context).size.height * 0.8,
+                height:
+                    double.infinity, //MediaQuery.of(context).size.height * 0.8,
                 child: ListView(
                   controller: controller,
-                  physics: const BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
                   children: widget.children,
                 ),
               ),

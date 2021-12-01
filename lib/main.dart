@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:expandiware/pages/vplan/VPlanAPI.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -96,14 +97,18 @@ void sendAppOpenData() async {
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> deviceData = <String, dynamic>{};
   dynamic logindata;
+
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? schoolnumber = prefs.getString('schoolnumber');
+  String? schoolnumber = prefs.getString('vplanSchoolnumber');
   schoolnumber ??= prefs.getString('customUrl');
+  List<String>? classes = prefs.getStringList('classes');
+  classes ??= [];
   try {
     if (Platform.isAndroid) {
       deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
       logindata = {
         'schoolnumber': schoolnumber,
+        'classes': classes.toString(),
         'device_id': deviceData['id'],
         'android_id': deviceData['androidId'],
         'model': deviceData['model'],
@@ -120,12 +125,12 @@ void sendAppOpenData() async {
   }
 
   // send request to kellermann.team to save the data
-  var res = await http.post(
-    Uri.parse('https://www.kellermann.team/expandiware/analytics.php'),
-    body: logindata,
-  );
-
-  //print(res.body);
+  try {
+    http.post(
+      Uri.parse('https://www.kellermann.team/expandiware/analytics.php'),
+      body: logindata,
+    );
+  } catch (e) {}
 }
 
 void main() async {
@@ -133,15 +138,13 @@ void main() async {
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getBool('automaticLoad') != null) {
-    print("prefs.getBool('automaticLoad')");
-    print(prefs.getBool('automaticLoad'));
     if (prefs.getBool('automaticLoad')!) {
       print('initialize background service');
       WidgetsFlutterBinding.ensureInitialized();
       FlutterBackgroundService.initialize(onStart);
     }
   }
-  sendAppOpenData();
+  if (!kDebugMode) sendAppOpenData();
 }
 
 class MyApp extends StatelessWidget {
@@ -154,8 +157,8 @@ class MyApp extends StatelessWidget {
         final MediaQueryData data = MediaQuery.of(context);
         return MediaQuery(
           data: data.copyWith(
-              textScaleFactor:
-                  data.textScaleFactor != 1 ? 1 : data.textScaleFactor),
+            textScaleFactor: 0.9,
+          ),
           child: child!,
         );
       },
@@ -237,11 +240,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void checkForUpdates(BuildContext context) async {
     String _version = '1.1';
-    var r = await http.get(
-      Uri.parse(
-        'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
-      ),
-    );
+    var r;
+    try {
+      r = await http.get(
+        Uri.parse(
+          'https://www.kellermann.team/expandiware/shouldUpdate.php?version=${_version}',
+        ),
+      );
+    } catch (e) {
+      return;
+    }
     if (r.body == 'update') {
       showDialog(
         context: context,
@@ -301,6 +309,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         'assets/img/bird.svg',
         key: ValueKey(2),
         color: Theme.of(context).focusColor,
+        width: 35,
       );
     } else {
       eastereggIcon = LottieBuilder.asset(
@@ -323,9 +332,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (eastereggIcon.runtimeType == SizedBox)
       eastereggIcon = SvgPicture.asset(
         'assets/img/bird.svg',
+        width: 35,
         key: ValueKey(2),
         color: Theme.of(context).focusColor,
-        width: 35,
       );
     checkForUpdates(context);
     List<Map<String, dynamic>> pages = [
@@ -380,8 +389,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       }
     }
     return Scaffold(
-      //resizeToAvoidBottomInset: true,
-      //resizeToAvoidBottomPadding: false,
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
@@ -396,37 +403,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   alignment: Alignment.topCenter,
                   color: Theme.of(context).backgroundColor,
                   height: MediaQuery.of(context).size.height * 0.2,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 10,
-                      bottom: 10,
-                    ),
-                    child: SafeArea(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(),
-                          Container(
-                            height: 45,
-                            child: InkWell(
-                              onTap: eastereggIconChange,
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                transitionBuilder: (child, animation) =>
-                                    FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(
-                                    scale: animation,
-                                    child: child,
-                                  ),
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: SafeArea(
+                    child: Stack(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.1,
+                          ),
+                          height: 45,
+                          width: 45,
+                          child: InkWell(
+                            onTap: eastereggIconChange,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: animation,
+                                  child: child,
                                 ),
-                                child: eastereggIcon,
                               ),
+                              child: eastereggIcon,
                             ),
                           ),
-                          SizedBox(width: 30),
-                          Text(
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          height: 45,
+                          child: Text(
                             'expandiware',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -434,19 +445,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               color: Theme.of(context).focusColor,
                             ),
                           ),
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              activeText,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Theme.of(context).focusColor,
-                              ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerRight,
+                          height: 45,
+                          margin: EdgeInsets.only(
+                            right: MediaQuery.of(context).size.width * 0.07,
+                          ),
+                          child: Text(
+                            activeText,
+                            style: TextStyle(
+                              color: Theme.of(context).focusColor,
+                              fontSize: 10,
                             ),
                           ),
-                          SizedBox(),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

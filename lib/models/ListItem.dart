@@ -29,9 +29,9 @@ class ListItem extends StatelessWidget {
         onTap: () => this.onClick(),
         child: AnimatedContainer(
           duration: Duration(milliseconds: 500),
-          padding: EdgeInsets.all(padding == null ? 8 : padding!),
+          padding: EdgeInsets.all(padding == null ? 9 : padding!),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(25),
             color: this.color == null
                 ? Theme.of(context).backgroundColor
                 : this.color,

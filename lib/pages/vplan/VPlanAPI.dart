@@ -293,9 +293,7 @@ class VPlanAPI {
     try {
       pureVPlan = await getVPlanJSON(url, DateTime.now());
     } catch (e) {
-      return {
-        'data': {'error': 'no internet'}
-      };
+      return {'error': 'no internet'};
     }
 
     if (pureVPlan == {}) {
@@ -371,9 +369,7 @@ class VPlanAPI {
     try {
       pureVPlan = await getVPlanJSON(url, date);
     } catch (e) {
-      return {
-        'data': {'error': 'no internet'}
-      };
+      return {'error': 'no internet'};
     }
 
     if (pureVPlan.toString() == '{}') {

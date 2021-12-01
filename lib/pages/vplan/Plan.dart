@@ -96,13 +96,11 @@ class _PlanState extends State<Plan> {
     DateTime displayDateDateTime;
     String displayDate = '...';
     if (data == null) {
-      print('foo');
       return Text('no vplan');
     }
     if (data.toString().contains('error')) {
       String errorText = '';
       Widget extraWidget = SizedBox();
-      print(data);
       switch (data['error']) {
         case '401':
           errorText = 'Der Benutzername oder das Passwort ist falsch!';

@@ -126,7 +126,6 @@ class _VPlanState extends State<VPlan> {
           Container(
             height: MediaQuery.of(context).size.height * 0.5,
             child: Scrollbar(
-              isAlwaysShown: true,
               radius: Radius.circular(100),
               child: AnimatedList(
                 physics: BouncingScrollPhysics(),
