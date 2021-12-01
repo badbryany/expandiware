@@ -213,6 +213,7 @@ class _PlanState extends State<Plan> {
 
     return ListPage(
       title: '${widget.classId} - $displayDate',
+      animate: true,
       smallTitle: true,
       actions: [
         Row(

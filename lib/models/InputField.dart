@@ -18,11 +18,11 @@ class InputField extends StatelessWidget {
       margin: EdgeInsets.all(10),
       padding: EdgeInsets.all(10),
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(15),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(20),
         ),
-        color: Color(0x99202020),
+        color: Theme.of(context).backgroundColor,
       ),
       child: Center(
         child: TextFormField(

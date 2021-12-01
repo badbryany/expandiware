@@ -79,7 +79,7 @@ class _ListPageState extends State<ListPage> {
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(100),
                                   ),
-                                  color: Color(0xff0a0a0b),
+                                  color: Colors.black38,
                                 ),
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
@@ -96,7 +96,7 @@ class _ListPageState extends State<ListPage> {
                                 child: Text(
                                   widget.title,
                                   style: TextStyle(
-                                    fontSize: widget.smallTitle! ? 23 : 30,
+                                    fontSize: widget.smallTitle! ? 22 : 30,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Questrial',
                                   ),
@@ -122,40 +122,28 @@ class _ListPageState extends State<ListPage> {
               duration: Duration(milliseconds: topHeight == 0 ? 700 : 100),
               opacity: topHeight == 0 ? 1 : 0,
               child: Container(
-                height: 34,
-                alignment: Alignment.topLeft,
-                margin: const EdgeInsets.all(20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(9),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(100),
-                          ),
-                          color: Color(0xff0a0a0b),
-                        ),
-                        child: Icon(
+                  alignment: Alignment.topLeft,
+                  margin: const EdgeInsets.all(20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(
                           Icons.arrow_back_ios_rounded,
                           size: 16,
                         ),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                    ),
-                    SizedBox(width: 20),
-                    Text(
-                      widget.title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      SizedBox(width: 10),
+                      Text(
+                        widget.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  )),
             ),
             // CONTENT
             Center(
@@ -163,8 +151,8 @@ class _ListPageState extends State<ListPage> {
                 duration: const Duration(milliseconds: 200),
                 margin: EdgeInsets.only(
                   top: topHeight != 0
-                      ? MediaQuery.of(context).size.height * 0.13
-                      : MediaQuery.of(context).size.height * 0.1,
+                      ? MediaQuery.of(context).size.height * 0.08
+                      : 0,
                 ),
                 padding: EdgeInsets.only(
                   top: topHeight != 0
@@ -181,26 +169,34 @@ class _ListPageState extends State<ListPage> {
                   color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 alignment: Alignment.bottomCenter,
-                height:
-                    double.infinity, //MediaQuery.of(context).size.height * 0.8,
-                child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: widget.animate! ? 500 : 0),
-                  transitionBuilder: (child, animation) => SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 2),
-                      end: const Offset(0, 0),
-                    ).animate(animation),
-                    child: child,
-                  ),
-                  child: ListView(
-                    key: ValueKey(widget.children),
-                    controller: controller,
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
-                    children: widget.children,
-                  ),
-                ),
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: widget.animate!
+                    ? AnimatedSwitcher(
+                        duration: Duration(milliseconds: 500),
+                        transitionBuilder: (child, animation) =>
+                            SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 2),
+                            end: const Offset(0, 0),
+                          ).animate(animation),
+                          child: child,
+                        ),
+                        child: ListView(
+                          key: ValueKey(widget.children),
+                          controller: controller,
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
+                          children: widget.children,
+                        ),
+                      )
+                    : ListView(
+                        controller: controller,
+                        physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        children: widget.children,
+                      ),
               ),
             ),
           ],

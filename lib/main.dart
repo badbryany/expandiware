@@ -239,7 +239,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void checkForUpdates(BuildContext context) async {
-    String _version = '1.1';
+    String _version = '1.15';
     var r;
     try {
       r = await http.get(
@@ -468,6 +468,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 Container(
                   margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height * 0.14,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
                   ),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
