@@ -7,10 +7,12 @@ class ListPage extends StatefulWidget {
     this.smallTitle,
     required this.children,
     this.actions,
+    this.animate,
   }) : super(key: key);
 
   final String title;
   bool? smallTitle;
+  bool? animate;
   final List<Widget> children;
   List<Widget>? actions;
 
@@ -40,6 +42,7 @@ class _ListPageState extends State<ListPage> {
   Widget build(BuildContext context) {
     if (topHeight == -10) topHeight = MediaQuery.of(context).size.height * 0.23;
     widget.actions ??= [];
+    widget.animate ??= false;
     widget.smallTitle ??= false;
 
     return SafeArea(
@@ -180,12 +183,23 @@ class _ListPageState extends State<ListPage> {
                 alignment: Alignment.bottomCenter,
                 height:
                     double.infinity, //MediaQuery.of(context).size.height * 0.8,
-                child: ListView(
-                  controller: controller,
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: widget.animate! ? 500 : 0),
+                  transitionBuilder: (child, animation) => SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 2),
+                      end: const Offset(0, 0),
+                    ).animate(animation),
+                    child: child,
                   ),
-                  children: widget.children,
+                  child: ListView(
+                    key: ValueKey(widget.children),
+                    controller: controller,
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    children: widget.children,
+                  ),
                 ),
               ),
             ),

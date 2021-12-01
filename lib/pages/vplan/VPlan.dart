@@ -293,6 +293,7 @@ class _SelectClassState extends State<SelectClass> {
       }
       return ListPage(
         title: 'Klassenauswahl',
+        animate: true,
         actions: [
           IconButton(
             onPressed: () => getClasses(),
@@ -346,13 +347,11 @@ class _SelectClassState extends State<SelectClass> {
     }
     return ListPage(
       title: 'Klassenauswahl',
+      animate: true,
       children: [
         classes.length == 0
             ? Center(
-                child: Container(
-                  width: 80,
-                  child: LoadingProcess(),
-                ),
+                child: LoadingProcess(),
               )
             : SizedBox(),
         ...classes.map((className) {

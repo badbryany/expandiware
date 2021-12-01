@@ -152,6 +152,7 @@ class _PlanState extends State<Plan> {
       }
       return ListPage(
         title: '${widget.classId}',
+        animate: true,
         actions: [
           IconButton(
             onPressed: () => getData(),
@@ -377,6 +378,7 @@ class _CoursesState extends State<Courses> {
   Widget build(BuildContext context) {
     return ListPage(
       title: 'Kurse',
+      animate: true,
       children: [
         GridView.count(
           childAspectRatio: 3 / 2.3,
