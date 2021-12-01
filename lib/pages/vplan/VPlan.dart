@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:animations/animations.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../dashboard/settings/VPlanLogin.dart';
@@ -226,9 +227,70 @@ class _SelectClassState extends State<SelectClass> {
   @override
   Widget build(BuildContext context) {
     if (classes.toString().contains('error')) {
-      String errorText = (classes['error'] == '401'
-          ? 'Der Benutzername oder das Passwort'
-          : 'Die Schulnummer');
+      String errorText = '';
+      Widget extraWidget = SizedBox();
+      switch (classes['error']) {
+        case '401':
+          errorText = 'Der Benutzername oder das Passwort ist falsch!';
+          extraWidget = Lottie.asset(
+            'assets/animations/lock.json',
+            height: 120,
+          );
+          break;
+        case 'schoolnumber':
+          errorText = 'Falsche Schulnummer!\n\noder Vertretungsplan verfügbar';
+          extraWidget = Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Theme.of(context).backgroundColor,
+            ),
+            margin: EdgeInsets.only(
+              left: MediaQuery.of(context).size.width * 0.37,
+              right: MediaQuery.of(context).size.width * 0.37,
+              bottom: 30,
+            ),
+            child: Center(
+              child: Lottie.asset(
+                'assets/animations/attention.json',
+                height: 120,
+                width: 120,
+              ),
+            ),
+          );
+          break;
+        case 'no internet':
+          errorText = 'Keine Internetverbindung';
+          extraWidget = Lottie.asset(
+            'assets/animations/wifi.json',
+            height: 120,
+          );
+          break;
+        default:
+          switch (classes['data']['error']) {
+            case '401':
+              errorText = 'Der Benutzername oder das Passwort ist falsch!';
+              extraWidget = Lottie.asset(
+                'assets/animations/lock.json',
+                height: 120,
+              );
+              break;
+            case 'schoolnumber':
+              errorText =
+                  'Falsche Schulnummer!\n\noder Vertretungsplan verfügbar';
+              extraWidget = Lottie.asset(
+                'assets/animations/attention.json',
+                height: 120,
+              );
+              break;
+            case 'no internet':
+              errorText = 'Keine Internetverbindung';
+              extraWidget = Lottie.asset(
+                'assets/animations/wifi.json',
+                height: 120,
+              );
+              break;
+          }
+      }
       return ListPage(
         title: 'Klassenauswahl',
         actions: [
@@ -238,10 +300,13 @@ class _SelectClassState extends State<SelectClass> {
           ),
         ],
         children: [
+          extraWidget,
           Container(
             alignment: Alignment.center,
+            margin: const EdgeInsets.only(left: 10, right: 10),
             child: Text(
-              '$errorText ist falsch!',
+              errorText,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
