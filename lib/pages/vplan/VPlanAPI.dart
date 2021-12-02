@@ -169,7 +169,7 @@ class VPlanAPI {
       for (int i = 0; i < data.length; i++) {
         if (compareDate(vpDate, data[i]['data']['Kopf']['DatumPlan'])) {
           //print('we have an offline backup!');
-          print('used offline data');
+          //print('used offline data');
           return {
             'date': data[i]['date'],
             'data': data[i]['data'],

@@ -1,11 +1,10 @@
 import 'package:expandiware/models/ListItem.dart';
-import 'package:expandiware/pages/vplan/VPlan.dart';
+import 'package:expandiware/models/ListPage.dart';
+import 'package:expandiware/models/LoadingProcess.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 import '../vplan/VPlanAPI.dart';
-
-import '../../models/AppBar.dart';
 
 class FindRoom extends StatefulWidget {
   const FindRoom({Key? key}) : super(key: key);
@@ -16,8 +15,6 @@ class FindRoom extends StatefulWidget {
 
 class _FindRoomState extends State<FindRoom> {
   dynamic data = [];
-
-  DateTime DATE = DateTime.now();
 
   bool isNumeric(String s) {
     return double.tryParse(s) != null;
@@ -81,13 +78,11 @@ class _FindRoomState extends State<FindRoom> {
     return newList;
   }
 
-  void getData() async {
-    VPlanAPI vplanAPI = new VPlanAPI();
+  double toDouble(TimeOfDay myTime) => myTime.hour + myTime.minute / 60.0;
 
-    //String stringDate = vplanAPI.parseDate(DateTime.now());
-    DateTime dateTimeDate = DateTime.parse('2021-09-09 08:30:00');
-    String stringDate =
-        vplanAPI.parseDate(DateTime.parse('2021-09-09 08:30:00'));
+  Future<List<dynamic>> getData() async {
+    dynamic data;
+    VPlanAPI vplanAPI = new VPlanAPI();
 
     Uri url = Uri.parse(await vplanAPI.getDayURL());
 
@@ -118,108 +113,376 @@ class _FindRoomState extends State<FindRoom> {
           }
         }
       }
-    }
-    setState(() {
       data = mergesort(rooms);
-    });
-    // ALL ROOMS GOT
+      // ALL ROOMS GOT
 
-    List<int> freeRooms = [];
+      List<int> freeRooms = [];
+      List<int> usedRooms = [];
 
-    List<String> classes = await vplanAPI.getClassList();
-    List<dynamic> classLessons = [];
-    for (int i = 0; i < classes.length; i++) {
-      String currentClass = classes[i];
+      List<dynamic> allRooms = [];
 
-      classLessons.add(
-        (await vplanAPI.getLessonsForToday(currentClass))['data'],
-      );
-    }
+      List<String> classes = await vplanAPI.getClassList();
 
-    for (int j = 0; j < classLessons.length; j++) {
-      List<dynamic> lessons = classLessons[j];
-      for (var i = 0; i < lessons.length; i++) {
-        dynamic lesson = lessons[i];
-        if (lesson['place'] != 'null' || lesson['place'] != null) {
-          // check if lesson is in the right time
-          DateTime currentTime = DATE;
-          String hour = currentTime.hour.toString().length == 2
-              ? currentTime.hour.toString()
-              : '0' + currentTime.hour.toString();
-          String minute = currentTime.minute.toString().length == 2
-              ? currentTime.minute.toString()
-              : '0' + currentTime.minute.toString();
+      for (int i = 0; i < classes.length; i++) {
+        dynamic _vplandata = await vplanAPI.getLessonsForToday(classes[i]);
 
-          DateTime begin = DateTime.parse('2004-09-22 ${lesson['begin']}:00');
-          DateTime end = DateTime.parse('2004-09-22 ${lesson['end']}:00');
+        for (int j = 0; j < _vplandata['data'].length; j++) {
+          int bhours = int.parse(
+              (_vplandata['data'][j]['begin'] as String).split(':')[0]);
+          int bminutes = int.parse(
+              (_vplandata['data'][j]['begin'] as String).split(':')[1]);
 
-          DateTime currentDateTime = DateTime.parse(
-            '2004-09-22 $hour:$minute:00',
-          );
+          int ehours =
+              int.parse((_vplandata['data'][j]['end'] as String).split(':')[0]);
+          int eminutes =
+              int.parse((_vplandata['data'][j]['end'] as String).split(':')[1]);
 
-          if (isNumeric(lesson['place'].toString())) {
-            if (currentDateTime.isAfter(begin)) {
-              if (currentDateTime.isBefore(end)) {
-                freeRooms.add(int.parse(lesson['place']));
+          TimeOfDay _begin = TimeOfDay(hour: bhours, minute: bminutes);
+          TimeOfDay _end = TimeOfDay(hour: ehours, minute: eminutes);
+          TimeOfDay _now = TimeOfDay.now();
+
+          // check if lesson is now
+          if (toDouble(_now) >= toDouble(_begin) &&
+              toDouble(_now) <= toDouble(_end)) {
+            if (_vplandata['data'][j]['place'] != null) {
+              if (isNumeric(_vplandata['data'][j]['place'])) {
+                int room = int.parse(_vplandata['data'][j]['place']);
+                usedRooms.add(room);
               }
             }
           }
         }
       }
+      rooms = mergesort(rooms);
+      usedRooms = mergesort(usedRooms);
+      for (int i = 0; i < rooms.length; i++) {
+        if ((await getRoomLessons(rooms[i])) != []) {
+          allRooms.add({
+            'room': rooms[i],
+            'open': !usedRooms.contains(rooms[i]),
+            'used_this_day': (await getRoomLessons(rooms[i])).isNotEmpty,
+          });
+        }
+      }
+      return allRooms;
     }
-
-    data = mergesort(freeRooms);
-    setState(() {});
+    return [];
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getData();
+  Future<List<dynamic>> getRoomLessons(int _room) async {
+    VPlanAPI vplanAPI = new VPlanAPI();
+
+    List<dynamic> res = [];
+
+    var data = (await vplanAPI.getVPlanJSON(
+      Uri.parse(
+        await vplanAPI.getDayURL(),
+      ),
+      DateTime.now(),
+    ))['data'];
+
+    for (int i = 0; i < data['Klassen']['Kl'].length; i++) {
+      var currentClass = data['Klassen']['Kl'][i];
+
+      for (int j = 0; j < currentClass['Pl']['Std'].length; j++) {
+        var currentLesson = currentClass['Pl']['Std'][j];
+
+        if (currentLesson['Ra'].toString() == _room.toString()) {
+          res.add({
+            'count': int.parse(currentLesson['St']),
+            'lesson': currentLesson['Fa'],
+            'class': currentClass['Kurz'],
+            'teacher': currentLesson['Le'],
+            'info': currentLesson['If'],
+          });
+        }
+      }
+    }
+    return sort(res);
+  }
+
+  List<dynamic> sort(List<dynamic> list) {
+    if (list.length <= 1) {
+      return list;
+    }
+
+    int half = (list.length / 2).toInt();
+
+    List<dynamic> leftList = [];
+    for (int i = 0; i < half; i++) {
+      leftList.add(list[i]);
+    }
+
+    List<dynamic> rightList = [];
+    for (int i = 0; i < list.length - half; i++) {
+      int count = i + half;
+      rightList.add(list[count]);
+    }
+
+    leftList = sort(leftList);
+    rightList = sort(rightList);
+
+    return smerge(leftList, rightList);
+  }
+
+  List<dynamic> smerge(List<dynamic> leftList, List<dynamic> rightList) {
+    List<dynamic> newList = [];
+
+    while (leftList.isNotEmpty && rightList.isNotEmpty) {
+      if (leftList[0]['count'] <= rightList[0]['count']) {
+        var value = leftList[0];
+
+        newList.add(leftList[0]);
+        leftList.remove(value);
+      } else {
+        var value = rightList[0];
+
+        newList.add(rightList[0]);
+        rightList.remove(value);
+      }
+    } // end of while
+
+    while (leftList.isNotEmpty) {
+      var value = leftList[0];
+
+      newList.add(leftList[0]);
+      leftList.remove(value);
+    }
+
+    while (rightList.isNotEmpty) {
+      var value = rightList[0];
+
+      newList.add(rightList[0]);
+      rightList.remove(value);
+    }
+
+    return newList;
+  }
+
+  void roomInfo(context, roomData) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      enableDrag: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(40),
+            topRight: Radius.circular(40),
+          ),
+          color: Theme.of(context).scaffoldBackgroundColor,
+        ),
+        child: Container(
+          width: double.infinity,
+          child: Stack(
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                width: double.infinity,
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  width: 100,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Color(0x99202020),
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      roomData.isNotEmpty
+                          ? 'Unterricht in diesem Raum'
+                          : 'Heute kein Unterricht in diesem Raum',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    SizedBox(height: 25),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Scrollbar(
+                          isAlwaysShown: true,
+                          radius: Radius.circular(100),
+                          thickness: 2,
+                          child: ListView(
+                            physics: const BouncingScrollPhysics(
+                              parent: AlwaysScrollableScrollPhysics(),
+                            ),
+                            children: [
+                              roomData.isEmpty
+                                  ? Text(
+                                      '...',
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : SizedBox(),
+                              ...roomData.map(
+                                (e) => ListItem(
+                                  onClick: () {},
+                                  color: e['info'] == null
+                                      ? null
+                                      : Color(0x889E1414),
+                                  leading: Text(
+                                    printValue('${e['count']}'),
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  title: Container(
+                                    alignment: Alignment.centerLeft,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          printValue(e['lesson']),
+                                          style: TextStyle(fontSize: 19),
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Icon(
+                                                  Icons.group_rounded,
+                                                  size: 16,
+                                                ),
+                                                SizedBox(width: 3),
+                                                Text(printValue(e['class'])),
+                                              ],
+                                            ),
+                                            SizedBox(height: 5),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Icon(
+                                                  Icons.person_rounded,
+                                                  size: 16,
+                                                ),
+                                                SizedBox(width: 3),
+                                                Text(printValue(e['teacher'])),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 50),
+                                      ],
+                                    ),
+                                  ),
+                                  subtitle: e['info'] == null
+                                      ? null
+                                      : Text(
+                                          '${e['info']}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String printValue(String? value) {
+    if (value == null) {
+      return '---';
+    }
+    return value;
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.center,
-      child: Stack(
+      child: ListPage(
+        title:
+            'Freie Räume - ${TimeOfDay.now().hour}:${TimeOfDay.now().minute}',
+        smallTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => setState(() {}),
+            icon: Icon(Icons.sync_rounded),
+          ),
+        ],
         children: [
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.9,
-              child: GridView.count(
+          FutureBuilder(
+            future: getData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return SizedBox(
+                  width: 100,
+                  height: 200,
+                  child: Text('loading...'),
+                );
+              }
+              return GridView.count(
                 crossAxisCount: 3,
                 childAspectRatio: 3 / 2,
                 shrinkWrap: true,
                 physics: BouncingScrollPhysics(),
                 children: [
-                  ...data.map(
-                    (e) => Container(
-                      padding: EdgeInsets.all(8),
-                      margin: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Theme.of(context).backgroundColor,
+                  ...(snapshot.data as List).map(
+                    (e) => InkWell(
+                      onTap: () async => roomInfo(
+                        context,
+                        await getRoomLessons(e['room']),
                       ),
-                      child: Center(
-                        child: Text(
-                          '$e',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        margin: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: e['open']
+                              ? Colors.green.shade800
+                              : Theme.of(context).backgroundColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            e['used_this_day']
+                                ? '${e['room']}'
+                                : '(${e['room']})',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          Appbar(
-            'Raum finden',
-            SizedBox(),
+              );
+            },
           ),
         ],
       ),
