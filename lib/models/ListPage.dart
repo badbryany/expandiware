@@ -79,7 +79,7 @@ class _ListPageState extends State<ListPage> {
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(100),
                                   ),
-                                  color: Colors.black38,
+                                  color: Color(0xff0d0d0f),
                                 ),
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
@@ -127,12 +127,21 @@ class _ListPageState extends State<ListPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_rounded,
-                          size: 16,
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(100),
+                            ),
+                            color: Color(0xff0d0d0f),
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_ios_rounded,
+                            size: 16,
+                          ),
                         ),
-                        onPressed: () => Navigator.pop(context),
                       ),
                       SizedBox(width: 10),
                       Text(
@@ -147,7 +156,8 @@ class _ListPageState extends State<ListPage> {
             ),
             // CONTENT
             Align(
-              alignment: Alignment.bottomCenter,
+              alignment:
+                  topHeight == 0 ? Alignment.bottomCenter : Alignment.center,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: EdgeInsets.only(
@@ -170,7 +180,8 @@ class _ListPageState extends State<ListPage> {
                   color: Theme.of(context).scaffoldBackgroundColor,
                 ),
                 alignment: Alignment.bottomCenter,
-                height: MediaQuery.of(context).size.height * 0.9,
+                height: MediaQuery.of(context).size.height *
+                    (topHeight == 0 ? 0.85 : 0.8),
                 child: widget.animate!
                     ? AnimatedSwitcher(
                         duration: Duration(milliseconds: 500),
@@ -185,7 +196,6 @@ class _ListPageState extends State<ListPage> {
                         child: ListView(
                           key: ValueKey(widget.children),
                           controller: controller,
-                          shrinkWrap: true,
                           physics: const BouncingScrollPhysics(
                             parent: AlwaysScrollableScrollPhysics(),
                           ),
@@ -194,7 +204,6 @@ class _ListPageState extends State<ListPage> {
                       )
                     : ListView(
                         controller: controller,
-                        shrinkWrap: true,
                         physics: const BouncingScrollPhysics(
                           parent: AlwaysScrollableScrollPhysics(),
                         ),
