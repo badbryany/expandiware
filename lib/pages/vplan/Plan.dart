@@ -256,83 +256,96 @@ class _PlanState extends State<Plan> {
           ],
         ),
       ],
-      children: data == 'loading'
-          ? [
-              Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width * 0.2,
-                child: LoadingProcess(),
-              )
-            ]
-          : (data['data']['data'] as List).map(
-              (e) {
-                if (hiddenSubjects!.contains(e['course'])) {
-                  return SizedBox();
-                }
-                return ListItem(
-                  onClick: () {},
-                  color: e['info'] == null ? null : Color(0x889E1414),
-                  leading: Text(
-                    printValue('${e['count']}'),
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  title: Container(
-                    alignment: Alignment.centerLeft,
-                    width: MediaQuery.of(context).size.width * 0.1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          printValue(e['lesson']),
-                          style: TextStyle(fontSize: 19),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 3),
-                                Text(printValue(e['place'])),
-                              ],
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.person_rounded,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 3),
-                                Text(printValue(e['teacher'])),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 50),
-                      ],
+      children: [
+        ...(data == 'loading'
+            ? [
+                Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width * 0.2,
+                  child: LoadingProcess(),
+                )
+              ]
+            : (data['data']['data'] as List).map(
+                (e) {
+                  if (hiddenSubjects!.contains(e['course'])) {
+                    return SizedBox();
+                  }
+                  return ListItem(
+                    onClick: () {},
+                    color: e['info'] == null ? null : Color(0x889E1414),
+                    leading: Text(
+                      printValue('${e['count']}'),
+                      style: TextStyle(fontSize: 18),
                     ),
-                  ),
-                  subtitle: e['info'] == null
-                      ? null
-                      : Text(
-                          '${e['info']}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                    title: Container(
+                      alignment: Alignment.centerLeft,
+                      width: MediaQuery.of(context).size.width * 0.1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            printValue(e['lesson']),
+                            style: TextStyle(fontSize: 19),
                           ),
-                        ),
-                );
-              },
-            ).toList(),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.location_on_rounded,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(printValue(e['place'])),
+                                ],
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.person_rounded,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(printValue(e['teacher'])),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 50),
+                        ],
+                      ),
+                    ),
+                    subtitle: e['info'] == null
+                        ? null
+                        : Text(
+                            '${e['info']}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  );
+                },
+              ).toList()),
+        data != 'loading'
+            ? (data['info'] != null && data['info'].toString() != ''
+                ? ListItem(
+                    title: Text('${data['info']}'),
+                    onClick: () {},
+                  )
+                : ListItem(
+                    title: Text('keine Zusatzinformationen'),
+                    onClick: () {},
+                  ))
+            : SizedBox(),
+      ],
     );
   }
 }
