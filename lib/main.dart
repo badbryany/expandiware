@@ -4,6 +4,7 @@ import 'package:expandiware/pages/vplan/VPlanAPI.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import './android_colors.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -152,50 +153,49 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (BuildContext context, Widget? child) {
-        final MediaQueryData data = MediaQuery.of(context);
-        return MediaQuery(
-          data: data.copyWith(
-            textScaleFactor: 0.9,
+    return FutureBuilder(
+      future: getMaterialYouColor(),
+      builder: (context, AsyncSnapshot<MaterialYouPalette?> snapshot) {
+        final primarySwatch =
+            snapshot.data?.accent1.shade200 ?? Color(0xffECA44D);
+
+        return MaterialApp(
+          builder: (BuildContext context, Widget? child) {
+            final MediaQueryData data = MediaQuery.of(context);
+            return MediaQuery(
+              data: data.copyWith(
+                textScaleFactor: 0.9,
+              ),
+              child: child!,
+            );
+          },
+          debugShowCheckedModeBanner: false,
+          title: 'expandiware',
+          darkTheme: ThemeData(
+            fontFamily: 'Poppins',
+            brightness: Brightness.dark,
+            accentColor: primarySwatch,
+            primaryColor: primarySwatch,
+            indicatorColor: Color(0xffd04f5b),
+            focusColor: Colors.white,
+            backgroundColor: Color(0xff101012), //Color(0xff161B28),
+            scaffoldBackgroundColor: Colors.black,
           ),
-          child: child!,
+          theme: ThemeData(
+            fontFamily: 'Poppins',
+            brightness: Brightness.light,
+            accentColor: primarySwatch,
+            primaryColor: primarySwatch,
+            indicatorColor: Color(0xffD4CBC5),
+            focusColor: Colors.black,
+            backgroundColor: Color(0xffd7dae1), //Color(0xffe7e7e7),
+            scaffoldBackgroundColor: Colors.white,
+          ),
+          home: Scaffold(
+            body: HomePage(),
+          ),
         );
       },
-      debugShowCheckedModeBanner: false,
-      title: 'expandiware',
-      darkTheme: ThemeData(
-        fontFamily: 'Poppins',
-        brightness: Brightness.dark,
-        accentColor: Color(0xffECA44D),
-        primaryColor: Color(0xff0884eb),
-        indicatorColor: Color(0xffd04f5b),
-        focusColor: Colors.white,
-        backgroundColor: Color(0xff101012), //Color(0xff161B28),
-        scaffoldBackgroundColor: Colors.black,
-      ),
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        brightness: Brightness.light,
-        accentColor: Color(0xff06b36e),
-        primaryColor: Color(0xffE7C4B1),
-        indicatorColor: Color(0xffD4CBC5),
-        focusColor: Colors.black,
-        backgroundColor: Colors.white, //Color(0xffe7e7e7),
-        scaffoldBackgroundColor: Color(0xffd7dae1), //Colors.white,
-      ),
-      /*theme: ThemeData(
-        fontFamily: 'Poppins',
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: Color(0xffeffbf9),
-        backgroundColor: Color(0xff18181a),
-        cardColor: Color(0xffecf0ef),
-        focusColor: Colors.white,
-        accentColor: Color(0xff68f9ff),
-      ),*/
-      home: Scaffold(
-        body: HomePage(),
-      ),
     );
   }
 }

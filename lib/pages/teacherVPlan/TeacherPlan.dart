@@ -132,7 +132,7 @@ class _TeacherPlanState extends State<TeacherPlan> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: ListPage(
-        title: 'Stunden von ${widget.teacher}',
+        title: 'Stunden von ${widget.teacher} - $displayDate',
         smallTitle: true,
         children: res.length == 0
             ? [
@@ -196,11 +196,6 @@ class _TeacherPlanState extends State<TeacherPlan> {
                   ),
                 )
                 .toList(),
-        actions: [
-          Text(
-            displayDate,
-          ),
-        ],
       ),
     );
   }
