@@ -84,7 +84,7 @@ class _ListPageState extends State<ListPage> {
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   size: 19,
-                                  color: Colors.black,
+                                  color: Theme.of(context).splashColor,
                                 ),
                               ),
                             ),
@@ -141,7 +141,7 @@ class _ListPageState extends State<ListPage> {
                           child: Icon(
                             Icons.arrow_back_ios_rounded,
                             size: 16,
-                            color: Colors.black,
+                            color: Theme.of(context).splashColor,
                           ),
                         ),
                       ),

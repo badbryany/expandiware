@@ -18,7 +18,8 @@ class Dashboard extends StatelessWidget {
           color: Theme.of(context).focusColor,
         ),
         'title': 'Leeren Raum finden',
-        'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
+        'subtitle':
+            'lädt ca. 15s!\n\nsuche einen Raum, der gerade nicht benutzt ist!',
         'link': FindRoom(),
       },
       {

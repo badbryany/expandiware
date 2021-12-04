@@ -181,6 +181,7 @@ class MyApp extends StatelessWidget {
             indicatorColor: indicatorColor,
             backgroundColor: darken(backgroundColor, 5), //Color(0xff161B28),
             scaffoldBackgroundColor: darken(backgroundColor, 70),
+            splashColor: snapshot.data == null ? Colors.white : Colors.black,
           ),
           theme: ThemeData(
             fontFamily: 'Poppins',
@@ -192,6 +193,7 @@ class MyApp extends StatelessWidget {
             cardColor: cardColorLight,
             backgroundColor: backgroundColorLight, //Color(0xffe7e7e7),
             scaffoldBackgroundColor: Colors.white,
+            splashColor: Colors.black,
           ),
           home: Scaffold(
             body: HomePage(),

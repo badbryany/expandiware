@@ -4,6 +4,7 @@ import 'package:page_transition/page_transition.dart';
 import 'settings/VPlanLogin.dart';
 import 'settings/DeveloperOptions.dart';
 import 'settings/Notifications.dart';
+import 'settings/TeacherShorts.dart';
 
 import '../../models/ListPage.dart';
 
@@ -22,10 +23,10 @@ class Settings extends StatelessWidget {
       'link': Notifications(),
     },
     {
-      'title': '----',
-      'icon': Icons.fingerprint_rounded,
-      'subtitle': '----',
-      'link': SizedBox(),
+      'title': 'Lehrerkürzel ersetzen',
+      'icon': Icons.people_alt_outlined,
+      'subtitle': 'Lehrerkürzel mit richtigen Namen ersetzen',
+      'link': TeacherShorts(),
     },
     {
       'title': '----',

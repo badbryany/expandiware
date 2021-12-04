@@ -1,6 +1,7 @@
 import 'package:expandiware/models/ListItem.dart';
 import 'package:expandiware/models/ListPage.dart';
 import 'package:expandiware/models/LoadingProcess.dart';
+import 'package:expandiware/models/ProcessBar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,11 @@ class FindRoom extends StatefulWidget {
 
 class _FindRoomState extends State<FindRoom> {
   dynamic data = [];
+  bool getDataExecuted = false;
+  String loadText = '';
+
+  int process = 0;
+  int totalSteps = 10;
 
   bool isNumeric(String s) {
     return double.tryParse(s) != null;
@@ -80,21 +86,22 @@ class _FindRoomState extends State<FindRoom> {
 
   double toDouble(TimeOfDay myTime) => myTime.hour + myTime.minute / 60.0;
 
-  Future<List<dynamic>> getData() async {
-    dynamic data;
+  void getData() async {
+    getDataExecuted = true;
+    dynamic _data;
     VPlanAPI vplanAPI = new VPlanAPI();
 
     Uri url = Uri.parse(await vplanAPI.getDayURL());
 
-    data = await vplanAPI.getAllOfflineData();
-    if (data.length == 0) {
-      data = await vplanAPI.getVPlanJSON(url, DateTime.now());
+    _data = await vplanAPI.getAllOfflineData();
+    if (_data.length == 0) {
+      _data = await vplanAPI.getVPlanJSON(url, DateTime.now());
     }
 
     List<int> rooms = [];
-    for (int a = 0; a < data.length; a++) {
-      for (int i = 0; i < data[a]['data']['Klassen']['Kl'].length; i++) {
-        dynamic lessons = data[a]['data']['Klassen']['Kl'][i]['Pl']['Std'];
+    for (int a = 0; a < _data.length; a++) {
+      for (int i = 0; i < _data[a]['data']['Klassen']['Kl'].length; i++) {
+        dynamic lessons = _data[a]['data']['Klassen']['Kl'][i]['Pl']['Std'];
 
         for (int j = 0; j < lessons.length; j++) {
           String? room = lessons[j]['Ra'];
@@ -113,29 +120,34 @@ class _FindRoomState extends State<FindRoom> {
           }
         }
       }
-      data = mergesort(rooms);
+      _data = mergesort(rooms);
       // ALL ROOMS GOT
 
-      List<int> freeRooms = [];
       List<int> usedRooms = [];
 
       List<dynamic> allRooms = [];
 
-      List<String> classes = await vplanAPI.getClassList();
+      setState(() => loadText = 'Vertretungsplan laden...');
+      dynamic _vplanData = await vplanAPI.getVPlanJSON(url, DateTime.now());
+      setState(() => loadText = 'Vertretungsplan geladen...');
 
-      for (int i = 0; i < classes.length; i++) {
-        dynamic _vplandata = await vplanAPI.getLessonsForToday(classes[i]);
+      totalSteps = _vplanData['data']['Klassen']['Kl'].length;
+      loadText = 'scannen...';
+      for (int i = 0; i < _vplanData['data']['Klassen']['Kl'].length; i++) {
+        setState(() {
+          process++;
+        });
+        dynamic lessons = _vplanData['data']['Klassen']['Kl'][i]['Pl']['Std'];
 
-        for (int j = 0; j < _vplandata['data'].length; j++) {
-          int bhours = int.parse(
-              (_vplandata['data'][j]['begin'] as String).split(':')[0]);
-          int bminutes = int.parse(
-              (_vplandata['data'][j]['begin'] as String).split(':')[1]);
+        for (int j = 0; j < lessons.length; j++) {
+          dynamic lesson =
+              _vplanData['data']['Klassen']['Kl'][i]['Pl']['Std'][j];
 
-          int ehours =
-              int.parse((_vplandata['data'][j]['end'] as String).split(':')[0]);
-          int eminutes =
-              int.parse((_vplandata['data'][j]['end'] as String).split(':')[1]);
+          int bhours = int.parse((lesson['Beginn'] as String).split(':')[0]);
+          int bminutes = int.parse((lesson['Beginn'] as String).split(':')[1]);
+
+          int ehours = int.parse((lesson['Ende'] as String).split(':')[0]);
+          int eminutes = int.parse((lesson['Ende'] as String).split(':')[1]);
 
           TimeOfDay _begin = TimeOfDay(hour: bhours, minute: bminutes);
           TimeOfDay _end = TimeOfDay(hour: ehours, minute: eminutes);
@@ -144,45 +156,51 @@ class _FindRoomState extends State<FindRoom> {
           // check if lesson is now
           if (toDouble(_now) >= toDouble(_begin) &&
               toDouble(_now) <= toDouble(_end)) {
-            if (_vplandata['data'][j]['place'] != null) {
-              if (isNumeric(_vplandata['data'][j]['place'])) {
-                int room = int.parse(_vplandata['data'][j]['place']);
+            if (lesson['Ra'] != null) {
+              if (isNumeric(lesson['Ra'])) {
+                int room = int.parse(lesson['Ra']);
                 usedRooms.add(room);
               }
             }
           }
         }
       }
+
       rooms = mergesort(rooms);
       usedRooms = mergesort(usedRooms);
+
+      setState(() => loadText = 'analysieren...');
+      totalSteps = rooms.length;
+      process = 0;
       for (int i = 0; i < rooms.length; i++) {
-        if ((await getRoomLessons(rooms[i])) != []) {
+        process++;
+        setState(() => loadText = 'überprüfe Raum ${rooms[i]}...');
+
+        List<dynamic> roomLessons = await getRoomLessons(
+          rooms[i],
+          _vplanData,
+        );
+
+        if (roomLessons != []) {
           allRooms.add({
             'room': rooms[i],
             'open': !usedRooms.contains(rooms[i]),
-            'used_this_day': (await getRoomLessons(rooms[i])).isNotEmpty,
+            'used_this_day': roomLessons.isNotEmpty,
+            'room_lessons': roomLessons,
           });
         }
       }
-      return allRooms;
+      setState(() => loadText = 'Fertig!');
+      setState(() => data = allRooms);
+      setState(() => loadText = '');
     }
-    return [];
   }
 
-  Future<List<dynamic>> getRoomLessons(int _room) async {
-    VPlanAPI vplanAPI = new VPlanAPI();
-
+  Future<List<dynamic>> getRoomLessons(int _room, _data) async {
     List<dynamic> res = [];
 
-    var data = (await vplanAPI.getVPlanJSON(
-      Uri.parse(
-        await vplanAPI.getDayURL(),
-      ),
-      DateTime.now(),
-    ))['data'];
-
-    for (int i = 0; i < data['Klassen']['Kl'].length; i++) {
-      var currentClass = data['Klassen']['Kl'][i];
+    for (int i = 0; i < _data['data']['Klassen']['Kl'].length; i++) {
+      var currentClass = _data['data']['Klassen']['Kl'][i];
 
       for (int j = 0; j < currentClass['Pl']['Std'].length; j++) {
         var currentLesson = currentClass['Pl']['Std'][j];
@@ -423,10 +441,12 @@ class _FindRoomState extends State<FindRoom> {
 
   @override
   Widget build(BuildContext context) {
+    String time =
+        '${TimeOfDay.now().hour <= 9 ? '0${TimeOfDay.now().hour}' : TimeOfDay.now().hour}:${TimeOfDay.now().minute <= 9 ? '0${TimeOfDay.now().minute}' : TimeOfDay.now().minute}';
+    if (!getDataExecuted) getData();
     return Container(
       child: ListPage(
-        title:
-            'Freie Räume - ${TimeOfDay.now().hour}:${TimeOfDay.now().minute}',
+        title: 'Freie Räume - $time',
         smallTitle: true,
         actions: [
           IconButton(
@@ -435,55 +455,78 @@ class _FindRoomState extends State<FindRoom> {
           ),
         ],
         children: [
-          FutureBuilder(
-            future: getData(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return SizedBox(
-                  width: 100,
-                  height: 200,
-                  child: Text('loading...'),
-                );
-              }
-              return GridView.count(
-                crossAxisCount: 3,
-                childAspectRatio: 3 / 2,
-                shrinkWrap: true,
-                physics: BouncingScrollPhysics(),
-                children: [
-                  ...(snapshot.data as List).map(
-                    (e) => InkWell(
-                      onTap: () async => roomInfo(
-                        context,
-                        await getRoomLessons(e['room']),
+          loadText != ''
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      loadText,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        margin: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: e['open']
-                              ? Colors.green.shade800
-                              : Theme.of(context).backgroundColor,
-                        ),
-                        child: Center(
-                          child: Text(
-                            e['used_this_day']
-                                ? '${e['room']}'
-                                : '(${e['room']})',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      'Dieser Vorgang könnte eine Sekunden dauern!',
+                      style: TextStyle(fontSize: 11),
+                    ),
+                    SizedBox(height: 15),
+                    ProcessBar(
+                      slow: true,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      totalSteps: totalSteps,
+                      currentStep: process,
+                    )
+                  ],
+                )
+              : data == []
+                  ? SizedBox(
+                      width: 100,
+                      height: 200,
+                      child: Text('loading...'),
+                    )
+                  : GridView.count(
+                      crossAxisCount: 3,
+                      childAspectRatio: 3 / 2,
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      children: [
+                        ...(data as List).map(
+                          (e) => InkWell(
+                            onTap: () async => roomInfo(
+                              context,
+                              e['room_lessons'],
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              margin: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: e['open']
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).backgroundColor,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  e['used_this_day']
+                                      ? '${e['room']}'
+                                      : '(${e['room']})',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
         ],
       ),
     );
