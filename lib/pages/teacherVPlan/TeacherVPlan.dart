@@ -100,9 +100,15 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
                 padding: EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).accentColor,
+                  color: Theme.of(context).indicatorColor,
                 ),
-                child: Text('ansehen'),
+                child: Text(
+                  'ansehen',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ),
@@ -128,7 +134,7 @@ class TeacherList extends StatefulWidget {
 }
 
 class _TeacherListState extends State<TeacherList> {
-  List<String> teachers = ['Scanne alle Lehrerkürzel...', 'Bitte warten...'];
+  List<String> teachers = ['Scanne alle Lehrerkürzel...'];
 
   Future<void> getTeachers() async {
     VPlanAPI vplanAPI = new VPlanAPI();
@@ -181,37 +187,54 @@ class _TeacherListState extends State<TeacherList> {
       teachers = newList;
     }
     return Container(
-      height: 200,
-      child: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          Text(
-            'Alle Lehrer Kürzel:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
-          ...teachers.map(
-            (e) => Container(
-              margin: EdgeInsets.all(5),
-              child: InkWell(
-                onTap: () => widget.setTeacherShort(e),
-                child: Container(
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).backgroundColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    e,
+      height: MediaQuery.of(context).size.height * 0.35,
+      child: teachers[0] == 'Scanne alle Lehrerkürzel...'
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: teachers
+                  .map(
+                    (e) => Text(
+                      e,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            )
+          : GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: BouncingScrollPhysics(),
+              children: [
+                ...teachers.map(
+                  (e) => Container(
+                    margin: EdgeInsets.all(5),
+                    child: InkWell(
+                      onTap: () => widget.setTeacherShort(e),
+                      child: Container(
+                        padding: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).backgroundColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            e,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

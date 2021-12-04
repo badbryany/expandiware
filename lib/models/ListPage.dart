@@ -84,7 +84,7 @@ class _ListPageState extends State<ListPage> {
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   size: 19,
-                                  color: Theme.of(context).focusColor,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -141,16 +141,17 @@ class _ListPageState extends State<ListPage> {
                           child: Icon(
                             Icons.arrow_back_ios_rounded,
                             size: 16,
-                            color: Theme.of(context).scaffoldBackgroundColor,
+                            color: Colors.black,
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 20),
                       Text(
                         widget.title,
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 23,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Questrial',
                         ),
                       ),
                     ],

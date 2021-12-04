@@ -364,16 +364,20 @@ class _SelectClassState extends State<SelectClass> {
               className,
               style: TextStyle(
                 fontSize: 19,
-                fontWeight: used ? FontWeight.bold : null,
+                fontWeight: used ? FontWeight.w600 : null,
+                color: used ? Colors.black : null,
               ),
             ),
             actionButton: used
                 ? IconButton(
-                    icon: Icon(Icons.check_rounded),
+                    icon: Icon(
+                      Icons.check_rounded,
+                      color: used ? Colors.black : null,
+                    ),
                     onPressed: () {},
                   )
                 : null,
-            color: used ? Theme.of(context).accentColor : null,
+            color: used ? Theme.of(context).indicatorColor : null,
             onClick: () async {
               SharedPreferences instance =
                   await SharedPreferences.getInstance();

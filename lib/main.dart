@@ -28,23 +28,6 @@ import 'pages/vplan/VPlan.dart';
 import 'pages/teacherVPlan/TeacherVPlan.dart';
 import 'pages/dashboard/Dashboard.dart';
 
-Future<String> scanQRCode() async {
-  String barcodeScanRes = 'nothing';
-  try {
-    barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-      '#ff6666',
-      'Cancel',
-      true,
-      ScanMode.QR,
-    );
-    print(barcodeScanRes);
-  } catch (e) {
-    print(e);
-  }
-
-  return barcodeScanRes;
-}
-
 Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
   return <String, dynamic>{
     'version.securityPatch': build.version.securityPatch,
@@ -148,6 +131,13 @@ void main() async {
   if (!kDebugMode) sendAppOpenData();
 }
 
+Color darken(Color c, [int percent = 10]) {
+  assert(1 <= percent && percent <= 100);
+  var f = 1 - percent / 100;
+  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
+      (c.blue * f).round());
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -156,8 +146,23 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
       future: getMaterialYouColor(),
       builder: (context, AsyncSnapshot<MaterialYouPalette?> snapshot) {
+        final backgroundColor =
+            snapshot.data?.neutral2.shade900 ?? Color(0xff101012);
+        final backgroundColorLight =
+            snapshot.data?.neutral2.shade100 ?? Color(0xff101012);
+
         final primarySwatch =
             snapshot.data?.accent1.shade200 ?? Color(0xffECA44D);
+        final primarySwatchLight =
+            snapshot.data?.accent1.shade400 ?? Color(0xffECA44D);
+        final cardColor = snapshot.data?.accent3.shade100 ?? Color(0xff0d0d0f);
+        final cardColorLight = snapshot.data?.accent3.shade100 ?? Colors.white;
+
+        final indicatorColor =
+            snapshot.data?.accent1.shade100 ?? Color(0xffd04f5b);
+
+        final indicatorColorLight =
+            snapshot.data?.accent1.shade100 ?? Color(0xffD4CBC5);
 
         return MaterialApp(
           builder: (BuildContext context, Widget? child) {
@@ -176,21 +181,21 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
             accentColor: primarySwatch,
             primaryColor: primarySwatch,
-            indicatorColor: Color(0xffd04f5b),
-            cardColor: Color(0xff0d0d0f),
+            cardColor: cardColor,
             focusColor: Colors.white,
-            backgroundColor: Color(0xff101012), //Color(0xff161B28),
-            scaffoldBackgroundColor: Colors.black,
+            indicatorColor: indicatorColor,
+            backgroundColor: darken(backgroundColor, 5), //Color(0xff161B28),
+            scaffoldBackgroundColor: darken(backgroundColor, 70),
           ),
           theme: ThemeData(
             fontFamily: 'Poppins',
             brightness: Brightness.light,
-            accentColor: primarySwatch,
-            primaryColor: primarySwatch,
-            indicatorColor: Color(0xffD4CBC5),
+            accentColor: primarySwatchLight,
+            primaryColor: primarySwatchLight,
+            indicatorColor: indicatorColorLight,
             focusColor: Colors.black,
-            cardColor: Colors.white,
-            backgroundColor: Color(0xffd7dae1), //Color(0xffe7e7e7),
+            cardColor: cardColorLight,
+            backgroundColor: backgroundColorLight, //Color(0xffe7e7e7),
             scaffoldBackgroundColor: Colors.white,
           ),
           home: Scaffold(

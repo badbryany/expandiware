@@ -14,7 +14,8 @@ Future<MaterialYouPalette?> getMaterialYouColor() async {
     final data = await platform.invokeMethod('getMaterialYouColors');
     if (data == null) return null;
 
-    final Map<String, dynamic> items = (json.decode(data) as Map<String, dynamic>);
+    final Map<String, dynamic> items =
+        (json.decode(data) as Map<String, dynamic>);
     return MaterialYouPalette(
       accent1: items.getAccent1(),
       accent2: items.getAccent2(),
@@ -43,7 +44,8 @@ class MaterialYouPalette {
   });
 }
 
-int _parseHexString(String value) => int.parse(value.substring(3, 9), radix: 16) + 0xFF000000;
+int _parseHexString(String value) =>
+    int.parse(value.substring(3, 9), radix: 16) + 0xFF000000;
 
 extension _ColorExtractionExtension on Map<String, dynamic> {
   Color getColor(String colorName) {

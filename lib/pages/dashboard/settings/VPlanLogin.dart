@@ -164,7 +164,7 @@ class _VPlanLoginState extends State<VPlanLogin> {
                             height: 5,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
-                              color: Color(0x99202020),
+                              color: Theme.of(context).indicatorColor,
                             ),
                           ),
                         ),
@@ -203,17 +203,19 @@ class _VPlanLoginState extends State<VPlanLogin> {
                                 child: Container(
                                   width: 200,
                                   padding: EdgeInsets.all(15),
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
                                       Radius.circular(10),
                                     ),
-                                    color: Color(0x99202020),
+                                    color: Theme.of(context).indicatorColor,
                                   ),
                                   child: Center(
                                     child: Text(
                                       'fertig',
                                       style: TextStyle(
                                         fontSize: 18,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                   ),
@@ -331,12 +333,13 @@ class _VPlanLoginState extends State<VPlanLogin> {
                     margin: EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).indicatorColor,
                     ),
                     child: Text(
                       'Speichern',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
                       ),
                     ),
                   ),
