@@ -15,11 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 
-import 'package:quick_actions/quick_actions.dart';
-
-/* vplanlogin scan */
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-
 import 'background_service.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 
@@ -214,7 +209,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   String activeText = 'vplan students';
-  final QuickActions quickActions = QuickActions();
 
   @override
   void initState() {
@@ -225,24 +219,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void dispose() {
     eastereggController.dispose();
     super.dispose();
-  }
-
-  void initQuickActions() async {
-    List<String> classes = await VPlanAPI().getClasses();
-    quickActions.setShortcutItems([
-      ShortcutItem(
-        type: 'vplan students',
-        localizedTitle: 'Vertretungsplan von ${classes[0]}',
-      ),
-      ShortcutItem(
-        type: 'vplan teachers',
-        localizedTitle: 'Lehrer finden',
-      ),
-      ShortcutItem(
-        type: 'dashboard',
-        localizedTitle: 'Dashboard',
-      ),
-    ]);
   }
 
   void checkForUpdates(BuildContext context) async {
@@ -380,14 +356,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
-    quickActions.initialize((shortcutType) async {
-      activeText = shortcutType;
-
-      if (shortcutType == ' vplan students') {
-        String prefClass = (await VPlanAPI().getClasses())[0];
-        openVPLan(prefClass);
-      }
-    });
 
     Widget activeWidget = Text('loading...');
     for (int i = 0; i < pages.length; i++) {

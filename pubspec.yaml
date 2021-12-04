@@ -21,11 +21,9 @@ dependencies:
   device_info: ^2.0.2
   pretty_qr_code: ^2.0.2
   qr_code_scanner: ^0.6.1
-  flutter_barcode_scanner: ^2.0.0
   url_launcher: ^6.0.10
   flutter_background_service: ^0.1.5
   awesome_notifications: ^0.6.16
-  quick_actions: ^0.6.0+7
   lottie: ^1.2.1
 
 dev_dependencies:
