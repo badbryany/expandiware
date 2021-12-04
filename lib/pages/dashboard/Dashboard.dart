@@ -62,48 +62,53 @@ class Dashboard extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.69,
       margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.1),
       alignment: Alignment.center,
-      child: ListView(
-        physics: BouncingScrollPhysics(),
-        shrinkWrap: true,
-        children: [
-          ...elements.map(
-            (e) => Center(
-              child: OpenContainer(
-                closedColor: Theme.of(context).scaffoldBackgroundColor,
-                openColor: Theme.of(context).scaffoldBackgroundColor,
-                closedBuilder: (context, openContainer) => ListItem(
-                  padding: 20,
-                  leading: e['icon'],
-                  title: Container(
-                    margin: EdgeInsets.only(top: margin, bottom: margin),
-                    child: Text(
-                      e['title'],
-                      style: TextStyle(
-                        color: Theme.of(context).accentColor,
-                        fontWeight: FontWeight.bold,
+      child: Scrollbar(
+        thickness: 3,
+        radius: Radius.circular(100),
+        isAlwaysShown: true,
+        child: ListView(
+          physics: BouncingScrollPhysics(),
+          shrinkWrap: true,
+          children: [
+            ...elements.map(
+              (e) => Center(
+                child: OpenContainer(
+                  closedColor: Theme.of(context).scaffoldBackgroundColor,
+                  openColor: Theme.of(context).scaffoldBackgroundColor,
+                  closedBuilder: (context, openContainer) => ListItem(
+                    padding: 20,
+                    leading: e['icon'],
+                    title: Container(
+                      margin: EdgeInsets.only(top: margin, bottom: margin),
+                      child: Text(
+                        e['title'],
+                        style: TextStyle(
+                          color: Theme.of(context).accentColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  subtitle: Container(
-                    margin: EdgeInsets.only(top: margin, bottom: margin),
-                    child: Text(e['subtitle']),
-                  ),
-                  onClick: openContainer,
-                  actionButton: IconButton(
-                    icon: Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Theme.of(context).focusColor,
+                    subtitle: Container(
+                      margin: EdgeInsets.only(top: margin, bottom: margin),
+                      child: Text(e['subtitle']),
                     ),
-                    onPressed: () => openContainer(),
+                    onClick: openContainer,
+                    actionButton: IconButton(
+                      icon: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Theme.of(context).focusColor,
+                      ),
+                      onPressed: () => openContainer(),
+                    ),
                   ),
-                ),
-                openBuilder: (context, closeBuilder) => Center(
-                  child: e['link'],
+                  openBuilder: (context, closeBuilder) => Center(
+                    child: e['link'],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

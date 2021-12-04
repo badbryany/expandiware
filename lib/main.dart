@@ -154,10 +154,10 @@ class MyApp extends StatelessWidget {
         final cardColorLight = snapshot.data?.accent3.shade100 ?? Colors.white;
 
         final indicatorColor =
-            snapshot.data?.accent1.shade100 ?? Color(0xffd04f5b);
+            snapshot.data?.accent1.shade100 ?? Color(0xffECA44D);
 
         final indicatorColorLight =
-            snapshot.data?.accent1.shade100 ?? Color(0xffD4CBC5);
+            snapshot.data?.accent1.shade100 ?? Color(0xffECA44D);
 
         return MaterialApp(
           builder: (BuildContext context, Widget? child) {
