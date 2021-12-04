@@ -79,13 +79,12 @@ class _ListPageState extends State<ListPage> {
                                   borderRadius: const BorderRadius.all(
                                     Radius.circular(100),
                                   ),
-                                  color: Color(0xff0d0d0f),
+                                  color: Theme.of(context).cardColor,
                                 ),
                                 child: Icon(
                                   Icons.arrow_back_ios_rounded,
                                   size: 19,
-                                  color:
-                                      Theme.of(context).scaffoldBackgroundColor,
+                                  color: Theme.of(context).focusColor,
                                 ),
                               ),
                             ),
@@ -137,7 +136,7 @@ class _ListPageState extends State<ListPage> {
                             borderRadius: const BorderRadius.all(
                               Radius.circular(100),
                             ),
-                            color: Color(0xff0d0d0f),
+                            color: Theme.of(context).cardColor,
                           ),
                           child: Icon(
                             Icons.arrow_back_ios_rounded,
