@@ -306,7 +306,7 @@ class VPlanAPI {
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
-    List<dynamic> lessons = parseVPlanXML(jsonVPlan, classId);
+    List<dynamic> lessons = await parseVPlanXML(jsonVPlan, classId);
     return {
       'date': pureVPlan['date'],
       'data': lessons,
@@ -323,7 +323,7 @@ class VPlanAPI {
     return 'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/Klassen.xml';
   }
 
-  List<dynamic> parseVPlanXML(var jsonVPlan, String classId) {
+  Future<List<dynamic>> parseVPlanXML(var jsonVPlan, String classId) async {
     List<dynamic> _outpuLessons = [];
 
     if (jsonVPlan == null) {
@@ -341,7 +341,7 @@ class VPlanAPI {
           _outpuLessons.add({
             'count': currentLesson['St'],
             'lesson': currentLesson['Fa'],
-            'teacher': currentLesson['Le'],
+            'teacher': await replaceTeacherShort(currentLesson['Le']),
             'place': currentLesson['Ra'],
             'begin': currentLesson['Beginn'],
             'end': currentLesson['Ende'],
@@ -381,7 +381,7 @@ class VPlanAPI {
     var jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
-    List<dynamic> lessons = parseVPlanXML(jsonVPlan, classId);
+    List<dynamic> lessons = await parseVPlanXML(jsonVPlan, classId);
 
     return {
       'date': pureVPlan['date'],
@@ -537,5 +537,49 @@ class VPlanAPI {
       }
     }
     prefs.setString('offlineVPData', jsonEncode(cleanedPlan));
+  }
+
+  Future<List<String>> getTeachers() async {
+    List<String> teachers = [];
+    var data = (await getVPlanJSON(
+      Uri.parse(
+        await getDayURL(),
+      ),
+      DateTime.now(),
+    ))['data'];
+    for (int i = 0; i < data['Klassen']['Kl'].length; i++) {
+      var currentClass = data['Klassen']['Kl'][i];
+      for (int j = 0; j < currentClass['Pl']['Std'].length; j++) {
+        var currentLesson = currentClass['Pl']['Std'][j];
+        if (currentLesson['Le'] != null) {
+          bool add = true;
+          for (int j = 0; j < teachers.length; j++) {
+            if (teachers[j] == currentLesson['Le']) {
+              add = false;
+            }
+          }
+          if (add) teachers.add(currentLesson['Le']);
+        }
+      }
+    }
+    return teachers;
+  }
+
+  Future<String?> replaceTeacherShort(String? teacherShort) async {
+    if (teacherShort == null) return teacherShort;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (prefs.getString('teacherShorts') == null ||
+        prefs.getString('teacherShorts') == '') return teacherShort;
+
+    List<dynamic> teacherShorts = jsonDecode(prefs.getString('teacherShorts')!);
+
+    for (int i = 0; i < teacherShorts.length; i++) {
+      if (teacherShorts[i]['short'] == teacherShort) {
+        if (teacherShorts[i]['realName'] != '')
+          return teacherShorts[i]['realName'];
+      }
+    }
+    return teacherShort;
   }
 }

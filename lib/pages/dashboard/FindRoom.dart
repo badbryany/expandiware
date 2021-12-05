@@ -303,7 +303,7 @@ class _FindRoomState extends State<FindRoom> {
                   height: 5,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
-                    color: Color(0x99202020),
+                    color: Theme.of(context).backgroundColor,
                   ),
                 ),
               ),
@@ -492,9 +492,7 @@ class _FindRoomState extends State<FindRoom> {
                       crossAxisCount: 3,
                       childAspectRatio: 3 / 2,
                       shrinkWrap: true,
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
+                      physics: NeverScrollableScrollPhysics(),
                       children: [
                         ...(data as List).map(
                           (e) => InkWell(
@@ -507,9 +505,10 @@ class _FindRoomState extends State<FindRoom> {
                               margin: EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: e['open']
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).backgroundColor,
+                                color: Theme.of(context).backgroundColor,
+                                border: Border.all(
+                                  color: Theme.of(context).primaryColor,
+                                ),
                               ),
                               child: Center(
                                 child: Text(

@@ -20,9 +20,12 @@ class TeacherPlan extends StatefulWidget {
 class _TeacherPlanState extends State<TeacherPlan> {
   String date = '';
   List<dynamic> res = [];
+  String teacherName = '';
 
   void getData() async {
     VPlanAPI vplanAPI = new VPlanAPI();
+
+    teacherName = (await vplanAPI.replaceTeacherShort(widget.teacher))!;
 
     var data = (await vplanAPI.getVPlanJSON(
       Uri.parse(
@@ -120,19 +123,16 @@ class _TeacherPlanState extends State<TeacherPlan> {
   @override
   Widget build(BuildContext context) {
     String displayDate = '...';
-    DateTime displayDateDateTime = VPlanAPI()
-        .changeDate(
-          date: date,
-          nextDay: true,
-        )
-        .subtract(
-          Duration(days: 1),
-        );
+    DateTime displayDateDateTime = DateTime.now();
+    try {
+      displayDateDateTime = VPlanAPI().parseStringDatatoDateTime(date);
+    } catch (e) {}
+
     displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: ListPage(
-        title: 'Stunden von ${widget.teacher} - $displayDate',
+        title: 'Stunden von $teacherName- $displayDate',
         smallTitle: true,
         children: res.length == 0
             ? [

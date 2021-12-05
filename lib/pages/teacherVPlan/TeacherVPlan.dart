@@ -52,10 +52,9 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
           );
         },
       ),
-    ); //SizedBox();
+    );
     return Container(
       margin: EdgeInsets.only(
-        //top: MediaQuery.of(context).size.height * 0.1,
         left: 50,
         right: 50,
       ),
@@ -134,7 +133,7 @@ class TeacherList extends StatefulWidget {
 }
 
 class _TeacherListState extends State<TeacherList> {
-  List<String> teachers = ['Scanne alle Lehrerkürzel...'];
+  List<dynamic> teachers = ['Scanne alle Lehrerkürzel...'];
 
   Future<void> getTeachers() async {
     VPlanAPI vplanAPI = new VPlanAPI();
@@ -157,8 +156,13 @@ class _TeacherListState extends State<TeacherList> {
             }
           }
           if (add) {
+            String name =
+                (await vplanAPI.replaceTeacherShort(currentLesson['Le']))!;
             setState(() {
-              teachers.add(currentLesson['Le']);
+              teachers.add({
+                'short': currentLesson['Le'],
+                'name': name,
+              });
             });
           }
         }
@@ -174,18 +178,20 @@ class _TeacherListState extends State<TeacherList> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.searchText != '') {
-      List<String> newList = [];
-      for (int i = 0; i < teachers.length; i++) {
-        RegExp exp = new RegExp(
-          '${widget.searchText.toLowerCase()}[a-z,ö,ä,ü]*',
-        );
-        if (exp.hasMatch(teachers[i].toLowerCase())) {
-          newList.add(teachers[i]);
+    try {
+      if (widget.searchText != '') {
+        List<dynamic> newList = [];
+        for (int i = 0; i < teachers.length; i++) {
+          RegExp exp = new RegExp(
+            '${widget.searchText.toLowerCase()}[a-z,ö,ä,ü]*',
+          );
+          if (exp.hasMatch(teachers[i]['short'].toString().toLowerCase())) {
+            newList.add(teachers[i]);
+          }
         }
+        teachers = newList;
       }
-      teachers = newList;
-    }
+    } catch (e) {}
     return Container(
       height: MediaQuery.of(context).size.height * 0.35,
       child: teachers[0] == 'Scanne alle Lehrerkürzel...'
@@ -213,7 +219,7 @@ class _TeacherListState extends State<TeacherList> {
                   (e) => Container(
                     margin: EdgeInsets.all(5),
                     child: InkWell(
-                      onTap: () => widget.setTeacherShort(e),
+                      onTap: () => widget.setTeacherShort(e['short']),
                       child: Container(
                         padding: EdgeInsets.all(15),
                         decoration: BoxDecoration(
@@ -222,7 +228,7 @@ class _TeacherListState extends State<TeacherList> {
                         ),
                         child: Center(
                           child: Text(
-                            e,
+                            e['name'],
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 14,

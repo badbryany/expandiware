@@ -19,7 +19,7 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Leeren Raum finden',
         'subtitle':
-            'lädt ca. 15s!\n\nsuche einen Raum, der gerade nicht benutzt ist!',
+            'suche einen Raum, der gerade nicht benutzt ist!\n\nkönnte etwas länger laden...',
         'link': FindRoom(),
       },
       {
@@ -67,6 +67,7 @@ class Dashboard extends StatelessWidget {
         thickness: 3,
         radius: Radius.circular(100),
         isAlwaysShown: true,
+        controller: ScrollController(),
         child: ListView(
           physics: BouncingScrollPhysics(),
           shrinkWrap: true,
@@ -84,7 +85,7 @@ class Dashboard extends StatelessWidget {
                       child: Text(
                         e['title'],
                         style: TextStyle(
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).focusColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

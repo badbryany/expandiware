@@ -33,9 +33,12 @@ class DeveloperOptions extends StatelessWidget {
             .then((instance) => instance.clear()),
       },
       {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
+        'title': 'remove Teacher shorts',
+        'actionText': 'remove',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('teacherShorts', '');
+        },
       },
       {
         'title': '--',
