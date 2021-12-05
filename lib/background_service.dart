@@ -75,10 +75,7 @@ void vplanNotifications(Timer _timer) async {
   }
   if (!prefs.getBool('intiligentNotification')!) return;
 
-  _vplanDate = VPlanAPI()
-      .changeDate(date: data['date'], nextDay: true)
-      .subtract(Duration(days: 1));
-
+  _vplanDate = VPlanAPI().parseStringDatatoDateTime(data['date']);
   List<dynamic> _lessons = [];
   if (_remindDayBefore) {
     if (_today.add(Duration(days: 1)).isAfter(_vplanDate)) {
@@ -119,28 +116,55 @@ void vplanNotifications(Timer _timer) async {
     for (int i = 0; i < _lessons.length; i++) {
       if (!_remindOnlyChange) {
         reminded = true;
-        createNotification(
-          id: i,
-          title: _lessons[i]['lesson'],
-          body:
-              '${_lessons[i]['place']} ${(_lessons[i]['teacher'] == null ? 'ohne Lehrer' : _lessons[i]['teacher'])}',
-          subtitle: 'expandiware',
-        );
+        try {
+          createNotification(
+            id: i,
+            title: _lessons[i]['lesson'],
+            body:
+                '${_lessons[i]['place']} ${(_lessons[i]['teacher'] == null ? 'ohne Lehrer' : _lessons[i]['teacher'])}',
+            subtitle: 'expandiware',
+          );
+        } catch (e) {
+          createNotification(
+            title: 'exception',
+            body: e.toString(),
+            subtitle: 'expandiware',
+            normal: true,
+          );
+        }
       } else {
         if (!(_lessons[i]['info'] == '' || _lessons[i]['info'] == null)) {
           reminded = true;
-          createNotification(
-            id: i,
-            title: _lessons[i]['lesson'] +
-                ' ' +
-                (_lessons[i]['teacher'] == null
-                    ? 'ohne Lehrer'
-                    : _lessons[i]['teacher']) +
-                ' ' +
-                _lessons[i]['place'],
-            body: _lessons[i]['info'],
-            subtitle: 'expandiware',
-          );
+          //try {
+          String lesson =
+              _lessons[i]['lesson'] != null ? _lessons[i]['lesson'] : '---';
+          String teacher = _lessons[i]['teacher'] != null
+              ? _lessons[i]['teacher']
+              : 'ohne Lehrer';
+          String place =
+              _lessons[i]['place'] != null ? _lessons[i]['place'] : 'kein Raum';
+          String info = _lessons[i]['info'] != null
+              ? _lessons[i]['info']
+              : 'keine Zusatzinformationen';
+
+          if ((_lessons[i]['lesson'] == null ||
+                  _lessons[i]['lesson'] == '---') &&
+              _lessons[i]['teacher'] == null &&
+              _lessons[i]['place'] == null) {
+            createNotification(
+              id: i,
+              title: _lessons[i]['count'] + ' $info',
+              body: '-',
+              subtitle: 'expandiware',
+            );
+          } else {
+            createNotification(
+              id: i,
+              title: '$lesson $teacher $place',
+              body: info,
+              subtitle: 'expandiware',
+            );
+          }
         }
       }
     }

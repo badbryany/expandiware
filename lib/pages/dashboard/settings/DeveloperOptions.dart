@@ -41,9 +41,12 @@ class DeveloperOptions extends StatelessWidget {
         },
       },
       {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
+        'title': 'clear notified dates',
+        'actionText': 'clear',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setStringList('notified', []);
+        },
       },
       {
         'title': '--',

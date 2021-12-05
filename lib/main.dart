@@ -150,8 +150,10 @@ class MyApp extends StatelessWidget {
             snapshot.data?.accent1.shade200 ?? Color(0xffECA44D);
         final primarySwatchLight =
             snapshot.data?.accent1.shade400 ?? Color(0xffECA44D);
-        final cardColor = snapshot.data?.accent3.shade100 ?? Color(0xff0d0d0f);
-        final cardColorLight = snapshot.data?.accent3.shade100 ?? Colors.white;
+        final dividerColor =
+            snapshot.data?.accent3.shade100 ?? Color(0xff0d0d0f);
+        final dividerColorLight =
+            snapshot.data?.accent3.shade100 ?? Colors.white;
 
         final indicatorColor =
             snapshot.data?.accent1.shade100 ?? Color(0xffECA44D);
@@ -176,7 +178,7 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
             accentColor: primarySwatch,
             primaryColor: primarySwatch,
-            cardColor: cardColor,
+            dividerColor: dividerColor,
             focusColor: Colors.white,
             indicatorColor: indicatorColor,
             backgroundColor: darken(backgroundColor, 5), //Color(0xff161B28),
@@ -190,7 +192,7 @@ class MyApp extends StatelessWidget {
             primaryColor: primarySwatchLight,
             indicatorColor: indicatorColorLight,
             focusColor: Colors.black,
-            cardColor: cardColorLight,
+            dividerColor: dividerColorLight,
             backgroundColor: backgroundColorLight, //Color(0xffe7e7e7),
             scaffoldBackgroundColor: Colors.white,
             splashColor: Colors.black,

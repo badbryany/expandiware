@@ -50,8 +50,13 @@ class _TeacherShortsState extends State<TeacherShorts> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: ListPage(
         title: 'Lehrerkürzel erstzen',

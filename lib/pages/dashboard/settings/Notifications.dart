@@ -41,6 +41,13 @@ class _NotificationsState extends State<Notifications> {
 
   List<String> _classes = [];
 
+  void restartBackgroundSevice() {
+    FlutterBackgroundService().sendData({'action': 'stopService'});
+
+    WidgetsFlutterBinding.ensureInitialized();
+    FlutterBackgroundService.initialize(onStart);
+  }
+
   void changeAutomaticLoad() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _automaticLoad = !_automaticLoad;
@@ -76,6 +83,7 @@ class _NotificationsState extends State<Notifications> {
     _intiligentNotification = !_intiligentNotification;
     prefs.setBool('intiligentNotification', _intiligentNotification);
     setState(() {});
+    restartBackgroundSevice();
   }
 
   void changeTime() async {
@@ -93,6 +101,7 @@ class _NotificationsState extends State<Notifications> {
     prefs.setString('hour', _hour.toString());
     prefs.setString('minute', _minute.toString());
     setState(() {});
+    restartBackgroundSevice();
   }
 
   void changeRemindDayBefore() async {
@@ -102,6 +111,7 @@ class _NotificationsState extends State<Notifications> {
     _remindDayBefore = !_remindDayBefore;
     prefs.setBool('remindDayBefore', _remindDayBefore);
     setState(() {});
+    restartBackgroundSevice();
   }
 
   void changeRemindOnlyChange() async {
@@ -111,6 +121,7 @@ class _NotificationsState extends State<Notifications> {
     _remindOnlyChange = !_remindOnlyChange;
     prefs.setBool('remindOnlyChange', _remindOnlyChange);
     setState(() {});
+    restartBackgroundSevice();
   }
 
   void getData() async {
@@ -176,6 +187,7 @@ class _NotificationsState extends State<Notifications> {
                   SharedPreferences.getInstance().then(
                     (instance) => instance.setString('prefClass', _prefClass),
                   );
+                  restartBackgroundSevice();
                 },
                 value: _prefClass,
                 dropdownColor: Theme.of(context).backgroundColor,

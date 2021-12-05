@@ -137,37 +137,16 @@ class _TeacherListState extends State<TeacherList> {
 
   Future<void> getTeachers() async {
     VPlanAPI vplanAPI = new VPlanAPI();
-    var data = (await vplanAPI.getVPlanJSON(
-      Uri.parse(
-        await vplanAPI.getDayURL(),
-      ),
-      DateTime.now(),
-    ))['data'];
+    List<String> teacherShorts = await vplanAPI.getTeachers();
+
     teachers = [];
-    for (int i = 0; i < data['Klassen']['Kl'].length; i++) {
-      var currentClass = data['Klassen']['Kl'][i];
-      for (int j = 0; j < currentClass['Pl']['Std'].length; j++) {
-        var currentLesson = currentClass['Pl']['Std'][j];
-        if (currentLesson['Le'] != null) {
-          bool add = true;
-          for (int j = 0; j < teachers.length; j++) {
-            if (teachers[j] == currentLesson['Le']) {
-              add = false;
-            }
-          }
-          if (add) {
-            String name =
-                (await vplanAPI.replaceTeacherShort(currentLesson['Le']))!;
-            setState(() {
-              teachers.add({
-                'short': currentLesson['Le'],
-                'name': name,
-              });
-            });
-          }
-        }
-      }
+    for (int i = 0; i < teacherShorts.length; i++) {
+      teachers.add({
+        'short': teacherShorts[i],
+        'name': await vplanAPI.replaceTeacherShort(teacherShorts[i]),
+      });
     }
+    setState(() {});
   }
 
   @override
