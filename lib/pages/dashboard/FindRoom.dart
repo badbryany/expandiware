@@ -506,9 +506,11 @@ class _FindRoomState extends State<FindRoom> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: Theme.of(context).backgroundColor,
-                                border: Border.all(
-                                  color: Theme.of(context).primaryColor,
-                                ),
+                                border: e['used_this_day']
+                                    ? null
+                                    : Border.all(
+                                        color: Theme.of(context).primaryColor,
+                                      ),
                               ),
                               child: Center(
                                 child: Text(
