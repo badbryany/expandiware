@@ -144,12 +144,12 @@ class MyApp extends StatelessWidget {
         final backgroundColor =
             snapshot.data?.neutral2.shade900 ?? Color(0xff101012);
         final backgroundColorLight =
-            snapshot.data?.neutral2.shade100 ?? Color(0xff101012);
+            snapshot.data?.neutral2.shade100 ?? Colors.grey.shade300;
 
         final primarySwatch =
             snapshot.data?.accent1.shade200 ?? Color(0xffECA44D);
-        final primarySwatchLight =
-            snapshot.data?.accent1.shade400 ?? Color(0xffECA44D);
+        final primarySwatchLight = snapshot.data?.accent1.shade400 ??
+            Color.fromARGB(255, 233, 143, 34);
         final dividerColor =
             snapshot.data?.accent3.shade100 ?? Color(0xff0d0d0f);
         final dividerColorLight =

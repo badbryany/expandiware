@@ -23,7 +23,7 @@ class Settings extends StatelessWidget {
       'link': Notifications(),
     },
     {
-      'title': 'Lehrerkürzel ersetzen',
+      'title': 'Lehrernamen eintragen',
       'icon': Icons.people_alt_outlined,
       'subtitle': 'Lehrerkürzel mit richtigen Namen ersetzen',
       'link': TeacherShorts(),
