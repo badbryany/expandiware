@@ -89,47 +89,52 @@ class VPlanAPI {
 
   Future<bool> searchForOfflineData(DateTime vpDate) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var offlineVPData = prefs.getString('offlineVPData');
-
-    if (offlineVPData == null || offlineVPData == 'null') {
-      return false;
-    } else {
-      List<dynamic> jsonData = jsonDecode(offlineVPData);
-      for (int i = 0; i < jsonData.length; i++) {
-        if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
-          //print('we have an offline backup!');
-          return true;
-        }
-      }
+    if (prefs.getStringList('offlineVPData') == null ||
+        prefs.getStringList('offlineVPData') == []) {
       return false;
     }
+    List<dynamic> jsonData = [];
+    prefs
+        .getStringList('offlineVPData')!
+        .map((e) => jsonData.add(jsonDecode(e)));
+
+    for (int i = 0; i < jsonData.length; i++) {
+      if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
+        //print('we have an offline backup!');
+        return true;
+      }
+    }
+    return false;
   }
 
   void removePlanByDate(String date) async {
     this.cleanVplanOfflineData();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String offlineVPData = prefs.getString('offlineVPData')!;
 
-    List<dynamic> vplanData = jsonDecode(offlineVPData);
-    List<dynamic> newVplanData = [];
+    List<dynamic> vplanData = [];
+    prefs
+        .getStringList('offlineVPData')!
+        .map((e) => vplanData.add(jsonDecode(e)));
+
+    List<String> newVplanData = [];
     for (int i = 0; i < vplanData.length; i++) {
       if (vplanData[i]['date'] != date) {
-        newVplanData.add(vplanData[i]);
+        newVplanData.add(jsonEncode(vplanData[i]));
       }
     }
-    prefs.setString('offlineVPData', jsonEncode(newVplanData));
+    prefs.setStringList('offlineVPData', newVplanData);
   }
 
   Future<dynamic> getAllOfflineData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var offlineVPData = prefs.getString('offlineVPData');
+    List<String>? offlineVPData = prefs.getStringList('offlineVPData');
 
-    if (offlineVPData == null || offlineVPData == 'null') {
+    if (offlineVPData == null) {
       return [];
     } else {
       //print('offlineVPData');
-      return jsonDecode(offlineVPData);
+      return offlineVPData.map((e) => jsonDecode(e));
     }
   }
 
@@ -163,7 +168,9 @@ class VPlanAPI {
     bool offlinePlan = await searchForOfflineData(vpDate);
 
     if (offlinePlan) {
-      data = jsonDecode(prefs.getString('offlineVPData')!);
+      List<String> offlineStrings = prefs.getStringList('offlineVPData')!;
+      offlineStrings.map((e) => data.add(jsonDecode(e)));
+
       for (int i = 0; i < data.length; i++) {
         if (compareDate(vpDate, data[i]['data']['Kopf']['DatumPlan'])) {
           print('we have an offline backup!');
@@ -206,7 +213,7 @@ class VPlanAPI {
         xml2json.parse(source);
         String stringVPlan = xml2json.toParker();
 
-        var jsonVPlan = jsonDecode(stringVPlan);
+        dynamic jsonVPlan = jsonDecode(stringVPlan);
 
         if (jsonVPlan['VpMobil'] == null) {
           return {};
@@ -234,7 +241,7 @@ class VPlanAPI {
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
-          'info': ziZeilen.map((e) => e.innerText),
+          'info': ziZeilen.map((e) => e.innerText).toList(),
         });
         //-------------------------------------
         List<String>? stringData = prefs.getStringList('offlineVPData');
@@ -242,7 +249,8 @@ class VPlanAPI {
 
         // check if vplan already exist
         bool add = true;
-        for (var i = 0; i < stringData.length; i++) {
+        for (int i = 0; i < stringData.length; i++) {
+          ziZeilen.map((e) => e.innerText.toString()).toList();
           if (compareDate(vpDate, jsonDecode(stringData[i])['date'])) {
             add = false;
           }
@@ -263,19 +271,6 @@ class VPlanAPI {
     } catch (identifier) {
       print("Fehler bei getVplanJson");
     }
-  }
-
-  Future getDayInfo(String classId) async {
-    await login();
-
-    Uri url = Uri.parse(
-      'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/Klassen.xml',
-    );
-
-    try {
-      var pureVPlan = await getVPlanJSON(url, DateTime.now());
-      return pureVPlan['ZusatzInfo'];
-    } catch (e) {}
   }
 
   bool compareDate(DateTime datetime, String date2) {
@@ -303,13 +298,13 @@ class VPlanAPI {
 
     Uri url = Uri.parse(await getDayURL());
 
-    var pureVPlan;
-    try {
-      pureVPlan = await getVPlanJSON(url, DateTime.now());
-    } catch (e) {
-      print(e);
+    dynamic pureVPlan;
+    // try {
+    pureVPlan = await getVPlanJSON(url, DateTime.now());
+    /* } catch (e) {
+      print('line 316 in VPlanAPI.dart --> $e');
       return {'error': 'no internet'};
-    }
+    } */
 
     if (pureVPlan == {}) {
       return {};
@@ -325,6 +320,7 @@ class VPlanAPI {
     return {
       'date': pureVPlan['date'],
       'data': lessons,
+      'info': pureVPlan['info'],
     };
   }
 
@@ -338,7 +334,7 @@ class VPlanAPI {
     return 'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/Klassen.xml';
   }
 
-  Future<List<dynamic>> parseVPlanXML(var jsonVPlan, String classId) async {
+  Future<List<dynamic>> parseVPlanXML(dynamic jsonVPlan, String classId) async {
     List<dynamic> _outpuLessons = [];
 
     if (jsonVPlan == null) {
@@ -380,7 +376,7 @@ class VPlanAPI {
       'https://www.stundenplan24.de/${this.schoolnumber}/mobil/mobdaten/PlanKl$stringDate.xml',
     );
 
-    var pureVPlan;
+    dynamic pureVPlan;
     try {
       pureVPlan = await getVPlanJSON(url, date);
     } catch (e) {
@@ -393,7 +389,7 @@ class VPlanAPI {
     if (pureVPlan['error'] != null) {
       return pureVPlan;
     }
-    var jsonVPlan =
+    dynamic jsonVPlan =
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
     List<dynamic> lessons = await parseVPlanXML(jsonVPlan, classId);
@@ -401,6 +397,7 @@ class VPlanAPI {
     return {
       'date': pureVPlan['date'],
       'data': lessons,
+      'info': pureVPlan['info'],
     };
   }
 
@@ -536,27 +533,29 @@ class VPlanAPI {
 
   void cleanVplanOfflineData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? offlineVPData = prefs.getString('offlineVPData');
+    List<String>? offlineVPData = prefs.getStringList('offlineVPData');
 
     if (offlineVPData == null) {
       return;
     }
 
-    List<dynamic> vplanData = jsonDecode(offlineVPData);
-    List<dynamic> cleanedPlan = [];
+    List<dynamic> vplanData = [];
+    offlineVPData.map((e) => vplanData.add(jsonDecode(e)));
+
+    List<String> cleanedPlan = [];
     for (int i = 0; i < vplanData.length; i++) {
       if (!cleanedPlan.contains(vplanData[i])) {
-        cleanedPlan.add(vplanData[i]);
+        cleanedPlan.add(jsonEncode(vplanData[i]));
       } else {
         print('already there');
       }
     }
-    prefs.setString('offlineVPData', jsonEncode(cleanedPlan));
+    prefs.setStringList('offlineVPData', cleanedPlan);
   }
 
   Future<List<String>> getTeachers() async {
     List<String> teachers = [];
-    var data = (await getVPlanJSON(
+    dynamic data = (await getVPlanJSON(
       Uri.parse(
         await getDayURL(),
       ),

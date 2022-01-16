@@ -12,7 +12,7 @@ class DeveloperOptions extends StatelessWidget {
   void deleteOfflineData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setString('offlineVPData', 'null');
+    prefs.setStringList('offlineVPData', []);
   }
 
   @override

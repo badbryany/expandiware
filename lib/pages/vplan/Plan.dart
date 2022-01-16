@@ -25,8 +25,6 @@ class Plan extends StatefulWidget {
 
 class _PlanState extends State<Plan> {
   VPlanAPI vplanAPI = new VPlanAPI();
-  ScrollController controller = ScrollController();
-  double topHeight = -10;
 
   void newVP(bool nextDay) async {
     String? date = data['data']['date'];
@@ -55,10 +53,9 @@ class _PlanState extends State<Plan> {
       setState(() => data = _lessons);
       return;
     }
-
     data = {
       'data': _lessons,
-      'info': await vplanAPI.getDayInfo(widget.classId),
+      'info': _lessons['info'],
     };
     hiddenSubjects = await vplanAPI.getHiddenCourses();
 
@@ -81,15 +78,6 @@ class _PlanState extends State<Plan> {
   void initState() {
     super.initState();
     getData();
-
-    controller.addListener(() {
-      if (controller.offset > 0) {
-        topHeight = 0;
-      } else {
-        topHeight = -10;
-      }
-      setState(() {});
-    });
   }
 
   @override
@@ -194,8 +182,6 @@ class _PlanState extends State<Plan> {
           VPlanAPI().parseStringDatatoDateTime(data['data']['date'].toString());
       displayDate = '${displayDateDateTime.day}.${displayDateDateTime.month}';
     }
-    if (topHeight == -10) topHeight = MediaQuery.of(context).size.height * 0.17;
-
     return ListPage(
       title: '${widget.classId} - $displayDate',
       animate: true,
@@ -322,9 +308,32 @@ class _PlanState extends State<Plan> {
                 },
               ).toList()),
         data != 'loading'
+            ? Container(
+                margin: EdgeInsets.only(
+                  top: 15,
+                  bottom: 15,
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                ),
+                color: Theme.of(context).backgroundColor,
+                height: 2,
+              )
+            : const SizedBox(),
+        data != 'loading'
             ? (data['info'] != null && data['info'].toString() != ''
                 ? ListItem(
-                    title: Text('${data['info']}'),
+                    padding: 20,
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...(data['info'] as List).map(
+                          (e) => Text(
+                            '$e',
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
                     onClick: () {},
                   )
                 : ListItem(

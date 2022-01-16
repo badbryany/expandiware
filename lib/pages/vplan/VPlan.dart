@@ -63,6 +63,9 @@ class _VPlanState extends State<VPlan> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'später',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
               ),
               TextButton(
@@ -80,6 +83,7 @@ class _VPlanState extends State<VPlan> {
                   'ok',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
               ),

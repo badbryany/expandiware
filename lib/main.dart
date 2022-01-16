@@ -145,25 +145,25 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
       future: getMaterialYouColor(),
       builder: (context, AsyncSnapshot<MaterialYouPalette?> snapshot) {
+        Color primaryColor = Color(0xff74b56f);
+
         final backgroundColor =
             snapshot.data?.neutral2.shade900 ?? Color(0xff101012);
         final backgroundColorLight =
             snapshot.data?.neutral2.shade100 ?? Colors.grey.shade300;
 
-        final primarySwatch =
-            snapshot.data?.accent1.shade200 ?? Color(0xffECA44D);
-        final primarySwatchLight = snapshot.data?.accent1.shade400 ??
-            Color.fromARGB(255, 233, 143, 34);
+        final primarySwatch = snapshot.data?.accent1.shade200 ?? primaryColor;
+        final primarySwatchLight =
+            snapshot.data?.accent1.shade400 ?? primaryColor;
         final dividerColor =
             snapshot.data?.accent3.shade100 ?? Color(0xff0d0d0f);
         final dividerColorLight =
             snapshot.data?.accent3.shade100 ?? Colors.white;
 
-        final indicatorColor =
-            snapshot.data?.accent1.shade100 ?? Color(0xffECA44D);
+        final indicatorColor = snapshot.data?.accent1.shade100 ?? primaryColor;
 
         final indicatorColorLight =
-            snapshot.data?.accent1.shade100 ?? Color(0xffECA44D);
+            snapshot.data?.accent1.shade100 ?? primaryColor;
 
         return MaterialApp(
           builder: (BuildContext context, Widget? child) {
@@ -180,7 +180,6 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData(
             fontFamily: 'Poppins',
             brightness: Brightness.dark,
-            accentColor: primarySwatch,
             primaryColor: primarySwatch,
             dividerColor: dividerColor,
             focusColor: Colors.white,
@@ -192,7 +191,6 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             fontFamily: 'Poppins',
             brightness: Brightness.light,
-            accentColor: primarySwatchLight,
             primaryColor: primarySwatchLight,
             indicatorColor: indicatorColorLight,
             focusColor: Colors.black,
@@ -530,7 +528,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       e['icon'],
                                       size: 26,
                                       color: activeText == e['text']
-                                          ? Theme.of(context).accentColor
+                                          ? Theme.of(context).primaryColor
                                           : Theme.of(context).focusColor,
                                     ),
                                   ),
@@ -541,7 +539,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(100),
                                     color: e['text'] == activeText
-                                        ? Theme.of(context).accentColor
+                                        ? Theme.of(context).primaryColor
                                         : null,
                                   ),
                                 ),
