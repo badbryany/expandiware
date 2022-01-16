@@ -31,6 +31,9 @@ class InputField extends StatelessWidget {
           keyboardType: keaboardType,
           decoration: InputDecoration(
             labelText: labelText,
+            labelStyle: TextStyle(
+              color: Theme.of(context).primaryColor,
+            ),
             border: InputBorder.none,
           ),
         ),

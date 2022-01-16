@@ -16,6 +16,7 @@ dependencies:
   page_transition: ^2.0.2
   shared_preferences: ^2.0.6
   xml2json: ^5.0.0
+  xml: ^5.3.1
   http_auth: ^1.0.0
   flutter_svg: ^0.22.0
   device_info: ^2.0.2
@@ -25,6 +26,7 @@ dependencies:
   flutter_background_service: ^0.1.5
   awesome_notifications: ^0.6.16
   lottie: ^1.2.1
+  fluttertoast: ^8.0.8
 
 dev_dependencies:
   flutter_test:

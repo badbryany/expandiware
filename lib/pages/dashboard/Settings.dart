@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings/VPlanLogin.dart';
 import 'settings/DeveloperOptions.dart';
@@ -8,7 +9,12 @@ import 'settings/TeacherShorts.dart';
 
 import '../../models/ListPage.dart';
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
   List<dynamic> settingPages = [
     {
       'title': 'Zugangsdaten',
@@ -40,13 +46,27 @@ class Settings extends StatelessWidget {
       'subtitle': '----',
       'link': SizedBox(),
     },
-    {
-      'title': 'Entwickleroptionen',
-      'icon': Icons.developer_mode_rounded,
-      'subtitle': '...',
-      'link': DeveloperOptions(),
-    },
   ];
+
+  void developerOptions() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('developerOptions') == null) {
+      prefs.setBool('developerOptions', false);
+    }
+    if (prefs.getBool('developerOptions')!) {
+      settingPages.add({
+        'title': 'Entwickleroptionen',
+        'icon': Icons.developer_mode_rounded,
+        'subtitle': '...',
+        'link': DeveloperOptions(),
+      });
+      setState(() {});
+    }
+  }
+
+  void initState() {
+    developerOptions();
+  }
 
   @override
   Widget build(BuildContext context) {

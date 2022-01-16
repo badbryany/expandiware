@@ -1,12 +1,10 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:http_auth/http_auth.dart' as http_auth;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xml2json/xml2json.dart';
+import 'package:xml/xml.dart';
 
 class VPlanAPI {
   int schoolnumber = 0; // = prefs.getString("vplanSchoolnumber");
@@ -168,11 +166,12 @@ class VPlanAPI {
       data = jsonDecode(prefs.getString('offlineVPData')!);
       for (int i = 0; i < data.length; i++) {
         if (compareDate(vpDate, data[i]['data']['Kopf']['DatumPlan'])) {
-          //print('we have an offline backup!');
-          //print('used offline data');
+          print('we have an offline backup!');
+          print('used offline data');
           return {
             'date': data[i]['date'],
             'data': data[i]['data'],
+            'info': data[i]['info'],
           };
         }
       }
@@ -213,35 +212,50 @@ class VPlanAPI {
           return {};
         }
 
+        /* NEW XML PARSER */
+
+        String cleanXml = res.body;
+
+        cleanXml = cleanXml
+            .toString()
+            .replaceFirst('ï', '')
+            .replaceFirst('»', '')
+            .replaceFirst('¿', '');
+
+        final XmlDocument xmlVPlan = XmlDocument.parse(cleanXml);
+
+        Iterable<XmlElement> ziZeilen = xmlVPlan
+            .getElement('VpMobil')!
+            .getElement('ZusatzInfo')!
+            .findAllElements('ZiZeile');
+
+        /* NEW XML PARSER */
+
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
+          'info': ziZeilen.map((e) => e.innerText),
         });
         //-------------------------------------
-        String? stringData = prefs.getString('offlineVPData');
-        if (stringData == null || stringData == 'null') {
-          stringData = '[]';
-        }
+        List<String>? stringData = prefs.getStringList('offlineVPData');
+        stringData ??= [];
 
-        List<dynamic> jsonData = jsonDecode(stringData);
         // check if vplan already exist
         bool add = true;
-        for (var i = 0; i < jsonData.length; i++) {
-          if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
+        for (var i = 0; i < stringData.length; i++) {
+          if (compareDate(vpDate, jsonDecode(stringData[i])['date'])) {
             add = false;
           }
         }
 
         if (add) {
-          jsonData.add(data.last);
+          stringData.add(jsonEncode(data.last));
           //print('added');
         } else {
           //print('plan already exist...');
         }
 
-        stringData = jsonEncode(jsonData);
-
-        prefs.setString('offlineVPData', stringData);
+        prefs.setStringList('offlineVPData', stringData);
         //-------------------------------------
 
         return data.last;
@@ -293,6 +307,7 @@ class VPlanAPI {
     try {
       pureVPlan = await getVPlanJSON(url, DateTime.now());
     } catch (e) {
+      print(e);
       return {'error': 'no internet'};
     }
 

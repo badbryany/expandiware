@@ -4,7 +4,8 @@ import 'package:page_transition/page_transition.dart';
 
 import './TeacherPlan.dart';
 
-import '../../models/LoadingProcess.dart';
+import 'package:expandiware/models/LoadingProcess.dart';
+import 'package:expandiware/models/Button.dart';
 
 import '../vplan/VPlanAPI.dart';
 
@@ -83,30 +84,14 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
             ),
           ),
           SizedBox(height: spaceBetween),
-          Container(
-            margin: EdgeInsets.all(5),
-            child: InkWell(
-              onTap: () => Navigator.push(
-                context,
-                PageTransition(
-                  type: PageTransitionType.rightToLeft,
-                  child: TeacherPlan(
-                    teacher: teacherShort,
-                  ),
-                ),
-              ),
-              child: Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).indicatorColor,
-                ),
-                child: Text(
-                  'ansehen',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
+          Button(
+            text: 'ansehen',
+            onPressed: () => Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: TeacherPlan(
+                  teacher: teacherShort,
                 ),
               ),
             ),

@@ -18,7 +18,6 @@ class QRScanner extends StatelessWidget {
     controller.scannedDataStream.listen((scanData) {
       result = scanData;
       setData(result!.code);
-      Navigator.pop(context);
     });
   }
 

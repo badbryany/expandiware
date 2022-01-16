@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:expandiware/models/Button.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,7 +79,6 @@ class _VPlanLoginState extends State<VPlanLogin> {
     passwordController.text = jsonData['password'];
 
     passwordController.text = jsonData['customUrl'];
-    return;
   }
 
   bool customUrlField = false;
@@ -301,8 +302,9 @@ class _VPlanLoginState extends State<VPlanLogin> {
                 ),
                 // CUSTOM URL
 
-                InkWell(
-                  onTap: () async {
+                Button(
+                  text: 'Speichern',
+                  onPressed: () async {
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
 
@@ -326,23 +328,9 @@ class _VPlanLoginState extends State<VPlanLogin> {
                         customUrlController.text.toString(),
                       );
                     }
+                    Fluttertoast.showToast(msg: 'Anmeldedaten gespeichert');
                     Navigator.pop(context);
                   },
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Theme.of(context).indicatorColor,
-                    ),
-                    child: Text(
-                      'Speichern',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),

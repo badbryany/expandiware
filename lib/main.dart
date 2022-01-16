@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:expandiware/pages/vplan/VPlanAPI.dart';
+import 'package:expandiware/models/Button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -105,10 +106,13 @@ void sendAppOpenData() async {
 
   // send request to kellermann.team to save the data
   try {
-    http.post(
-      Uri.parse('https://www.kellermann.team/expandiware/analytics.php'),
-      body: logindata,
-    );
+    if (prefs.getBool('analisis') == null ||
+        prefs.getBool('analisis')! == true) {
+      http.post(
+        Uri.parse('https://www.kellermann.team/expandiware/analytics.php'),
+        body: logindata,
+      );
+    }
   } catch (e) {}
 }
 
@@ -225,6 +229,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  int developerClickCount = 0;
+  int maxDeveloperClickCount = 7;
+  void getDeveloper() async {
+    if (activeText != 'dashboard') return;
+    if (developerClickCount == maxDeveloperClickCount) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool('developerOptions', true);
+      Fluttertoast.showToast(msg: 'Du bist jetzt Entwickler!');
+      print('Du bist jetzt Entwickler!');
+    }
+
+    developerClickCount++;
+    if (developerClickCount >= 3 &&
+        developerClickCount <= maxDeveloperClickCount) {
+      Fluttertoast.showToast(
+        msg:
+            'In ${maxDeveloperClickCount - developerClickCount + 1} Schritte${(maxDeveloperClickCount - developerClickCount + 1) == 0 ? '' : 'n'} bist du Entwickler',
+      );
+      print(
+        'In ${maxDeveloperClickCount - developerClickCount + 1} Schritte${(maxDeveloperClickCount - developerClickCount + 1) == 0 ? '' : 'n'} bist du Entwickler',
+      );
+    }
+  }
+
   void checkForUpdates(BuildContext context) async {
     String _version = '1.15';
     var r;
@@ -244,9 +272,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           backgroundColor: Theme.of(context).backgroundColor,
           title: Row(
             children: [
-              Icon(Icons.update_rounded),
+              Icon(Icons.system_security_update_outlined),
               SizedBox(width: 10),
-              Text('Veraltete Version'),
+              Text('Neue Version'),
             ],
           ),
           content: Text('lade dir die neuste Version herunter!'),
@@ -256,31 +284,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Text(
                 'später',
                 style: TextStyle(
+                  color: Theme.of(context).primaryColor,
                   fontSize: 13,
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.all(4),
-              child: TextButton(
-                child: Text(
-                  'herunterladen',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onPressed: () async {
-                  String url =
-                      'https://www.kellermann.team/expandiware/expandiware.apk';
+            Button(
+              text: 'herunterladen',
+              onPressed: () async {
+                String url =
+                    'https://www.kellermann.team/expandiware/expandiware.apk';
 
-                  try {
-                    await launch(url);
-                  } catch (e) {
-                    print('faild');
-                  }
-                  Navigator.pop(context);
-                },
-              ),
+                try {
+                  await launch(url);
+                } catch (e) {
+                  print('faild');
+                }
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
@@ -391,6 +412,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Stack(
                       children: [
                         Container(
+                          alignment: Alignment.center,
+                          height: 45,
+                          child: Text(
+                            'expandiware',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 23,
+                              color: Theme.of(context).focusColor,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: getDeveloper,
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            height: 45,
+                            margin: EdgeInsets.only(
+                              right: MediaQuery.of(context).size.width * 0.07,
+                            ),
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              activeText,
+                              style: TextStyle(
+                                color: Theme.of(context).focusColor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
                           alignment: Alignment.centerLeft,
                           margin: EdgeInsets.only(
                             left: MediaQuery.of(context).size.width * 0.1,
@@ -410,32 +461,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 ),
                               ),
                               child: eastereggIcon,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          height: 45,
-                          child: Text(
-                            'expandiware',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 23,
-                              color: Theme.of(context).focusColor,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.centerRight,
-                          height: 45,
-                          margin: EdgeInsets.only(
-                            right: MediaQuery.of(context).size.width * 0.07,
-                          ),
-                          child: Text(
-                            activeText,
-                            style: TextStyle(
-                              color: Theme.of(context).focusColor,
-                              fontSize: 10,
                             ),
                           ),
                         ),

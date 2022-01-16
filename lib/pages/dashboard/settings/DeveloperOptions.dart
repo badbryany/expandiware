@@ -1,4 +1,7 @@
+import 'package:expandiware/models/Button.dart';
+import 'package:expandiware/models/InputField.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../models/ListPage.dart';
 
@@ -15,6 +18,13 @@ class DeveloperOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<dynamic> options = [
+      {
+        'title': 'Entwickleroptionen deaktivieren',
+        'actionText': 'deaktivieren',
+        'action': () => SharedPreferences.getInstance().then(
+              (instance) => instance.setBool('developerOptions', false),
+            ),
+      },
       {
         'title': 'Offline Vertretungsplan löschen',
         'actionText': 'löschen',
@@ -49,9 +59,42 @@ class DeveloperOptions extends StatelessWidget {
         },
       },
       {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
+        'title': 'analysis code',
+        'actionText': 'enter',
+        'action': () async {
+          TextEditingController _controller = new TextEditingController();
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              title: Text('enter analisis code'),
+              content: Container(
+                alignment: Alignment.center,
+                height: 100,
+                child: InputField(
+                  controller: _controller,
+                  labelText: 'analisis code',
+                ),
+              ),
+              actions: [
+                Button(
+                  text: 'enter',
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    if (_controller.text == 'JuIGZxo0Na') {
+                      prefs.setBool('analisis', false);
+                      Fluttertoast.showToast(msg: 'no analisis anymore');
+                    } else {
+                      Fluttertoast.showToast(msg: 'incorrect code');
+                    }
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       },
       {
         'title': '--',
@@ -67,16 +110,16 @@ class DeveloperOptions extends StatelessWidget {
             (e) => Container(
               margin: const EdgeInsets.all(10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     e['title'],
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  TextButton(
+                  Button(
+                    text: e['actionText'],
                     onPressed: e['action'],
-                    child: Text(e['actionText']),
                   ),
                 ],
               ),

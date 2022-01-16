@@ -151,7 +151,7 @@ class _NotificationsState extends State<Notifications> {
             ListItem(
               title: Text('Vertretungsplan automatisch laden'),
               onClick: () => changeAutomaticLoad(),
-              actionButton: Switch(
+              actionButton: Switch.adaptive(
                 value: _automaticLoad,
                 onChanged: (change) => changeAutomaticLoad(),
                 activeColor: Theme.of(context).accentColor,
@@ -166,7 +166,7 @@ class _NotificationsState extends State<Notifications> {
               ),
               color: !_automaticLoad ? Color(0xff161616) : null,
               onClick: changeNotification,
-              actionButton: Switch(
+              actionButton: Switch.adaptive(
                 value: _intiligentNotification,
                 onChanged: (change) => changeNotification(),
                 activeColor: Theme.of(context).accentColor,
@@ -258,7 +258,7 @@ class _NotificationsState extends State<Notifications> {
               ),
               color: !_automaticLoad ? Color(0xff161616) : null,
               onClick: () {},
-              actionButton: Switch(
+              actionButton: Switch.adaptive(
                 value: _remindDayBefore,
                 onChanged: (change) => changeRemindDayBefore(),
                 activeColor: Theme.of(context).accentColor,
@@ -330,7 +330,7 @@ class _NotificationsState extends State<Notifications> {
                 ),
               ),
               onClick: changeRemindOnlyChange,
-              actionButton: Switch(
+              actionButton: Switch.adaptive(
                 value: _remindOnlyChange,
                 onChanged: (change) => changeRemindOnlyChange(),
                 activeColor: Theme.of(context).accentColor,

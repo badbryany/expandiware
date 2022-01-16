@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:expandiware/models/Button.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:lottie/lottie.dart';
@@ -175,29 +176,13 @@ class _PlanState extends State<Plan> {
             ),
           ),
           SizedBox(height: 30),
-          InkWell(
-            onTap: () => Navigator.push(
+          Button(
+            text: 'Zugangsdaten',
+            onPressed: () => Navigator.push(
               context,
               PageTransition(
                 type: PageTransitionType.rightToLeft,
                 child: VPlanLogin(),
-              ),
-            ),
-            child: Container(
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Theme.of(context).accentColor,
-                ),
-                width: MediaQuery.of(context).size.width * 0.3,
-                child: Text(
-                  'Zugangsdaten',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
               ),
             ),
           ),
