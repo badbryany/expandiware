@@ -362,6 +362,7 @@ class Courses extends StatefulWidget {
 class _CoursesState extends State<Courses> {
   VPlanAPI vplanAPI = new VPlanAPI();
   List<dynamic> courses = [];
+  bool? seeAll = null;
 
   void getData() async {
     courses = [];
@@ -388,6 +389,28 @@ class _CoursesState extends State<Courses> {
   Widget build(BuildContext context) {
     return ListPage(
       title: 'Kurse',
+      actions: [
+        IconButton(
+          icon: Icon(Icons.visibility_rounded),
+          onPressed: () {
+            for (int i = 0; i < courses.length; i++) {
+              courses[i]['show'] = true;
+              vplanAPI.removeHiddenCourse(courses[i]['course']);
+            }
+            setState(() {});
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.visibility_off_rounded),
+          onPressed: () {
+            for (int i = 0; i < courses.length; i++) {
+              courses[i]['show'] = false;
+              vplanAPI.addHiddenCourse(courses[i]['course']);
+            }
+            setState(() {});
+          },
+        ),
+      ],
       children: [
         GridView.count(
           childAspectRatio: 3 / 2.3,
