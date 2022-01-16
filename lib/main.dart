@@ -347,29 +347,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       {
         'text': 'vplan students',
         'index': 0,
-        'icon': Icons.photo_album_rounded,
+        'icon': 'assets/img/home.svg',
         'widget': VPlan(),
       },
       {
         'text': 'vplan teachers',
         'index': 1,
-        'icon': Icons.people_alt_rounded,
+        'icon': 'assets/img/person.svg',
         'widget': TeacherVPlan(),
       },
-      /*{
-        'text': 'analysis',
-        'index': 3,
-        'icon': Icons.bar_chart_rounded, // stacked_bar_chart_rounded
-        'widget': Text(
-          'Coming soon...',
-          key: ValueKey(1),
-        ),
-        'settings': () {},
-      },*/
       {
         'text': 'dashboard',
         'index': 2,
-        'icon': Icons.now_widgets_rounded,
+        'icon': 'assets/img/dashboard.svg',
         'widget': Dashboard(),
       },
     ];
@@ -523,25 +513,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   },
                                   child: Container(
                                     padding: EdgeInsets.all(7),
-                                    margin: EdgeInsets.all(17),
-                                    child: Icon(
+                                    child: SvgPicture.asset(
                                       e['icon'],
-                                      size: 26,
                                       color: activeText == e['text']
                                           ? Theme.of(context).primaryColor
                                           : Theme.of(context).focusColor,
+                                      width: 28,
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  height: 2,
-                                  width: 8,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: e['text'] == activeText
-                                        ? Theme.of(context).primaryColor
-                                        : null,
-                                  ),
+                                SvgPicture.asset(
+                                  'assets/img/active.svg',
+                                  width: 13,
+                                  color: e['text'] == activeText
+                                      ? Theme.of(context).primaryColor
+                                      : Colors.transparent,
                                 ),
                               ],
                             ),
