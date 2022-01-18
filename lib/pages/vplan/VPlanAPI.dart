@@ -138,27 +138,20 @@ class VPlanAPI {
     }
   }
 
-  Future<List<String>> getCourses(String classId) async {
-    dynamic data = await getVPlanJSON(
+  Future<List<dynamic>> getCourses(String classId) async {
+    List<dynamic> data = (await getVPlanJSON(
       Uri.parse(await getDayURL()),
       DateTime.now(),
-    );
+    ))['courses'];
 
-    dynamic classes = data['data']['Klassen']['Kl'];
-    dynamic currentClass;
-    for (int i = 0; i < classes.length; i++) {
-      if (classes[i]['Kurz'] == classId) {
-        currentClass = classes[i];
+    List<dynamic> returnData = [];
+
+    for (int i = 0; i < data.length; i++) {
+      if (data[i]['classId'] == classId) {
+        returnData.add(data[i]);
       }
     }
-
-    List<String> courses = [];
-
-    for (int j = 0; j < currentClass['Kurse']['Ku'].length; j++) {
-      courses.add(currentClass['Kurse']['Ku'][j]['KKz']);
-    }
-
-    return courses;
+    return returnData;
   }
 
   Future<dynamic> getVPlanJSON(Uri url, DateTime vpDate) async {
@@ -178,6 +171,7 @@ class VPlanAPI {
           return {
             'date': data[i]['date'],
             'data': data[i]['data'],
+            'courses': data[i]['courses'],
             'info': data[i]['info'],
           };
         }
@@ -236,12 +230,39 @@ class VPlanAPI {
             .getElement('ZusatzInfo')!
             .findAllElements('ZiZeile');
 
+        List<dynamic> courses = [];
+
+        Iterable<XmlElement> classes = xmlVPlan
+            .getElement('VpMobil')!
+            .getElement('Klassen')!
+            .findAllElements('Kl');
+
+        for (int i = 0; i < classes.length; i++) {
+          Iterable<XmlElement> _courses =
+              classes.elementAt(i).getElement('Kurse')!.findAllElements('Ku');
+          for (int j = 0; j < _courses.length; j++) {
+            courses.add(
+              {
+                'classId': classes.elementAt(i).getElement('Kurz')!.innerText,
+                'course': _courses.elementAt(j).getElement('KKz')!.innerText,
+                'teacher': _courses
+                    .elementAt(j)
+                    .getElement('KKz')!
+                    .attributes
+                    .first
+                    .value
+              },
+            );
+          }
+        }
+
         /* NEW XML PARSER */
 
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
           'info': ziZeilen.map((e) => e.innerText).toList(),
+          'courses': courses,
         });
         //-------------------------------------
         List<String>? stringData = prefs.getStringList('offlineVPData');
@@ -268,7 +289,7 @@ class VPlanAPI {
 
         return data.last;
       });
-    } catch (identifier) {
+    } catch (e) {
       print("Fehler bei getVplanJson");
     }
   }
@@ -299,12 +320,12 @@ class VPlanAPI {
     Uri url = Uri.parse(await getDayURL());
 
     dynamic pureVPlan;
-    // try {
-    pureVPlan = await getVPlanJSON(url, DateTime.now());
-    /* } catch (e) {
+    try {
+      pureVPlan = await getVPlanJSON(url, DateTime.now());
+    } catch (e) {
       print('line 316 in VPlanAPI.dart --> $e');
       return {'error': 'no internet'};
-    } */
+    }
 
     if (pureVPlan == {}) {
       return {};

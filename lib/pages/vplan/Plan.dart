@@ -362,16 +362,16 @@ class Courses extends StatefulWidget {
 class _CoursesState extends State<Courses> {
   VPlanAPI vplanAPI = new VPlanAPI();
   List<dynamic> courses = [];
-  bool? seeAll = null;
+  bool? seeAll;
 
   void getData() async {
-    courses = [];
-    List<String> _courses = await vplanAPI.getCourses(widget.classId);
+    List<dynamic> _courses = await vplanAPI.getCourses(widget.classId);
 
     List<String> hiddenCourses = await vplanAPI.getHiddenCourses();
     for (int i = 0; i < _courses.length; i++) {
       courses.add({
-        'course': _courses[i],
+        'course': _courses[i]['course'],
+        'teacher': _courses[i]['teacher'],
         'show': !hiddenCourses.contains(_courses[i]),
       });
     }
@@ -426,17 +426,33 @@ class _CoursesState extends State<Courses> {
                     ? Theme.of(context).backgroundColor
                     : Theme.of(context).backgroundColor.withOpacity(0.4),
                 title: Center(
-                  child: Text(
-                    e['course'],
-                    textAlign: TextAlign.center,
-                    style: !e['show']
-                        ? TextStyle(
-                            decoration: TextDecoration.lineThrough,
-                            color: Colors.grey,
-                          )
-                        : null,
-                  ),
-                ),
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      e['course'],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        decoration:
+                            !e['show'] ? TextDecoration.lineThrough : null,
+                        color: !e['show'] ? Colors.grey : null,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      '(${e['teacher']})',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        decoration:
+                            !e['show'] ? TextDecoration.lineThrough : null,
+                        color: !e['show'] ? Colors.grey : null,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                )),
                 onClick: () {
                   setState(() {
                     e['show'] = !e['show'];
