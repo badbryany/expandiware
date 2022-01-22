@@ -372,7 +372,7 @@ class _CoursesState extends State<Courses> {
       courses.add({
         'course': _courses[i]['course'],
         'teacher': _courses[i]['teacher'],
-        'show': !hiddenCourses.contains(_courses[i]),
+        'show': !hiddenCourses.contains(_courses[i]['course']),
       });
     }
 

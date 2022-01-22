@@ -94,13 +94,15 @@ class VPlanAPI {
       return false;
     }
     List<dynamic> jsonData = [];
-    prefs
+
+    jsonData = prefs
         .getStringList('offlineVPData')!
-        .map((e) => jsonData.add(jsonDecode(e)));
+        .map((e) => jsonDecode(e))
+        .toList();
 
     for (int i = 0; i < jsonData.length; i++) {
       if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
-        //print('we have an offline backup!');
+        print('we have an offline backup!');
         return true;
       }
     }
@@ -240,24 +242,20 @@ class VPlanAPI {
         for (int i = 0; i < classes.length; i++) {
           Iterable<XmlElement> _courses =
               classes.elementAt(i).getElement('Kurse')!.findAllElements('Ku');
+          String classId = classes.elementAt(i).getElement('Kurz')!.innerText;
           for (int j = 0; j < _courses.length; j++) {
+            XmlElement kkz = _courses.elementAt(j).getElement('KKz')!;
             courses.add(
               {
-                'classId': classes.elementAt(i).getElement('Kurz')!.innerText,
-                'course': _courses.elementAt(j).getElement('KKz')!.innerText,
-                'teacher': _courses
-                    .elementAt(j)
-                    .getElement('KKz')!
-                    .attributes
-                    .first
-                    .value
+                'classId': classId,
+                'course': kkz.innerText,
+                'teacher': kkz.attributes.first.value
               },
             );
           }
         }
 
         /* NEW XML PARSER */
-
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
@@ -279,12 +277,13 @@ class VPlanAPI {
 
         if (add) {
           stringData.add(jsonEncode(data.last));
-          //print('added');
+          print('added');
         } else {
-          //print('plan already exist...');
+          print('plan already exist...');
         }
 
         prefs.setStringList('offlineVPData', stringData);
+        //print(prefs.getStringList('offlineVPData'));
         //-------------------------------------
 
         return data.last;
@@ -556,13 +555,14 @@ class VPlanAPI {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? offlineVPData = prefs.getStringList('offlineVPData');
 
-    if (offlineVPData == null) {
+    if (offlineVPData == null || offlineVPData == []) {
       return;
     }
 
     List<dynamic> vplanData = [];
-    offlineVPData.map((e) => vplanData.add(jsonDecode(e)));
-
+    for (int i = 0; i < offlineVPData.length; i++) {
+      vplanData.add(jsonDecode(offlineVPData[i]));
+    }
     List<String> cleanedPlan = [];
     for (int i = 0; i < vplanData.length; i++) {
       if (!cleanedPlan.contains(vplanData[i])) {
