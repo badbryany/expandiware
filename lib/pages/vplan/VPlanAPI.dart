@@ -102,7 +102,7 @@ class VPlanAPI {
 
     for (int i = 0; i < jsonData.length; i++) {
       if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
-        print('we have an offline backup!');
+        // print('we have an offline backup!');
         return true;
       }
     }
@@ -277,9 +277,9 @@ class VPlanAPI {
 
         if (add) {
           stringData.add(jsonEncode(data.last));
-          print('added');
+          // print('added');
         } else {
-          print('plan already exist...');
+          // print('plan already exist...');
         }
 
         prefs.setStringList('offlineVPData', stringData);
@@ -294,14 +294,7 @@ class VPlanAPI {
   }
 
   bool compareDate(DateTime datetime, String date2) {
-    DateTime date1 = changeDate(
-      date: date2,
-      nextDay: true,
-    ).subtract(
-      Duration(days: 1),
-    );
-    // changeDate() parses the ugly date String to DateTime
-    // changeDate also adds 1 day; that Day was subtracted throw subtract()
+    DateTime date1 = parseStringDatatoDateTime(date2);
 
     if (date1.day == datetime.day) {
       if (date1.month == datetime.month) {
@@ -322,7 +315,7 @@ class VPlanAPI {
     try {
       pureVPlan = await getVPlanJSON(url, DateTime.now());
     } catch (e) {
-      print('line 316 in VPlanAPI.dart --> $e');
+      // print('line 316 in VPlanAPI.dart --> $e');
       return {'error': 'no internet'};
     }
 
@@ -382,6 +375,23 @@ class VPlanAPI {
         }
       }
     }
+
+    // add lessons that are not there
+    for (int i = 0; i < int.parse(_outpuLessons.last['count']); i++) {
+      if (int.parse(_outpuLessons[i]['count']) != i + 1) {
+        _outpuLessons.insert(i, {
+          'count': i + 1,
+          'lesson': '---',
+          'teacher': '---',
+          'place': '---',
+          'begin': '---',
+          'end': '---',
+          'info': null,
+          'course': '---',
+        });
+      }
+    }
+
     return _outpuLessons;
   }
 
@@ -563,15 +573,22 @@ class VPlanAPI {
     for (int i = 0; i < offlineVPData.length; i++) {
       vplanData.add(jsonDecode(offlineVPData[i]));
     }
-    List<String> cleanedPlan = [];
+    List<dynamic> cleanedPlan = [];
+
     for (int i = 0; i < vplanData.length; i++) {
-      if (!cleanedPlan.contains(vplanData[i])) {
-        cleanedPlan.add(jsonEncode(vplanData[i]));
-      } else {
-        print('already there');
+      bool addIt = true;
+      for (int j = 0; j < cleanedPlan.length; j++) {
+        if (cleanedPlan[j]['data']['Kopf']['DatumPlan'] ==
+            vplanData[i]['data']['Kopf']['DatumPlan']) {
+          addIt = false;
+        }
       }
+      if (addIt) cleanedPlan.add(vplanData[i]);
     }
-    prefs.setStringList('offlineVPData', cleanedPlan);
+    prefs.setStringList(
+      'offlineVPData',
+      cleanedPlan.map((e) => jsonEncode(e)).toList(),
+    );
   }
 
   Future<List<String>> getTeachers() async {
