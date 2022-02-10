@@ -59,6 +59,26 @@ class DeveloperOptions extends StatelessWidget {
         },
       },
       {
+        'title': 'clear news feeds',
+        'actionText': 'clear',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('newsfeeds', '[]');
+        },
+      },
+      {
+        'title': 'toggle Material You',
+        'actionText': 'change',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('materialyou', !prefs.getBool('materialyou')!);
+          Fluttertoast.showToast(
+            msg:
+                'prefs.getBool(\'materialyou\') => ${prefs.getBool('materialyou')}',
+          );
+        },
+      },
+      {
         'title': 'analysis code',
         'actionText': 'enter',
         'action': () async {
@@ -95,11 +115,6 @@ class DeveloperOptions extends StatelessWidget {
             ),
           );
         },
-      },
-      {
-        'title': '--',
-        'actionText': '---',
-        'action': () {},
       },
     ];
     return Scaffold(

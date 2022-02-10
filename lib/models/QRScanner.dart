@@ -7,7 +7,7 @@ class QRScanner extends StatelessWidget {
     required this.setData,
   }) : super(key: key);
 
-  final Function setData;
+  final Function(String?) setData;
 
   Barcode? result;
   QRViewController? controller;
@@ -18,6 +18,7 @@ class QRScanner extends StatelessWidget {
     controller.scannedDataStream.listen((scanData) {
       result = scanData;
       setData(result!.code);
+      Navigator.pop(context);
     });
   }
 
@@ -42,7 +43,7 @@ class QRScanner extends StatelessWidget {
               onQRViewCreated: (controller) =>
                   _onQRViewCreated(controller, context),
               overlay: QrScannerOverlayShape(
-                borderColor: Theme.of(context).accentColor,
+                borderColor: Theme.of(context).primaryColor,
                 borderRadius: 10,
                 borderLength: 30,
                 borderWidth: 5,
@@ -83,9 +84,18 @@ class QRScanner extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(100)),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).primaryColor,
                     ),
-                    child: Center(child: Icon(Icons.close)),
+                    child: Center(
+                      child: Icon(
+                        Icons.close,
+                        color:
+                            Theme.of(context).primaryColor.computeLuminance() >
+                                    0.5
+                                ? Colors.black
+                                : Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ),

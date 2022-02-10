@@ -8,11 +8,13 @@ class ListPage extends StatefulWidget {
     required this.children,
     this.actions,
     this.animate,
+    this.canclePage,
   }) : super(key: key);
 
   final String title;
   bool? smallTitle;
   bool? animate;
+  bool? canclePage;
   final List<Widget> children;
   List<Widget>? actions;
 
@@ -45,6 +47,12 @@ class _ListPageState extends State<ListPage> {
     widget.animate ??= false;
     widget.smallTitle ??= false;
 
+    IconData backIcon = Icons.arrow_back_rounded;
+
+    if (widget.canclePage != null && widget.canclePage == true) {
+      backIcon = Icons.clear_rounded;
+    }
+
     return SafeArea(
       child: Container(
         child: Stack(
@@ -55,7 +63,7 @@ class _ListPageState extends State<ListPage> {
               color: Theme.of(context).backgroundColor,
               height: topHeight,
               child: ListView(
-                physics: const BouncingScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   Padding(
                     padding: EdgeInsets.only(
@@ -82,7 +90,7 @@ class _ListPageState extends State<ListPage> {
                                   color: Theme.of(context).dividerColor,
                                 ),
                                 child: Icon(
-                                  Icons.arrow_back_ios_rounded,
+                                  backIcon,
                                   size: 19,
                                   color: Theme.of(context).splashColor,
                                 ),
@@ -139,7 +147,7 @@ class _ListPageState extends State<ListPage> {
                             color: Theme.of(context).dividerColor,
                           ),
                           child: Icon(
-                            Icons.arrow_back_ios_rounded,
+                            backIcon,
                             size: 16,
                             color: Theme.of(context).splashColor,
                           ),
@@ -159,8 +167,7 @@ class _ListPageState extends State<ListPage> {
             ),
             // CONTENT
             Align(
-              alignment:
-                  topHeight == 0 ? Alignment.bottomCenter : Alignment.center,
+              alignment: Alignment.bottomCenter,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: EdgeInsets.only(
@@ -184,7 +191,7 @@ class _ListPageState extends State<ListPage> {
                 ),
                 alignment: Alignment.bottomCenter,
                 height: MediaQuery.of(context).size.height *
-                    (topHeight == 0 ? 0.85 : 0.8),
+                    (topHeight == 0 ? 0.85 : 0.85),
                 child: widget.animate!
                     ? AnimatedSwitcher(
                         duration: Duration(milliseconds: 500),

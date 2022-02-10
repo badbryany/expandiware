@@ -4,6 +4,7 @@ import 'package:animations/animations.dart';
 
 import './FindRoom.dart';
 import './Settings.dart';
+import './NewsFeed.dart';
 import '../../models/ListItem.dart';
 
 class Dashboard extends StatelessWidget {
@@ -20,6 +21,15 @@ class Dashboard extends StatelessWidget {
         'title': 'Leeren Raum finden',
         'subtitle': 'suche einen Raum, der gerade nicht benutzt ist!',
         'link': FindRoom(),
+      },
+      {
+        'icon': Icon(
+          Icons.new_releases_rounded,
+          color: Theme.of(context).focusColor,
+        ),
+        'title': 'Neuigkeiten',
+        'subtitle': 'Aboniere News feeds deiner wahl',
+        'link': NewsFeed(),
       },
       {
         'icon': Icon(

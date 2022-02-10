@@ -120,12 +120,11 @@ void main() async {
   runApp(MyApp());
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (prefs.getBool('automaticLoad') != null) {
-    if (prefs.getBool('automaticLoad')!) {
-      print('initialize background service');
-      WidgetsFlutterBinding.ensureInitialized();
-      FlutterBackgroundService.initialize(onStart);
-    }
+  if (prefs.getBool('automaticLoad') == true ||
+      prefs.getBool('automaticLoad') == null) {
+    print('initialize background service');
+    WidgetsFlutterBinding.ensureInitialized();
+    FlutterBackgroundService.initialize(onStart);
   }
   if (!kDebugMode) sendAppOpenData();
 }
@@ -145,10 +144,11 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
       future: getMaterialYouColor(),
       builder: (context, AsyncSnapshot<MaterialYouPalette?> snapshot) {
-        Color primaryColor = Color(0xff74b56f);
+        Color primaryColor = Color(0xff1fbe88); // ECA44D
+        int scaffoldBGDark = snapshot.data?.neutral2.shade900 == null ? 50 : 70;
 
-        final backgroundColor =
-            snapshot.data?.neutral2.shade900 ?? Color(0xff101012);
+        final backgroundColor = snapshot.data?.neutral2.shade900 ??
+            Color(0xff1e1f25); //Color(0xff101012);
         final backgroundColorLight =
             snapshot.data?.neutral2.shade100 ?? Colors.grey.shade300;
 
@@ -184,8 +184,9 @@ class MyApp extends StatelessWidget {
             dividerColor: dividerColor,
             focusColor: Colors.white,
             indicatorColor: indicatorColor,
+            errorColor: Color.fromARGB(158, 119, 18, 18),
             backgroundColor: darken(backgroundColor, 5), //Color(0xff161B28),
-            scaffoldBackgroundColor: darken(backgroundColor, 70),
+            scaffoldBackgroundColor: darken(backgroundColor, scaffoldBGDark),
             splashColor: snapshot.data == null ? Colors.white : Colors.black,
           ),
           theme: ThemeData(
@@ -194,6 +195,7 @@ class MyApp extends StatelessWidget {
             primaryColor: primarySwatchLight,
             indicatorColor: indicatorColorLight,
             focusColor: Colors.black,
+            errorColor: Color.fromARGB(158, 119, 18, 18),
             dividerColor: dividerColorLight,
             backgroundColor: backgroundColorLight, //Color(0xffe7e7e7),
             scaffoldBackgroundColor: Colors.white,
@@ -234,6 +236,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (developerClickCount == maxDeveloperClickCount) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setBool('developerOptions', true);
+      Fluttertoast.cancel();
       Fluttertoast.showToast(msg: 'Du bist jetzt Entwickler!');
       print('Du bist jetzt Entwickler!');
     }
@@ -241,6 +244,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     developerClickCount++;
     if (developerClickCount >= 3 &&
         developerClickCount <= maxDeveloperClickCount) {
+      Fluttertoast.cancel();
       Fluttertoast.showToast(
         msg:
             'In ${maxDeveloperClickCount - developerClickCount + 1} Schritte${(maxDeveloperClickCount - developerClickCount + 1) == 0 ? '' : 'n'} bist du Entwickler',
