@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const platform = MethodChannel('com.example.app/colors');
 
 Future<MaterialYouPalette?> getMaterialYouColor() async {
   // Material You colors are available on Android only
   if (defaultTargetPlatform != TargetPlatform.android) return null;
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool('materialyou') == null) prefs.setBool('materialyou', true);
+  if (prefs.getBool('materialyou')!) return null;
 
   try {
     final data = await platform.invokeMethod('getMaterialYouColors');
