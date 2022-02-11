@@ -1,6 +1,7 @@
 # expandiware - expanded indiware
 
 An enhanced version of the vpMobil app of indiware
+download the app -> https://www.kellermann.team/expandiware/
 
 ## Features
 
@@ -8,3 +9,4 @@ An enhanced version of the vpMobil app of indiware
 ### load vplan in background
 ### Find Teachers
 ### Find empty rooms
+### News Feeds
