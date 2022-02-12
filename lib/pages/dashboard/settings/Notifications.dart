@@ -216,7 +216,7 @@ class _NotificationsState extends State<Notifications> {
               ),
             ),
             // ---------------------
-            heading('Zeit der Erinnerung'),
+            /* heading('Zeit der Erinnerung'),
             ListItem(
               title: Text(
                 'Stunde',
@@ -263,7 +263,7 @@ class _NotificationsState extends State<Notifications> {
                 onChanged: (change) => changeRemindDayBefore(),
                 activeColor: Theme.of(context).accentColor,
               ),
-            ),
+            ), */
             // ---------------------
             heading('Sonstiges'),
             ListItem(

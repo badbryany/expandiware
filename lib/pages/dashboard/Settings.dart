@@ -23,7 +23,7 @@ class _SettingsState extends State<Settings> {
       'link': VPlanLogin(),
     },
     {
-      'title': 'Notifications - beta',
+      'title': 'Notifications',
       'icon': Icons.notifications_none_rounded,
       'subtitle': 'Benachrichtigungen für den Stundenplan',
       'link': Notifications(),

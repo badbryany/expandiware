@@ -78,14 +78,11 @@ void vplanNotifications(Timer _timer) async {
   _vplanDate = VPlanAPI().parseStringDatatoDateTime(data['date']);
   List<dynamic> _lessons = [];
   if (_remindDayBefore) {
-    if (_today.add(Duration(days: 1)).isAfter(_vplanDate)) {
-      if (_today.hour >= _remindHour &&
-          (_today.minute >= _remindMinutes || _today.hour > _remindHour)) {
-        List<String> _courses = await VPlanAPI().getHiddenCourses();
-        for (int i = 0; i < data['data'].length; i++) {
-          if (!_courses.contains(data['data'][i]['course'])) {
-            _lessons.add(data['data'][i]);
-          }
+    if (_today.difference(_vplanDate) <= Duration(days: 1)) {
+      List<String> _courses = await VPlanAPI().getHiddenCourses();
+      for (int i = 0; i < data['data'].length; i++) {
+        if (!_courses.contains(data['data'][i]['course'])) {
+          _lessons.add(data['data'][i]);
         }
       }
     }
@@ -199,12 +196,12 @@ void createNotification({
         channelKey: 'vplan_notification',
         channelName: 'Vertretungsplan Benachrichtigungen',
         channelDescription: 'Benachrichtigungen zu Änderungen und Fächern',
-        //defaultColor: Color(0xFF9D50DD),
       )
     ],
   );
   id ??= Random().nextInt(100000000);
   normal ??= false;
+
   AwesomeNotifications().createNotification(
     content: NotificationContent(
       id: id,
