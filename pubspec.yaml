@@ -42,6 +42,9 @@ flutter:
   - family: Questrial
     fonts:
       - asset: ./assets/fonts/questrial.ttf
+  - family: Crackman
+    fonts:
+      - asset: ./assets/fonts/crackman.ttf
   assets:
     - assets/img/
     - assets/animations/

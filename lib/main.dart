@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:expandiware/models/Button.dart';
+import 'package:expandiware/models/ModalBottomSheet.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import './android_colors.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -255,8 +257,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  String version = '1.15';
   void checkForUpdates(BuildContext context) async {
-    String _version = '1.15';
+    String _version = version;
     var r;
     try {
       r = await http.get(
@@ -409,9 +412,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           child: Text(
                             'expandiware',
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
                               fontSize: 23,
                               color: Theme.of(context).focusColor,
+                              fontFamily: 'Crackman',
                             ),
                           ),
                         ),
@@ -423,13 +426,94 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             margin: EdgeInsets.only(
                               right: MediaQuery.of(context).size.width * 0.07,
                             ),
-                            padding: const EdgeInsets.all(10),
-                            child: Text(
-                              activeText,
-                              style: TextStyle(
-                                color: Theme.of(context).focusColor,
-                                fontSize: 10,
-                              ),
+                            // padding: const EdgeInsets.all(10),
+                            child: IconButton(
+                              icon: Icon(Icons.more_horiz_rounded),
+                              color: Colors.grey.shade400,
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => ModalBottomSheet(
+                                    title: 'App Info',
+                                    bigTitle: true,
+                                    extraButton: {
+                                      'onTap': () => Share.share(
+                                            'Probier doch mal diese Schulapp aus!\nhier herunterladen: https://www.kellermann.team/expandiware/',
+                                          ),
+                                      'child': Icon(
+                                        Icons.share_rounded,
+                                        size: 18,
+                                      ),
+                                    },
+                                    content: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Entwickler: Oskar',
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                            ),
+                                          ),
+                                        ),
+                                        ...[
+                                          {
+                                            'name': 'Kontakt',
+                                            'link':
+                                                'https://www.kellermann.team/expandiware/contact',
+                                          },
+                                          {
+                                            'name': 'Github',
+                                            'link':
+                                                'https://www.github.com/badbryany/expandiware',
+                                          },
+                                          {
+                                            'name': 'Website',
+                                            'link':
+                                                'https://www.kellermann.team/expandiware',
+                                          },
+                                          {
+                                            'name': 'Instagram',
+                                            'link':
+                                                'https://www.instagram.com/expandiware/',
+                                          },
+                                        ].map(
+                                          (e) => Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: InkWell(
+                                              onTap: () => launch(e['link']!),
+                                              child: Text(
+                                                '${e['name']}: www.${e['link']![12] + e['link']![13] + e['link']![14] + e['link']![15]}...',
+                                                style: TextStyle(
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  decorationColor:
+                                                      Theme.of(context)
+                                                          .focusColor,
+                                                  fontSize: 17,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'version: $version',
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),

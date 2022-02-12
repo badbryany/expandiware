@@ -8,6 +8,7 @@ class ModalBottomSheet extends StatelessWidget {
     this.extraButton,
     this.submitButtonText,
     this.onPop,
+    this.bigTitle,
   }) : super(key: key);
 
   final String title;
@@ -15,10 +16,12 @@ class ModalBottomSheet extends StatelessWidget {
   final Widget content;
   Map<String, dynamic>? extraButton;
   Function? onPop;
+  bool? bigTitle;
 
   @override
   Widget build(BuildContext context) {
     onPop ??= () => Navigator.pop(context);
+    bigTitle ??= false;
     submitButtonText ??= 'fertig';
     return Container(
       decoration: BoxDecoration(
@@ -56,7 +59,7 @@ class ModalBottomSheet extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 23,
+                      fontSize: bigTitle! ? 28 : 23,
                     ),
                   ),
                   SizedBox(height: 25),
