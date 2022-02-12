@@ -87,7 +87,7 @@ class VPlanAPI {
     return hiddenSubjects;
   }
 
-  Future<bool> searchForOfflineData(DateTime vpDate) async {
+  Future<dynamic> searchForOfflineData(DateTime vpDate) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getStringList('offlineVPData') == null ||
         prefs.getStringList('offlineVPData') == []) {
@@ -103,7 +103,7 @@ class VPlanAPI {
     for (int i = 0; i < jsonData.length; i++) {
       if (compareDate(vpDate, jsonData[i]['data']['Kopf']['DatumPlan'])) {
         // print('we have an offline backup!');
-        return true;
+        return jsonData[i];
       }
     }
     return false;
@@ -135,7 +135,7 @@ class VPlanAPI {
     if (offlineVPData == null) {
       return [];
     } else {
-      //print('offlineVPData');
+      // print('offlineVPData');
       return offlineVPData.map((e) => jsonDecode(e));
     }
   }
@@ -160,25 +160,9 @@ class VPlanAPI {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<dynamic> data = [];
 
-    bool offlinePlan = await searchForOfflineData(vpDate);
+    dynamic offlinePlan = await searchForOfflineData(vpDate);
 
-    if (offlinePlan) {
-      List<String> offlineStrings = prefs.getStringList('offlineVPData')!;
-      offlineStrings.map((e) => data.add(jsonDecode(e)));
-
-      for (int i = 0; i < data.length; i++) {
-        if (compareDate(vpDate, data[i]['data']['Kopf']['DatumPlan'])) {
-          print('we have an offline backup!');
-          print('used offline data');
-          return {
-            'date': data[i]['date'],
-            'data': data[i]['data'],
-            'courses': data[i]['courses'],
-            'info': data[i]['info'],
-          };
-        }
-      }
-    }
+    if (offlinePlan != false) return offlinePlan;
 
     Xml2Json xml2json = Xml2Json();
     await login();
