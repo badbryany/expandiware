@@ -1,3 +1,4 @@
+import 'package:expandiware/models/ListPage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:animations/animations.dart';
@@ -38,7 +39,10 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Noten eintragen',
         'subtitle': 'Halte einen wunderbaren Überblick über deine Noten!',
-        'link': SizedBox(),
+        'link': ListPage(
+          title: 'Noten eintragen',
+          children: [Text('kommt bald')],
+        ),
       },
       {
         'icon': Icon(
@@ -47,7 +51,10 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Analysen vom Stundenplan',
         'subtitle': 'Erweiterte Analysen des Unterrichtes an der Schule',
-        'link': SizedBox(),
+        'link': ListPage(
+          title: 'Analysen',
+          children: [Text('kommt bald')],
+        ),
       },
       {
         'icon': Icon(
@@ -56,7 +63,10 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Stadtradeln',
         'subtitle': 'Nimm an dem Klima-Wettbewerb Teil!',
-        'link': SizedBox(),
+        'link': ListPage(
+          title: 'Stadtradeln',
+          children: [Text('kommt bald')],
+        ),
       },
       {
         'icon': Icon(
