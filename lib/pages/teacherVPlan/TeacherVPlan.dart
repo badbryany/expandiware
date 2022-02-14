@@ -1,3 +1,4 @@
+import 'package:expandiware/models/InputField.dart';
 import 'package:flutter/material.dart';
 
 import 'package:page_transition/page_transition.dart';
@@ -70,20 +71,12 @@ class _TeacherVPlanState extends State<TeacherVPlan> {
               fontSize: 20,
             ),
           ),
-          SizedBox(height: spaceBetween),
-          TextFormField(
+          SizedBox(height: spaceBetween * 0.3),
+          InputField(
             controller: textFieldController,
-            decoration: InputDecoration(
-              labelText: 'Gib ein Lehrer-Kürzel ein',
-              hintText: 'z.B. Mus',
-            ),
-            onChanged: (value) => setState(
-              () {
-                teacherShort = value;
-              },
-            ),
+            labelText: 'Lehrer-Kürzel wie z.B. "Mus"',
           ),
-          SizedBox(height: spaceBetween),
+          SizedBox(height: spaceBetween * 0.3),
           Button(
             text: 'ansehen',
             onPressed: () => Navigator.push(
@@ -175,9 +168,10 @@ class _TeacherListState extends State<TeacherList> {
                   .toList(),
             )
           : GridView.count(
-              crossAxisCount: 3,
+              crossAxisCount: 2,
               shrinkWrap: true,
               physics: BouncingScrollPhysics(),
+              childAspectRatio: 2 / 1.3,
               children: [
                 ...teachers.map(
                   (e) => Container(
