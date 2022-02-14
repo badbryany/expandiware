@@ -361,8 +361,10 @@ class VPlanAPI {
     }
 
     // add lessons that are not there
+    int lastCount = int.parse(_outpuLessons.first['count']);
     for (int i = 0; i < int.parse(_outpuLessons.last['count']); i++) {
-      if (int.parse(_outpuLessons[i]['count']) != i + 1) {
+      if (int.parse(_outpuLessons[i]['count']) != i + 1 &&
+          int.parse(_outpuLessons[i]['count']) != lastCount) {
         _outpuLessons.insert(i, {
           'count': i + 1,
           'lesson': '---',
@@ -374,6 +376,7 @@ class VPlanAPI {
           'course': '---',
         });
       }
+      lastCount = int.parse(_outpuLessons[i]['count'].toString());
     }
 
     return _outpuLessons;
