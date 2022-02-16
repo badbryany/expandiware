@@ -195,7 +195,34 @@ class _NewsFeedState extends State<NewsFeed> {
 
     stringData ??= '[]';
 
-    String shareLink = '';
+    showDialog(
+      context: context,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.4,
+        width: MediaQuery.of(context).size.width * 0.5,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            LoadingProcess(),
+            Text(
+              'erstelle Sharelink...',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    var res = await http.get(
+      Uri.parse(
+        'https://www.kellermann.team/expandiware/api/shareNewsFeed/?clientKey=${Random().nextInt(2 ^ 32)}&content=' +
+            stringData,
+      ),
+    );
+    Navigator.pop(context);
 
     showModalBottomSheet(
       context: context,
@@ -208,12 +235,12 @@ class _NewsFeedState extends State<NewsFeed> {
             padding: const EdgeInsets.all(8.0),
             child: PrettyQr(
               size: 250,
-              data: shareLink,
+              data: res.body,
               elementColor: Colors.black,
               errorCorrectLevel: QrErrorCorrectLevel.L,
-              typeNumber: 15,
+              typeNumber: 10,
               roundEdges: false,
-              image: AssetImage('assets/img/logo.png'),
+              // image: AssetImage('assets/img/logo.png'),
             ),
           ),
         ),
@@ -362,6 +389,7 @@ class _FeedEntryState extends State<FeedEntry> {
           ),
         ),
         child: ListItem(
+          shadow: true,
           leading: Icon(
             Icons.info_rounded,
             color: Theme.of(context).errorColor,
@@ -811,21 +839,135 @@ class _AddFeedState extends State<AddFeed> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => QRScanner(
-                          setData: (String? res) {
-                            res ??= '[]';
-                            List<dynamic> data = jsonDecode(res);
+                          setData: (String? res) async {
+                            showDialog(
+                              context: context,
+                              builder: (context) => Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.4,
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    LoadingProcess(),
+                                    Text(
+                                      'Lade Quellen...',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
 
+                            var httpRes = await http.get(
+                              Uri.parse(
+                                'https://www.kellermann.team/expandiware/api/shareNewsFeed/get.php?key=' +
+                                    res!,
+                              ),
+                            );
+
+                            Navigator.pop(context);
+
+                            List<dynamic> data = jsonDecode(httpRes.body);
+                            print(data);
                             showModalBottomSheet(
                               context: context,
                               backgroundColor: Colors.transparent,
                               builder: (context) => ModalBottomSheet(
+                                submitButtonText: 'keine',
                                 title: 'Welche Quelle speichern?',
-                                content: ListView(
-                                  children: [
-                                    ...data.map(
-                                      (e) => Text('$e'),
-                                    ),
-                                  ],
+                                content: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  margin: EdgeInsets.only(
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  child: ListView(
+                                    physics: BouncingScrollPhysics(),
+                                    children: [
+                                      ...data.map(
+                                        (e) => ListItem(
+                                          color: Theme.of(context)
+                                              .scaffoldBackgroundColor,
+                                          leading: Container(
+                                            alignment: Alignment.center,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.08,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.08,
+                                            decoration: BoxDecoration(
+                                              color: Color.fromARGB(
+                                                255,
+                                                e['color'][0],
+                                                e['color'][1],
+                                                e['color'][2],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                            ),
+                                            child: Text(
+                                              e['name'][0].toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize:
+                                                    (MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.1) /
+                                                        2.25,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                          255,
+                                                          e['color'][0],
+                                                          e['color'][1],
+                                                          e['color'][2],
+                                                        ).computeLuminance() >
+                                                        0.5
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                                fontFamily: 'Questrial',
+                                              ),
+                                            ),
+                                          ),
+                                          title: Text(
+                                            e['name'],
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            e['url'],
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          padding: 5,
+                                          onClick: () {
+                                            urlController.text = e['url'];
+                                            nameController.text = e['name'];
+                                            color = Color.fromARGB(
+                                              255,
+                                              e['color'][0],
+                                              e['color'][1],
+                                              e['color'][2],
+                                            );
+                                            setState(() {});
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -875,66 +1017,70 @@ class _AddFeedState extends State<AddFeed> {
                     showModalBottomSheet(
                       context: context,
                       backgroundColor: Colors.transparent,
-                      builder: (context) => StatefulBuilder(builder:
-                          (BuildContext context, StateSetter setState) {
-                        return ModalBottomSheet(
-                          title: 'Farbe auswählen',
-                          content: Column(
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.1,
-                                height: MediaQuery.of(context).size.width * 0.1,
-                                decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, red, green, blue),
-                                  borderRadius: BorderRadius.circular(10),
+                      builder: (context) => StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return ModalBottomSheet(
+                            title: 'Farbe auswählen',
+                            content: Column(
+                              children: [
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.1,
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.1,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Color.fromARGB(255, red, green, blue),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 15),
-                              CustomSlider(
-                                text: 'Rot',
-                                value: red.toDouble(),
-                                max: 255,
-                                min: 0,
-                                onChange: (value) {
-                                  red = value.toInt();
-                                  setColor();
-                                  setState(() {});
-                                },
-                                color: Color(0xffD14A22)
-                                    .withOpacity(red.toDouble() / 255),
-                              ),
-                              SizedBox(height: 8),
-                              CustomSlider(
-                                text: 'Grün',
-                                value: green.toDouble(),
-                                max: 255,
-                                min: 0,
-                                onChange: (value) {
-                                  green = value.toInt();
-                                  setColor();
-                                  setState(() {});
-                                },
-                                color: Color(0xff21B24F)
-                                    .withOpacity(green.toDouble() / 255),
-                              ),
-                              SizedBox(height: 8),
-                              CustomSlider(
-                                text: 'Blau',
-                                value: blue.toDouble(),
-                                max: 255,
-                                min: 0,
-                                onChange: (value) {
-                                  blue = value.toInt();
-                                  setColor();
-                                  setState(() {});
-                                },
-                                color: Color(0xff3B74A1)
-                                    .withOpacity(blue.toDouble() / 255),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                                SizedBox(height: 15),
+                                CustomSlider(
+                                  text: 'Rot',
+                                  value: red.toDouble(),
+                                  max: 255,
+                                  min: 0,
+                                  onChange: (value) {
+                                    red = value.toInt();
+                                    setColor();
+                                    setState(() {});
+                                  },
+                                  color: Color(0xffD14A22)
+                                      .withOpacity(red.toDouble() / 255),
+                                ),
+                                SizedBox(height: 8),
+                                CustomSlider(
+                                  text: 'Grün',
+                                  value: green.toDouble(),
+                                  max: 255,
+                                  min: 0,
+                                  onChange: (value) {
+                                    green = value.toInt();
+                                    setColor();
+                                    setState(() {});
+                                  },
+                                  color: Color(0xff21B24F)
+                                      .withOpacity(green.toDouble() / 255),
+                                ),
+                                SizedBox(height: 8),
+                                CustomSlider(
+                                  text: 'Blau',
+                                  value: blue.toDouble(),
+                                  max: 255,
+                                  min: 0,
+                                  onChange: (value) {
+                                    blue = value.toInt();
+                                    setColor();
+                                    setState(() {});
+                                  },
+                                  color: Color(0xff3B74A1)
+                                      .withOpacity(blue.toDouble() / 255),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

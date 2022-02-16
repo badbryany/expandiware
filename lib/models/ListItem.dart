@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ListItem extends StatelessWidget {
-  const ListItem({
+  ListItem({
     Key? key,
     required this.title,
     this.subtitle,
@@ -10,6 +10,7 @@ class ListItem extends StatelessWidget {
     this.padding,
     required this.onClick,
     this.color,
+    this.shadow,
   }) : super(key: key);
 
   final Widget title;
@@ -19,9 +20,11 @@ class ListItem extends StatelessWidget {
   final Function onClick;
   final Color? color;
   final double? padding;
+  bool? shadow;
 
   @override
   Widget build(BuildContext context) {
+    shadow ??= false;
     return Container(
       margin: EdgeInsets.all(5),
       child: InkWell(
@@ -32,6 +35,15 @@ class ListItem extends StatelessWidget {
           padding: EdgeInsets.all(padding == null ? 9 : padding!),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
+            boxShadow: shadow!
+                ? [
+                    BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 5, // soften the shadow
+                      spreadRadius: 0.1, //extend the shadow
+                    ),
+                  ]
+                : null,
             color: this.color == null
                 ? Theme.of(context).backgroundColor
                 : this.color,

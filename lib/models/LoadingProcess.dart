@@ -8,12 +8,9 @@ class LoadingProcess extends StatelessWidget {
   Widget build(BuildContext context) {
     int index = (DateTime.now().month / 4).round() + 1;
 
-    return Container(
-      width: 100,
-      height: 200,
-      child: Lottie.asset(
-        'assets/animations/loading/loading_$index.json',
-      ),
+    return Lottie.asset(
+      'assets/animations/loading/loading_$index.json',
+      width: MediaQuery.of(context).size.width * 0.2,
     );
   }
 }
