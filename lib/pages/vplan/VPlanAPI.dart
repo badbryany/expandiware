@@ -87,6 +87,25 @@ class VPlanAPI {
     return hiddenSubjects;
   }
 
+  Future<List<dynamic>> getShownCourses(String classId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    List<String>? hiddenSubjects = prefs.getStringList('hiddenSubjects');
+    if (hiddenSubjects == null) {
+      hiddenSubjects = [];
+    }
+
+    List<dynamic> courses = await getCourses(classId);
+
+    for (int i = 0; i < hiddenSubjects.length; i++) {
+      for (int j = 0; j < courses.length; j++) {
+        if (hiddenSubjects[i] == courses[j]['course']) courses.removeAt(j);
+      }
+    }
+
+    return courses;
+  }
+
   Future<dynamic> searchForOfflineData(DateTime vpDate) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getStringList('offlineVPData') == null ||
@@ -189,6 +208,7 @@ class VPlanAPI {
         if (res.body.toString().contains('Error 401 - Unauthorized')) {
           return {'error': '401'};
         }
+        //print(res.body);
         String source = Utf8Decoder().convert(res.bodyBytes);
         xml2json.parse(source);
         String stringVPlan = xml2json.toParker();
@@ -211,10 +231,15 @@ class VPlanAPI {
 
         final XmlDocument xmlVPlan = XmlDocument.parse(cleanXml);
 
-        Iterable<XmlElement> ziZeilen = xmlVPlan
-            .getElement('VpMobil')!
-            .getElement('ZusatzInfo')!
-            .findAllElements('ZiZeile');
+        Iterable<XmlElement>? ziZeilen;
+        try {
+          ziZeilen = xmlVPlan
+              .getElement('VpMobil')!
+              .getElement('ZusatzInfo')!
+              .findAllElements('ZiZeile');
+        } catch (e) {
+          ziZeilen = [];
+        }
 
         List<dynamic> courses = [];
 
@@ -240,10 +265,11 @@ class VPlanAPI {
         }
 
         /* NEW XML PARSER */
+
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
-          'info': ziZeilen.map((e) => e.innerText).toList(),
+          'info': ziZeilen!.map((e) => e.innerText).toList(),
           'courses': courses,
         });
         //-------------------------------------
@@ -296,8 +322,11 @@ class VPlanAPI {
     Uri url = Uri.parse(await getDayURL());
 
     dynamic pureVPlan;
+    pureVPlan = await getVPlanJSON(url, DateTime.now());
     try {
-      pureVPlan = await getVPlanJSON(url, DateTime.now());
+      print('here');
+      print(await getVPlanJSON(url, DateTime.now()));
+      //print(pureVPlan);
     } catch (e) {
       // print('line 316 in VPlanAPI.dart --> $e');
       return {'error': 'no internet'};
@@ -394,8 +423,10 @@ class VPlanAPI {
     );
 
     dynamic pureVPlan;
+    pureVPlan = await getVPlanJSON(url, date);
     try {
-      pureVPlan = await getVPlanJSON(url, date);
+      print('hier 420');
+      //print(await getVPlanJSON(url, date));
     } catch (e) {
       return {'error': 'no internet'};
     }
@@ -410,7 +441,7 @@ class VPlanAPI {
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
     List<dynamic> lessons = await parseVPlanXML(jsonVPlan, classId);
-
+    print(pureVPlan['info']);
     return {
       'date': pureVPlan['date'],
       'data': lessons,

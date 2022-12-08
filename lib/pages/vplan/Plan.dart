@@ -40,7 +40,7 @@ class _PlanState extends State<Plan> {
     );
 
     setState(() {
-      data = {'data': newData};
+      data = {'data': newData, 'info': newData['info']};
     });
   }
 
@@ -320,7 +320,9 @@ class _PlanState extends State<Plan> {
               )
             : const SizedBox(),
         data != 'loading'
-            ? (data['info'] != null && data['info'].toString() != ''
+            ? (data['info'] != null &&
+                    data['info'].toString() != '' &&
+                    data['info'].toString() != '[]'
                 ? ListItem(
                     padding: 20,
                     title: Column(
