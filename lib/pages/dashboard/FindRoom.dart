@@ -93,15 +93,17 @@ class _FindRoomState extends State<FindRoom> {
 
     Uri url = Uri.parse(await vplanAPI.getDayURL());
 
-    _data = await vplanAPI.getAllOfflineData();
+    _data = (await vplanAPI.getAllOfflineData()).toList();
     if (_data.length == 0) {
       _data = await vplanAPI.getVPlanJSON(url, DateTime.now());
     }
-
     List<int> rooms = [];
     for (int a = 0; a < _data.length; a++) {
-      for (int i = 0; i < _data[a]['data']['Klassen']['Kl'].length; i++) {
-        dynamic lessons = _data[a]['data']['Klassen']['Kl'][i]['Pl']['Std'];
+      for (int i = 0;
+          i < _data.toList()[a]['data']['Klassen']['Kl'].length;
+          i++) {
+        dynamic lessons =
+            _data.toList()[a]['data']['Klassen']['Kl'][i]['Pl']['Std'];
 
         for (int j = 0; j < lessons.length; j++) {
           String? room = lessons[j]['Ra'];
@@ -138,31 +140,32 @@ class _FindRoomState extends State<FindRoom> {
           process++;
         });
         dynamic lessons = _vplanData['data']['Klassen']['Kl'][i]['Pl']['Std'];
-
         for (int j = 0; j < lessons.length; j++) {
-          dynamic lesson =
-              _vplanData['data']['Klassen']['Kl'][i]['Pl']['Std'][j];
+          try {
+            dynamic lesson =
+                _vplanData['data']['Klassen']['Kl'][i]['Pl']['Std'][j];
+            int bhours = int.parse((lesson['Beginn'] as String).split(':')[0]);
+            int bminutes =
+                int.parse((lesson['Beginn'] as String).split(':')[1]);
 
-          int bhours = int.parse((lesson['Beginn'] as String).split(':')[0]);
-          int bminutes = int.parse((lesson['Beginn'] as String).split(':')[1]);
+            int ehours = int.parse((lesson['Ende'] as String).split(':')[0]);
+            int eminutes = int.parse((lesson['Ende'] as String).split(':')[1]);
 
-          int ehours = int.parse((lesson['Ende'] as String).split(':')[0]);
-          int eminutes = int.parse((lesson['Ende'] as String).split(':')[1]);
+            TimeOfDay _begin = TimeOfDay(hour: bhours, minute: bminutes);
+            TimeOfDay _end = TimeOfDay(hour: ehours, minute: eminutes);
+            TimeOfDay _now = TimeOfDay.now();
 
-          TimeOfDay _begin = TimeOfDay(hour: bhours, minute: bminutes);
-          TimeOfDay _end = TimeOfDay(hour: ehours, minute: eminutes);
-          TimeOfDay _now = TimeOfDay.now();
-
-          // check if lesson is now
-          if (toDouble(_now) >= toDouble(_begin) &&
-              toDouble(_now) <= toDouble(_end)) {
-            if (lesson['Ra'] != null) {
-              if (isNumeric(lesson['Ra'])) {
-                int room = int.parse(lesson['Ra']);
-                usedRooms.add(room);
+            // check if lesson is now
+            if (toDouble(_now) >= toDouble(_begin) &&
+                toDouble(_now) <= toDouble(_end)) {
+              if (lesson['Ra'] != null) {
+                if (isNumeric(lesson['Ra'])) {
+                  int room = int.parse(lesson['Ra']);
+                  usedRooms.add(room);
+                }
               }
             }
-          }
+          } catch (e) {}
         }
       }
 
@@ -439,10 +442,27 @@ class _FindRoomState extends State<FindRoom> {
     return value;
   }
 
+  setTime(BuildContext context) async {
+    TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: initTime,
+      cancelText: 'abbrechen',
+      confirmText: 'OK',
+      helpText: 'Neue Zeit auswählen',
+    );
+    if (newTime != null) {
+      initTime = newTime;
+      getData();
+      setState(() {});
+    }
+  }
+
+  TimeOfDay initTime = TimeOfDay.now();
+
   @override
   Widget build(BuildContext context) {
     String time =
-        '${TimeOfDay.now().hour <= 9 ? '0${TimeOfDay.now().hour}' : TimeOfDay.now().hour}:${TimeOfDay.now().minute <= 9 ? '0${TimeOfDay.now().minute}' : TimeOfDay.now().minute}';
+        '${initTime.hour <= 9 ? '0${initTime.hour}' : initTime.hour}:${initTime.minute <= 9 ? '0${initTime.minute}' : initTime.minute}';
     if (!getDataExecuted) getData();
     return Container(
       child: ListPage(
@@ -450,7 +470,11 @@ class _FindRoomState extends State<FindRoom> {
         smallTitle: true,
         actions: [
           IconButton(
-            onPressed: () => setState(() {}),
+            icon: Icon(Icons.update),
+            onPressed: () => setTime(context),
+          ),
+          IconButton(
+            onPressed: () => getData(),
             icon: Icon(Icons.sync_rounded),
           ),
         ],
