@@ -28,6 +28,8 @@ dependencies:
   lottie: ^1.2.1
   fluttertoast: ^8.0.8
   share_plus: ^3.0.4
+  introduction_screen: ^3.0.0
+  angles: ^2.1.1
 
 dev_dependencies:
   flutter_test:

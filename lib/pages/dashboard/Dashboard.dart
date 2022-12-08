@@ -1,12 +1,15 @@
-import 'package:expandiware/models/ListPage.dart';
+import 'package:expandiware/pages/dashboard/math/Maths.dart';
 import 'package:flutter/material.dart';
+
+import '../../models/ListItem.dart';
+import 'package:expandiware/models/ListPage.dart';
 
 import 'package:animations/animations.dart';
 
 import './FindRoom.dart';
 import './Settings.dart';
 import './NewsFeed.dart';
-import '../../models/ListItem.dart';
+import 'package:expandiware/pages/dashboard/Marks.dart';
 
 class Dashboard extends StatelessWidget {
   double margin = 8;
@@ -39,10 +42,16 @@ class Dashboard extends StatelessWidget {
         ),
         'title': 'Noten eintragen',
         'subtitle': 'Halte einen wunderbaren Überblick über deine Noten!',
-        'link': ListPage(
-          title: 'Noten eintragen',
-          children: [Text('kommt bald')],
+        'link': Marks(),
+      },
+      {
+        'icon': Icon(
+          Icons.functions_rounded,
+          color: Theme.of(context).focusColor,
         ),
+        'title': 'Mathe hilfen',
+        'subtitle': 'Berechne bestimmte Mathematische Formeln!',
+        'link': Maths(),
       },
       {
         'icon': Icon(
@@ -61,8 +70,8 @@ class Dashboard extends StatelessWidget {
           Icons.pedal_bike_rounded,
           color: Theme.of(context).focusColor,
         ),
-        'title': 'Stadtradeln',
-        'subtitle': 'Nimm an dem Klima-Wettbewerb Teil!',
+        'title': 'Wochenstundenplan',
+        'subtitle': 'Übersich über den normalen Stundenplan deiner Woche!',
         'link': ListPage(
           title: 'Stadtradeln',
           children: [Text('kommt bald')],

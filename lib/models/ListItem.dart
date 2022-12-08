@@ -31,14 +31,14 @@ class ListItem extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         onTap: () => this.onClick(),
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 500),
+          duration: Duration(milliseconds: 250),
           padding: EdgeInsets.all(padding == null ? 9 : padding!),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             boxShadow: shadow!
                 ? [
                     BoxShadow(
-                      color: Colors.black,
+                      color: Theme.of(context).focusColor.withOpacity(0.1),
                       blurRadius: 5, // soften the shadow
                       spreadRadius: 0.1, //extend the shadow
                     ),
