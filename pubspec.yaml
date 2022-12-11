@@ -21,13 +21,13 @@ dependencies:
   flutter_svg: ^0.22.0
   device_info: ^2.0.2
   pretty_qr_code: ^2.0.2
-  qr_code_scanner: ^0.6.1
+  qr_code_scanner: ^1.0.1
   url_launcher: ^6.0.10
   flutter_background_service: ^0.1.5
   awesome_notifications: ^0.6.16
   lottie: ^1.2.1
   fluttertoast: ^8.0.8
-  share_plus: ^3.0.4
+  share_plus: ^6.3.0
   introduction_screen: ^3.0.0
   angles: ^2.1.1
 
