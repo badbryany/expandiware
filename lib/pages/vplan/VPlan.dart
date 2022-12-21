@@ -1,7 +1,9 @@
 import 'package:expandiware/models/Button.dart';
 import 'package:expandiware/models/ListPage.dart';
+import 'package:expandiware/pages/dashboard/settings/Lessons.dart';
 import 'package:expandiware/pages/vplan/VPlanAPI.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 import 'package:animations/animations.dart';
 import 'package:page_transition/page_transition.dart';
@@ -142,55 +144,282 @@ class _VPlanState extends State<VPlan> {
                   child: OpenContainer(
                     closedColor: Theme.of(context).scaffoldBackgroundColor,
                     openColor: Theme.of(context).scaffoldBackgroundColor,
-                    closedBuilder: (context, openContainer) => ListItem(
-                      title: Text(
-                        classes[index],
-                        style: TextStyle(
-                          fontSize: 19,
-                        ),
-                      ),
-                      onClick: openContainer,
-                      actionButton: IconButton(
-                        onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          List<String>? newClasses =
-                              prefs.getStringList('classes');
-                          if (newClasses == null) {
-                            newClasses = [];
-                          }
-                          newClasses.remove(classes[index]);
-                          prefs.setStringList('classes', newClasses);
+                    closedBuilder: (context, openContainer) => ClassWidget(
+                      classId: classes[index],
+                      classIndex: index,
+                      onDelete: () async {
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        List<String>? newClasses =
+                            prefs.getStringList('classes');
+                        if (newClasses == null) {
+                          newClasses = [];
+                        }
+                        newClasses.remove(classes[index]);
+                        prefs.setStringList('classes', newClasses);
 
-                          listKey.currentState!.removeItem(
-                            index,
-                            (context, animation) => SizeTransition(
-                              sizeFactor: animation,
-                              child: ListItem(
-                                onClick: () {},
-                                title: Text(
-                                  classes[index],
-                                  style: TextStyle(
-                                    fontSize: 19,
-                                  ),
+                        listKey.currentState!.removeItem(
+                          index,
+                          (context, animation) => SizeTransition(
+                            sizeFactor: animation,
+                            child: ListItem(
+                              onClick: () {},
+                              title: Text(
+                                classes[index],
+                                style: TextStyle(
+                                  fontSize: 19,
                                 ),
                               ),
                             ),
-                          );
-                          classes.removeAt(index);
-                          //getClasses();
-                        },
-                        icon: Icon(
-                          Icons.delete_rounded,
-                          color: Theme.of(context).focusColor,
-                        ),
-                      ),
+                          ),
+                        );
+                        classes.removeAt(index);
+                        //getClasses();
+                      },
+                      openContainer: openContainer,
                     ),
                     openBuilder: (context, closeContainer) => Plan(
                       classId: classes[index],
                     ),
                   ),
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ClassWidget extends StatefulWidget {
+  const ClassWidget({
+    Key? key,
+    required this.classId,
+    required this.classIndex,
+    required this.onDelete,
+    required this.openContainer,
+  }) : super(key: key);
+
+  final String classId;
+  final int classIndex;
+  final Function() onDelete;
+  final Function openContainer;
+
+  @override
+  State<ClassWidget> createState() => _ClassWidgetState();
+}
+
+class _ClassWidgetState extends State<ClassWidget> {
+  Map<String, dynamic> nextLesson = {'': 'loading'};
+  getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('lessontimes') == null) {
+      nextLesson = {};
+      setState(() {});
+      return;
+    }
+    if (prefs.getString('lessontimes') == '[]') {
+      nextLesson = {};
+      setState(() {});
+      return; // need a link t time settings
+    }
+    List<dynamic> times = jsonDecode(prefs.getString('lessontimes')!);
+
+    List<dynamic> realVPlan = [];
+    dynamic vplan = await VPlanAPI().getLessonsForToday(widget.classId);
+    List<String> hiddenCourses = await VPlanAPI().getHiddenCourses();
+
+    for (var i = 0; i < vplan['data'].length; i++) {
+      bool add = true;
+      for (var j = 0; j < hiddenCourses.length; j++) {
+        if (vplan['data'][i]['course'] == hiddenCourses[j] ||
+            vplan['data'][i]['course'] == '---') {
+          add = false;
+        }
+      }
+      if (add) {
+        for (var j = 0; j < times.length; j++) {
+          if (vplan['data'][i]['count'] == times[j]['count'].toString()) {
+            vplan['data'][i]['begin'] = times[j]['start'];
+            vplan['data'][i]['end'] = times[j]['ende'];
+          }
+        }
+
+        realVPlan.add(vplan['data'][i]);
+      }
+    }
+
+    // GET NEXT LESSON
+
+    TimeOfDay currentTime = TimeOfDay.now();
+
+    if (VPlanAPI()
+        .parseStringDatatoDateTime(vplan['date'])
+        .isAfter(DateTime.now())) {
+      currentTime = TimeOfDay(hour: 0, minute: 0);
+    }
+
+    double lowestDifference = 50;
+    int lessonIndex = 0;
+
+    for (var i = 0; i < realVPlan.length; i++) {
+      Map<String, dynamic> lesson = realVPlan[i];
+
+      double difference = (toTimeOfDay(lesson['begin']).hour +
+              (toTimeOfDay(lesson['begin']).minute / 60)) -
+          (currentTime.hour + (currentTime.minute / 60));
+
+      if (difference < lowestDifference && difference >= 0) {
+        lowestDifference = difference;
+        lessonIndex = i;
+      }
+    }
+    nextLesson = realVPlan[lessonIndex];
+
+    setState(() {});
+  }
+
+  TimeOfDay toTimeOfDay(String time) {
+    time = time.replaceAll('TimeOfDay(', '');
+    time = time.replaceAll(')', '');
+
+    return TimeOfDay(
+      hour: int.parse(time.split(':')[0]),
+      minute: int.parse(time.split(':')[1]),
+    );
+  }
+
+  String printTime(int _hour, int _minute) {
+    TimeOfDay time = TimeOfDay(hour: _hour, minute: _minute);
+
+    String hour = time.hour < 10 ? '0${time.hour}' : '${time.hour}';
+    String minute = time.minute < 10 ? '0${time.minute}' : '${time.minute}';
+    return '$hour:$minute';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double spaceBetween = 10;
+    return Container(
+      margin: EdgeInsets.only(left: 5, right: 5, bottom: 5),
+      child: Column(
+        children: [
+          ListItem(
+            title: Text(
+              '${widget.classId}',
+              style: TextStyle(
+                fontSize: 19,
+              ),
+            ),
+            onClick: widget.openContainer,
+            actionButton: IconButton(
+              onPressed: widget.onDelete,
+              icon: Icon(
+                Icons.delete_rounded,
+                color: Theme.of(context).focusColor.withOpacity(0.5),
+              ),
+            ),
+            margin: 0,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (child, animation) => SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            ),
+            child: Container(
+              key: ValueKey(nextLesson),
+              width: double.infinity,
+              child: nextLesson.toString() == '{: loading}'
+                  ? Center(child: LoadingProcess())
+                  : (nextLesson.toString() == '{}'
+                      ? Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                'keine Stundenzeiten eingetragen',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .focusColor
+                                      .withOpacity(0.5),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    child: Lessons(),
+                                  ),
+                                ),
+                                child: Text(
+                                  'eintragen',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'nächste Stunde',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .focusColor
+                                        .withOpacity(0.5),
+                                  ),
+                                ),
+                                SizedBox(height: spaceBetween),
+                                Text(
+                                  nextLesson['lesson'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 21,
+                                  ),
+                                ),
+                                SizedBox(height: spaceBetween),
+                                Text(nextLesson['teacher']),
+                              ],
+                            ),
+                            SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.3),
+                            Column(
+                              children: [
+                                Text('Raum ' + nextLesson['place']),
+                                Text(
+                                    '${printTime(toTimeOfDay(nextLesson['begin']).hour, toTimeOfDay(nextLesson['begin']).minute)} - ${printTime(toTimeOfDay(nextLesson['end']).hour, toTimeOfDay(nextLesson['end']).minute)}'),
+                              ],
+                            ),
+                          ],
+                        )),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
+                ),
+                color: Theme.of(context).backgroundColor,
               ),
             ),
           ),

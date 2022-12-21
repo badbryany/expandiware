@@ -8,9 +8,11 @@ class ListItem extends StatelessWidget {
     this.actionButton,
     this.leading,
     this.padding,
+    this.margin,
     required this.onClick,
     this.color,
     this.shadow,
+    this.borderRadius,
   }) : super(key: key);
 
   final Widget title;
@@ -20,13 +22,15 @@ class ListItem extends StatelessWidget {
   final Function onClick;
   final Color? color;
   final double? padding;
+  final double? margin;
+  final BorderRadius? borderRadius;
   bool? shadow;
 
   @override
   Widget build(BuildContext context) {
     shadow ??= false;
     return Container(
-      margin: EdgeInsets.all(5),
+      margin: EdgeInsets.all(margin == null ? 5 : margin!),
       child: InkWell(
         splashFactory: NoSplash.splashFactory,
         onTap: () => this.onClick(),
@@ -34,7 +38,8 @@ class ListItem extends StatelessWidget {
           duration: Duration(milliseconds: 250),
           padding: EdgeInsets.all(padding == null ? 9 : padding!),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius:
+                borderRadius == null ? BorderRadius.circular(25) : borderRadius,
             boxShadow: shadow!
                 ? [
                     BoxShadow(

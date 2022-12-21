@@ -79,6 +79,14 @@ class DeveloperOptions extends StatelessWidget {
         },
       },
       {
+        'title': 'delete lessontimes',
+        'actionText': 'delete',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('lessontimes', '[]');
+        },
+      },
+      {
         'title': 'analysis code',
         'actionText': 'enter',
         'action': () async {

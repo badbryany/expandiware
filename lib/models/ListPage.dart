@@ -9,12 +9,14 @@ class ListPage extends StatefulWidget {
     this.actions,
     this.animate,
     this.canclePage,
+    this.onPop,
   }) : super(key: key);
 
   final String title;
   bool? smallTitle;
   bool? animate;
   bool? canclePage;
+  Function? onPop;
   final List<Widget> children;
   List<Widget>? actions;
 
@@ -46,6 +48,8 @@ class _ListPageState extends State<ListPage> {
     widget.actions ??= [];
     widget.animate ??= false;
     widget.smallTitle ??= false;
+
+    widget.onPop ??= () => Navigator.pop(context);
 
     IconData backIcon = Icons.arrow_back_rounded;
 
@@ -79,7 +83,7 @@ class _ListPageState extends State<ListPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             InkWell(
-                              onTap: () => Navigator.pop(context),
+                              onTap: () => widget.onPop!(),
                               child: Container(
                                 alignment: Alignment.center,
                                 padding: const EdgeInsets.all(9),
@@ -137,7 +141,7 @@ class _ListPageState extends State<ListPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       InkWell(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => widget.onPop!(),
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(

@@ -14,7 +14,7 @@ class ModalBottomSheet extends StatelessWidget {
   final String title;
   String? submitButtonText;
   final Widget content;
-  Map<String, dynamic>? extraButton;
+  Map<String, dynamic>? extraButton; // {'onTap': () {}, 'child': Container(),}
   Function? onPop;
   bool? bigTitle;
 

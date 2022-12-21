@@ -322,10 +322,8 @@ class VPlanAPI {
     Uri url = Uri.parse(await getDayURL());
 
     dynamic pureVPlan;
-    pureVPlan = await getVPlanJSON(url, DateTime.now());
     try {
-      print('here');
-      print(await getVPlanJSON(url, DateTime.now()));
+      pureVPlan = await getVPlanJSON(url, DateTime.now());
       //print(pureVPlan);
     } catch (e) {
       // print('line 316 in VPlanAPI.dart --> $e');
@@ -423,10 +421,8 @@ class VPlanAPI {
     );
 
     dynamic pureVPlan;
-    pureVPlan = await getVPlanJSON(url, date);
     try {
-      print('hier 420');
-      //print(await getVPlanJSON(url, date));
+      pureVPlan = await getVPlanJSON(url, date);
     } catch (e) {
       return {'error': 'no internet'};
     }
@@ -441,7 +437,6 @@ class VPlanAPI {
         pureVPlan['data']['Klassen']['Kl']; //get the XML data of the URL
 
     List<dynamic> lessons = await parseVPlanXML(jsonVPlan, classId);
-    print(pureVPlan['info']);
     return {
       'date': pureVPlan['date'],
       'data': lessons,

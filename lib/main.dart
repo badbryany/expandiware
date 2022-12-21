@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:expandiware/introduction/introscreen.dart';
+
 import 'package:expandiware/models/Button.dart';
 import 'package:expandiware/models/ModalBottomSheet.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -120,6 +122,7 @@ void sendAppOpenData() async {
 
 void main() async {
   runApp(MyApp());
+  // runApp(Introduction());
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (prefs.getBool('automaticLoad') == true ||
@@ -146,7 +149,7 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
       future: getMaterialYouColor(),
       builder: (context, AsyncSnapshot<MaterialYouPalette?> snapshot) {
-        Color primaryColor = Color(0xff1fbe88); // ECA44D
+        Color primaryColor = Color(0xffAF69EE); //1fbe88); // ECA44D
         int scaffoldBGDark = snapshot.data?.neutral2.shade900 == null ? 50 : 70;
 
         final backgroundColor = snapshot.data?.neutral2.shade900 ??

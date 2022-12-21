@@ -1,3 +1,4 @@
+import 'package:expandiware/pages/dashboard/settings/Lessons.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,10 +36,10 @@ class _SettingsState extends State<Settings> {
       'link': TeacherShorts(),
     },
     {
-      'title': '----',
-      'icon': Icons.help,
-      'subtitle': '----',
-      'link': SizedBox(),
+      'title': 'Unterricht',
+      'icon': Icons.list_alt,
+      'subtitle': 'Informationen zum Unterricht eintragen',
+      'link': Lessons(),
     },
     {
       'title': '----',
