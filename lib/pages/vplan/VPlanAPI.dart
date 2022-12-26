@@ -269,7 +269,7 @@ class VPlanAPI {
         data.add({
           'date': jsonVPlan['VpMobil']['Kopf']['DatumPlan'],
           'data': jsonVPlan['VpMobil'],
-          'info': ziZeilen!.map((e) => e.innerText).toList(),
+          'info': ziZeilen.map((e) => e.innerText).toList(),
           'courses': courses,
         });
         //-------------------------------------

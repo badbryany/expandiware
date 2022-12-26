@@ -266,6 +266,12 @@ class _ClassWidgetState extends State<ClassWidget> {
     for (var i = 0; i < realVPlan.length; i++) {
       Map<String, dynamic> lesson = realVPlan[i];
 
+      if (lesson['begin'] == null) {
+        nextLesson = {};
+        setState(() {});
+        return;
+      }
+
       double difference = (toTimeOfDay(lesson['begin']).hour +
               (toTimeOfDay(lesson['begin']).minute / 60)) -
           (currentTime.hour + (currentTime.minute / 60));
@@ -406,7 +412,12 @@ class _ClassWidgetState extends State<ClassWidget> {
                                 width: MediaQuery.of(context).size.width * 0.3),
                             Column(
                               children: [
-                                Text('Raum ' + nextLesson['place']),
+                                Text(''),
+                                Text(
+                                  'Raum ' + nextLesson['place'],
+                                  style: TextStyle(fontSize: 19),
+                                ),
+                                SizedBox(height: spaceBetween),
                                 Text(
                                     '${printTime(toTimeOfDay(nextLesson['begin']).hour, toTimeOfDay(nextLesson['begin']).minute)} - ${printTime(toTimeOfDay(nextLesson['end']).hour, toTimeOfDay(nextLesson['end']).minute)}'),
                               ],

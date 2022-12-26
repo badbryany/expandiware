@@ -11,7 +11,7 @@ Widget title(BuildContext context) => Container(
         children: [
           SvgPicture.asset(
             'assets/img/bird.svg',
-            width: MediaQuery.of(context).size.width * 0.15,
+            width: MediaQuery.of(context).size.width * 0.2,
             color: Theme.of(context).focusColor,
           ),
           SizedBox(height: 15),
@@ -19,6 +19,7 @@ Widget title(BuildContext context) => Container(
             'expandwiare',
             style: TextStyle(
               fontFamily: 'Crackman',
+              fontSize: 40,
             ),
           ),
           SizedBox(height: 50),
@@ -37,6 +38,10 @@ Widget title(BuildContext context) => Container(
               color: Theme.of(context).focusColor.withOpacity(0.5),
             ),
           ), */
+          Text(
+            'Willkommen bei der coolen Vertretungsplanapp!',
+          ),
+          SizedBox(height: 50),
           Icon(
             Icons.warning_rounded,
             color: Theme.of(context).errorColor,
@@ -44,7 +49,7 @@ Widget title(BuildContext context) => Container(
           ),
           SizedBox(height: 15),
           Text(
-            'Achtung, ganz gefährliche App!\nwird bestimmt ein Trojaner...',
+            'Achtung, ganz gefährliche App!\nist bestimmt ein Trojaner...',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context).errorColor,
@@ -94,7 +99,7 @@ Widget getStarded(BuildContext context) => Container(
           ),
           SizedBox(height: 5),
           Text(
-            '...und liebe grüße vom Oskar ( ❛︠ ᴗ ︡❛)',
+            '...und liebe grüße vom Oskar :)',
             style: TextStyle(
                 // fontWeight: FontWeight.bold,
                 ),

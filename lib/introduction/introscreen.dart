@@ -1,11 +1,8 @@
-import 'package:expandiware/models/ProcessBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:introduction_screen/introduction_screen.dart';
+import 'package:flutter/services.dart';
 
 import 'package:expandiware/models/Button.dart';
-
-import '../main.dart';
 
 import 'introTiles.dart';
 
@@ -105,6 +102,13 @@ class _IntroState extends State<Intro> {
       [login(context), () => true],
       [news(context), () => true], */
     ];
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: Theme.of(context).scaffoldBackgroundColor,
+        // systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
     return Container(
       height: MediaQuery.of(context).size.height,

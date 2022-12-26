@@ -87,6 +87,14 @@ class DeveloperOptions extends StatelessWidget {
         },
       },
       {
+        'title': 'firstTime to true',
+        'actionText': 'set',
+        'action': () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('firstTime', true);
+        },
+      },
+      {
         'title': 'analysis code',
         'actionText': 'enter',
         'action': () async {

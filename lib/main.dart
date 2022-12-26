@@ -121,7 +121,18 @@ void sendAppOpenData() async {
 }
 
 void main() async {
+  runApp(MyApp());
+  print('foo');
   SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  print('foo');
+  if (prefs.getBool('firstTime') == null ||
+      prefs.getBool('firstTime') == true) {
+    runApp(Introduction());
+    return;
+  }
+  runApp(MyApp());
+
   if (prefs.getBool('automaticLoad') == true ||
       prefs.getBool('automaticLoad') == null) {
     print('initialize background service');
@@ -129,12 +140,6 @@ void main() async {
     FlutterBackgroundService.initialize(onStart);
   }
   if (!kDebugMode) sendAppOpenData();
-
-  if (prefs.getBool('firstTime') == null) {
-    runApp(Introduction());
-    return;
-  }
-  runApp(MyApp());
 }
 
 Color darken(Color c, [int percent = 10]) {
